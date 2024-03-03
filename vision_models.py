@@ -108,7 +108,7 @@ class ObjectDetector(BaseModel):
 class DepthEstimationModel(BaseModel):
     name = 'depth'
 
-    def __init__(self, gpu_number=0, model_type='DPT_Large'):
+    def __init__(self, gpu_number=2, model_type='DPT_Large'):
         super().__init__(gpu_number)
         with HiddenPrints('DepthEstimation'):
             warnings.simplefilter("ignore")
@@ -412,7 +412,7 @@ class OwlViTModel(BaseModel):
 class GLIPModel(BaseModel):
     name = 'glip'
 
-    def __init__(self, model_size='large', gpu_number=0, *args):
+    def __init__(self, model_size='large', gpu_number=2, *args):
         BaseModel.__init__(self, gpu_number)
 
         with contextlib.redirect_stderr(open(os.devnull, "w")):  # Do not print nltk_data messages when importing
@@ -871,7 +871,7 @@ class GPT3Model(BaseModel):
     def get_general(self, prompts) -> list[str]:
         response = self.query_gpt3(prompts, model=self.model, max_tokens=256, top_p=1, frequency_penalty=0,
                                    presence_penalty=0)
-        if self.model == 'chatgpt':
+        if 'gpt' in self.model:
             response = [r['message']['content'] for r in response['choices']]
         else:
             response = [r["text"] for r in response['choices']]
@@ -879,10 +879,10 @@ class GPT3Model(BaseModel):
 
     def query_gpt3(self, prompt, model="text-davinci-003", max_tokens=16, logprobs=None, stream=False,
                    stop=None, top_p=1, frequency_penalty=0, presence_penalty=0):
-        if model == "chatgpt":
+        if 'gpt' in model:
             messages = [{"role": "user", "content": p} for p in prompt]
             response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+                model=model,
                 messages=messages,
                 max_tokens=max_tokens,
                 temperature=self.temperature,
@@ -958,25 +958,63 @@ def codex_helper(extended_prompt):
     assert 0 <= config.codex.temperature <= 1
     assert 1 <= config.codex.best_of <= 20
 
-    if config.codex.model in ("gpt-4", "gpt-3.5-turbo"):
+    if "gpt-3.5" in config.codex.model or "gpt-4" in config.codex.model:
         if not isinstance(extended_prompt, list):
             extended_prompt = [extended_prompt]
-        responses = [openai.ChatCompletion.create(
-            model=config.codex.model,
-            messages=[
-                # {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "system", "content": "Only answer with a function starting def execute_command."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=config.codex.temperature,
-            max_tokens=config.codex.max_tokens,
-            top_p=1.,
-            frequency_penalty=0,
-            presence_penalty=0,
-            #                 best_of=config.codex.best_of,
-            stop=["\n\n"],
-        )
-            for prompt in extended_prompt]
+
+        responses = []
+        for prompt in extended_prompt:
+            api, examples = prompt.split('# Examples of how to use the API')
+            api, examples = api.strip(), examples.strip()
+            messages = [
+                {"role": "system", "content": "Answer should only include a function named execute_command, and the function should contains multiple line of comments for explaination in function body. Note that you are only allowed to use imported package and defined class in code below:\n" + api},
+            ]
+            examples = examples.split('# example\n')
+            for example in examples[1:]:
+                example = example.strip()
+                question = example.split('\n')[0].strip('# ')
+                possible_answer = example.split('\n')[1].strip('# ')
+                code = '\n'.join(example.split('\n')[2:])
+                messages.append({
+                    "role": "user", 
+                    "content": "please define a function that is able to answer the question \"" + question + "?\" with possible answer \"" + possible_answer + "\"."
+                })
+                messages.append({
+                    "role": "assistant", 
+                    "content": code
+                })  
+            messages.pop()
+            response = openai.ChatCompletion.create(
+                model=config.codex.model,
+                messages=messages,
+                temperature=config.codex.temperature,
+                max_tokens=config.codex.max_tokens,
+                top_p=1.,
+                frequency_penalty=0,
+                presence_penalty=0,
+                #                 best_of=config.codex.best_of,
+                stop=["\n\n\n"],
+            )
+            responses.append(response)
+
+        # responses = [openai.ChatCompletion.create(
+        #     model=config.codex.model,
+        #     messages=[
+        #         # {"role": "system", "content": "You are a helpful assistant."},
+        #         {"role": "system", "content": "Only answer with a function starting def execute_command, and the function should contains multiple line of comments for explaination."},
+        #         # {"role": "system", "content": "Please answer with a function named execute_command like examples provided. muliple comments of explaination for the function are necessary."},
+        #         # {"role": "system", "content": "Only answer with a function starting def execute_command."}
+        #         {"role": "user", "content": prompt}
+        #     ],
+        #     temperature=config.codex.temperature,
+        #     max_tokens=config.codex.max_tokens,
+        #     top_p=1.,
+        #     frequency_penalty=0,
+        #     presence_penalty=0,
+        #     #                 best_of=config.codex.best_of,
+        #     stop=["\n\n\n"],
+        # )
+        #     for prompt in extended_prompt]
         resp = [r['choices'][0]['message']['content'].replace("execute_command(image)",
                                                               "execute_command(image, my_fig, time_wait_between_lines, syntax)")
                 for r in responses]
@@ -1000,7 +1038,7 @@ def codex_helper(extended_prompt):
             resp = [r['text'] for r in response['choices']]
         else:
             resp = response['choices'][0]['text']
-
+    
     return resp
 
 
@@ -1011,7 +1049,7 @@ class CodexModel(BaseModel):
 
     # Not batched, but every call will probably be a batch (coming from the same process)
 
-    def __init__(self, gpu_number=0):
+    def __init__(self, gpu_number=1):
         super().__init__(gpu_number=gpu_number)
         with open(config.codex.prompt) as f:
             self.base_prompt = f.read().strip()
@@ -1033,19 +1071,21 @@ class CodexModel(BaseModel):
         if isinstance(prompt, list):
             extended_prompt = [base_prompt.replace("INSERT_QUERY_HERE", p).
                                replace('INSERT_TYPE_HERE', input_type).
-                               replace('EXTRA_CONTEXT_HERE', str(ec))
+                               replace('EXTRA_CONTEXT_HERE', str(ec) if ec is not None else '')
                                for p, ec in zip(prompt, extra_context)]
         elif isinstance(prompt, str):
             extended_prompt = [base_prompt.replace("INSERT_QUERY_HERE", prompt).
                                replace('INSERT_TYPE_HERE', input_type).
-                               replace('EXTRA_CONTEXT_HERE', extra_context)]
+                               replace('EXTRA_CONTEXT_HERE', extra_context if extra_context is not None else '')]
         else:
             raise TypeError("prompt must be a string or a list of strings")
 
         result = self.forward_(extended_prompt)
         if not isinstance(prompt, list):
-            result = result[0]
-
+            result = result[0] 
+        # result = [
+        #     r.strip('`').replace('python', '').strip('\n') for r in result
+        # ]
         return result
 
     def forward_(self, extended_prompt):
@@ -1308,7 +1348,7 @@ class SaliencyModel(BaseModel):
 class XVLMModel(BaseModel):
     name = 'xvlm'
 
-    def __init__(self, gpu_number=0,
+    def __init__(self, gpu_number=1,
                  path_checkpoint=f'{config.path_pretrained_models}/xvlm/retrieval_mscoco_checkpoint_9.pth'):
 
         from base_models.xvlm.xvlm import XVLMBase

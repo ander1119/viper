@@ -30,6 +30,10 @@ def get_dataset(config_dataset):
     elif dataset_name == 'MyDataset':
         from datasets.my_dataset import MyDataset
         dataset = MyDataset(**config_dataset)
+    elif dataset_name == 'TiMoSBC':
+        from datasets.timos_bc import TiMoSBCDataset
+        dataset = TiMoSBCDataset(**config_dataset,
+                             image_transforms=transforms.Compose([transforms.ToTensor()]))
     else:
         raise ValueError(f"Unknown dataset {dataset_name}")
     return dataset
