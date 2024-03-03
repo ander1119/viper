@@ -51,8 +51,11 @@ def run_program(parameters, queues_in_, input_type_, retrying=False):
                   f'ImagePatch, VideoSegment, ' \
                   'llm_query, bool_to_yesno, distance, best_image_match):\n' \
                   f'    # Answer is:'
-    code = code_header + code
-
+    
+    # print(code)
+    code = code.replace('```', '').replace('python', '')
+    code = code_header + code.strip()
+    print(code)
     try:
         exec(compile(code, 'Codex', 'exec'), globals())
     except Exception as e:
@@ -169,7 +172,6 @@ def main():
                 if not config.use_cached_codex:
                     codes = codex(prompt=batch['query'], base_prompt=base_prompt, input_type=input_type,
                                   extra_context=batch['extra_context'])
-
                 else:
                     codes = codes_all[i * batch_size:(i + 1) * batch_size]  # If cache
 
@@ -239,7 +241,7 @@ def main():
         df.columns = ['result', 'answer', 'code', 'id', 'query', 'img_path', 'possible_answers']
         # make the result column a string
         df['result'] = df['result'].apply(str)
-        df.to_csv(results_dir / filename, header=True, index=False, encoding='utf-8')
+        df.to_csv(results_dir / filename, header=True, index=False, encoding='utf-8', sep='|')
         # torch.save([all_results, all_answers, all_codes, all_ids, all_queries, all_img_paths], results_dir/filename)
 
         if config.wandb:
