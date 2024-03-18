@@ -88,9 +88,9 @@ class ObjectDetector(BaseModel):
     def __init__(self, gpu_number=0):
         super().__init__(gpu_number)
 
-        with HiddenPrints('ObjectDetector'):
-            detection_model = hub.load('facebookresearch/detr', 'detr_resnet50', pretrained=True).to(self.dev)
-            detection_model.eval()
+        # with HiddenPrints('ObjectDetector'):
+        detection_model = hub.load('facebookresearch/detr', 'detr_resnet50', pretrained=True).to(self.dev)
+        detection_model.eval()
 
         self.detection_model = detection_model
 
@@ -110,13 +110,13 @@ class DepthEstimationModel(BaseModel):
 
     def __init__(self, gpu_number=2, model_type='DPT_Large'):
         super().__init__(gpu_number)
-        with HiddenPrints('DepthEstimation'):
-            warnings.simplefilter("ignore")
-            # Model options: MiDaS_small, DPT_Hybrid, DPT_Large
-            depth_estimation_model = hub.load('intel-isl/MiDaS', model_type, pretrained=True).to(self.dev)
-            depth_estimation_model.eval()
+        # with HiddenPrints('DepthEstimation'):
+        warnings.simplefilter("ignore")
+        # Model options: MiDaS_small, DPT_Hybrid, DPT_Large
+        depth_estimation_model = hub.load('intel-isl/MiDaS', model_type, pretrained=True).to(self.dev)
+        depth_estimation_model.eval()
 
-            midas_transforms = torch.hub.load("intel-isl/MiDaS", "transforms")
+        midas_transforms = torch.hub.load("intel-isl/MiDaS", "transforms")
 
         if model_type == "DPT_Large" or model_type == "DPT_Hybrid":
             self.transform = midas_transforms.dpt_transform
@@ -153,10 +153,11 @@ class CLIPModel(BaseModel):
         import clip
         self.clip = clip
 
-        with HiddenPrints('CLIP'):
-            model, preprocess = clip.load(version, device=self.dev)
-            model.eval()
-            model.requires_grad_ = False
+        # with HiddenPrints('CLIP'):
+        model, preprocess = clip.load(version, device=self.dev)
+        model.eval()
+        model.requires_grad_ = False
+
         self.model = model
         self.negative_text_features = None
         self.transform = self.get_clip_transforms_from_tensor(336 if "336" in version else 224)
@@ -319,10 +320,11 @@ class MaskRCNNModel(BaseModel):
 
     def __init__(self, gpu_number=0, threshold=config.detect_thresholds.maskrcnn):
         super().__init__(gpu_number)
-        with HiddenPrints('MaskRCNN'):
-            obj_detect = torchvision.models.detection.maskrcnn_resnet50_fpn_v2(weights='COCO_V1').to(self.dev)
-            obj_detect.eval()
-            obj_detect.requires_grad_(False)
+        # with HiddenPrints('MaskRCNN'):
+        obj_detect = torchvision.models.detection.maskrcnn_resnet50_fpn_v2(weights='COCO_V1').to(self.dev)
+        obj_detect.eval()
+        obj_detect.requires_grad_(False)
+
         self.categories = torchvision.models.detection.MaskRCNN_ResNet50_FPN_V2_Weights.COCO_V1.meta['categories']
         self.obj_detect = obj_detect
         self.threshold = threshold
@@ -365,11 +367,12 @@ class OwlViTModel(BaseModel):
 
         from transformers import OwlViTProcessor, OwlViTForObjectDetection
 
-        with HiddenPrints("OwlViT"):
-            processor = OwlViTProcessor.from_pretrained("google/owlvit-base-patch32")
-            model = OwlViTForObjectDetection.from_pretrained("google/owlvit-base-patch32")
-            model.eval()
-            model.requires_grad_(False)
+        # with HiddenPrints("OwlViT"):
+        processor = OwlViTProcessor.from_pretrained("google/owlvit-base-patch32")
+        model = OwlViTForObjectDetection.from_pretrained("google/owlvit-base-patch32")
+        model.eval()
+        model.requires_grad_(False)
+
         self.model = model.to(self.dev)
         self.processor = processor
         self.threshold = threshold
@@ -448,7 +451,8 @@ class GLIPModel(BaseModel):
                 cfg.merge_from_list(["MODEL.WEIGHT", weight_file])
                 cfg.merge_from_list(["MODEL.DEVICE", self.dev])
 
-                with HiddenPrints("GLIP"), torch.cuda.device(self.dev):
+                # with HiddenPrints("GLIP"), torch.cuda.device(self.dev):
+                with torch.cuda.device(self.dev):
                     from transformers.utils import logging
                     logging.set_verbosity_error()
                     GLIPDemo.__init__(self, cfg, *args_demo, **kwargs)
@@ -513,9 +517,9 @@ class GLIPModel(BaseModel):
                 tic = timeit.time.perf_counter()
 
                 # compute predictions
-                with HiddenPrints():  # Hide some deprecated notices
-                    predictions = self.model(image_list, captions=[original_caption],
-                                             positive_map=positive_map_label_to_token)
+                # with HiddenPrints():  # Hide some deprecated notices
+                predictions = self.model(image_list, captions=[original_caption],
+                                            positive_map=positive_map_label_to_token)
                 predictions = [o.to(self.cpu_device) for o in predictions]
                 # print("inference time per image: {}".format(timeit.time.perf_counter() - tic))
 
@@ -628,19 +632,19 @@ class TCLModel(BaseModel):
 
         self.tokenizer = BertTokenizer.from_pretrained(text_encoder)
 
-        with warnings.catch_warnings(), HiddenPrints("TCL"):
-            model = ALBEF(config=config, text_encoder=text_encoder, tokenizer=self.tokenizer)
+        # with warnings.catch_warnings(), HiddenPrints("TCL"):
+        model = ALBEF(config=config, text_encoder=text_encoder, tokenizer=self.tokenizer)
 
-            checkpoint = torch.load(checkpoint_path, map_location='cpu')
-            state_dict = checkpoint['model']
+        checkpoint = torch.load(checkpoint_path, map_location='cpu')
+        state_dict = checkpoint['model']
 
-            # reshape positional embedding to accomodate for image resolution change
-            pos_embed_reshaped = interpolate_pos_embed(state_dict['visual_encoder.pos_embed'], model.visual_encoder)
-            state_dict['visual_encoder.pos_embed'] = pos_embed_reshaped
-            m_pos_embed_reshaped = interpolate_pos_embed(state_dict['visual_encoder_m.pos_embed'],
-                                                         model.visual_encoder_m)
-            state_dict['visual_encoder_m.pos_embed'] = m_pos_embed_reshaped
-            model.load_state_dict(state_dict, strict=False)
+        # reshape positional embedding to accomodate for image resolution change
+        pos_embed_reshaped = interpolate_pos_embed(state_dict['visual_encoder.pos_embed'], model.visual_encoder)
+        state_dict['visual_encoder.pos_embed'] = pos_embed_reshaped
+        m_pos_embed_reshaped = interpolate_pos_embed(state_dict['visual_encoder_m.pos_embed'],
+                                                        model.visual_encoder_m)
+        state_dict['visual_encoder_m.pos_embed'] = m_pos_embed_reshaped
+        model.load_state_dict(state_dict, strict=False)
 
         self.model = model.to(self.dev)
         self.model.eval()
@@ -1197,7 +1201,7 @@ class BLIPModel(BaseModel):
     max_batch_size = 32
     seconds_collect_data = 0.2  # The queue has additionally the time it is executing the previous forward pass
 
-    def __init__(self, gpu_number=0, half_precision=config.blip_half_precision,
+    def __init__(self, gpu_number=1, half_precision=config.blip_half_precision,
                  blip_v2_model_type=config.blip_v2_model_type):
         super().__init__(gpu_number)
 
@@ -1207,10 +1211,11 @@ class BLIPModel(BaseModel):
         # https://huggingface.co/models?sort=downloads&search=Salesforce%2Fblip2-
         assert blip_v2_model_type in ['blip2-flan-t5-xxl', 'blip2-flan-t5-xl', 'blip2-opt-2.7b', 'blip2-opt-6.7b',
                                       'blip2-opt-2.7b-coco', 'blip2-flan-t5-xl-coco', 'blip2-opt-6.7b-coco']
-
-        with warnings.catch_warnings(), HiddenPrints("BLIP"), torch.cuda.device(self.dev):
+        
+        # with warnings.catch_warnings(), HiddenPrints("BLIP"), torch.cuda.device(self.dev):
+        with torch.cuda.device(self.dev):
             max_memory = {gpu_number: torch.cuda.mem_get_info(self.dev)[0]}
-
+            print(max_memory)
             self.processor = Blip2Processor.from_pretrained(f"Salesforce/{blip_v2_model_type}")
             # Device_map must be sequential for manual GPU selection
             try:
@@ -1313,11 +1318,11 @@ class SaliencyModel(BaseModel):
         pretrained = True
         base_size = [384, 384]
         kwargs = {'name': 'InSPyReNet_SwinB', 'threshold': 512}
-        with HiddenPrints("Saliency"):
-            model = InSPyReNet(SwinB(pretrained=pretrained, path_pretrained_models=config.path_pretrained_models),
-                               [128, 128, 256, 512, 1024], depth, base_size, **kwargs)
-            model.load_state_dict(torch.load(os.path.join(path_checkpoint, 'latest.pth'),
-                                             map_location=torch.device('cpu')), strict=True)
+        # with HiddenPrints("Saliency"):
+        model = InSPyReNet(SwinB(pretrained=pretrained, path_pretrained_models=config.path_pretrained_models),
+                            [128, 128, 256, 512, 1024], depth, base_size, **kwargs)
+        model.load_state_dict(torch.load(os.path.join(path_checkpoint, 'latest.pth'),
+                                            map_location=torch.device('cpu')), strict=True)
         model = model.to(self.dev)
         model.eval()
 
@@ -1375,11 +1380,11 @@ class XVLMModel(BaseModel):
             'depths': [2, 2, 18, 2],
             'num_heads': [4, 8, 16, 32]
         }
-        with warnings.catch_warnings(), HiddenPrints("XVLM"):
-            model = XVLMBase(config_xvlm, use_contrastive_loss=True, vision_config=vision_config)
-            checkpoint = torch.load(path_checkpoint, map_location='cpu')
-            state_dict = checkpoint['model'] if 'model' in checkpoint.keys() else checkpoint
-            msg = model.load_state_dict(state_dict, strict=False)
+        # with warnings.catch_warnings(), HiddenPrints("XVLM"):
+        model = XVLMBase(config_xvlm, use_contrastive_loss=True, vision_config=vision_config)
+        checkpoint = torch.load(path_checkpoint, map_location='cpu')
+        state_dict = checkpoint['model'] if 'model' in checkpoint.keys() else checkpoint
+        msg = model.load_state_dict(state_dict, strict=False)
         if len(msg.missing_keys) > 0:
             print('XVLM Missing keys: ', msg.missing_keys)
 
