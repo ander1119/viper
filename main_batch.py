@@ -1,4 +1,5 @@
 import datetime
+import json
 import math
 import os
 import pathlib
@@ -51,11 +52,9 @@ def run_program(parameters, queues_in_, input_type_, retrying=False):
                   f'ImagePatch, VideoSegment, ' \
                   'llm_query, bool_to_yesno, distance, best_image_match):\n' \
                   f'    # Answer is:'
-    
-    # print(code)
+
     code = code.replace('```', '').replace('python', '')
     code = code_header + code.strip()
-    print(code)
     try:
         exec(compile(code, 'Codex', 'exec'), globals())
     except Exception as e:
@@ -63,7 +62,7 @@ def run_program(parameters, queues_in_, input_type_, retrying=False):
         try:
             with open(config.fixed_code_file, 'r') as f:
                 fixed_code = f.read()
-            code = code_header + fixed_code 
+            code = code_header + fixed_code
             exec(compile(code, 'Codex', 'exec'), globals())
         except Exception as e2:
             print(f'Not even the fixed code worked. Sample {sample_id} failed at compilation time with error: {e2}')
