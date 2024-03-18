@@ -1,4 +1,4 @@
-multiprocessing: True                              # Run the models and samples in parallel
+multiprocessing: False                              # Run the models and samples in parallel
 path_pretrained_models: './pretrained_models'       # Path to the pretrained models
 execute_code: True                                 # Execute the code after generating it. Only applies to main_batch
 
@@ -11,7 +11,7 @@ dataset:                                            # Dataset configuration
     start_sample: 0                                 # Start sample index. Only used if max_samples is not None
 
 load_models:                                        # Which pretrained models to load
-    maskrcnn: False
+    maskrcnn: true
     clip: False
     glip: True
     owlvit: False

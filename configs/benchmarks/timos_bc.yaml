@@ -4,18 +4,18 @@ dataset:
   dataset_name: TiMoSBC
   version: multiplechoice
   fps: 10
-  # max_num_frames: 30
+  max_num_frames: 120
   split: val
-  batch_size: 8
+  batch_size: 16
   # max_samples: 1
-  start_sample: 0
+  start_sample: 5
 
 codex:
   prompt: ./prompts/benchmarks/timos_bc.prompt
-select_answer_prompt: ./prompts/gpt3/timos_bc_question.txt
+select_answer_prompt: ./prompts/gpt3/timos_bc_question_reason.txt
 fixed_code_file: ./prompts/fixed_code/blip2_video.prompt
 
 results_dir: ./results/timos_bc/
 
 gpt3:
-  model: gpt-3.5-turbo
+  model: gpt-3.5-turbo-1106
