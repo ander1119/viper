@@ -4,17 +4,9 @@ import os
 import pandas as pd
 from torch.utils.data import Dataset
 import decord
-from decord import cpu, gpu
+from decord import cpu
 import numpy as np
-import spacy
-
-from nltk.tokenize import word_tokenize
-from nltk.corpus import wordnet
 import numpy as np
-
-from pywsd.utils import lemmatize_sentence
-from collections import Counter
-
 
 def load_file(file_name):
     annos = None
@@ -47,7 +39,7 @@ def save_file(obj, filename):
 
 class TiMoSBCDataset(Dataset):
     def __init__(self, split, data_path="", tokenize=None, max_samples=None, version='multiplechoice', fps=10,
-                 max_num_frames=120, start_sample=0, **kwargs):
+                 max_num_frames=240, start_sample=0, **kwargs):
 
         assert version in ['multiplechoice']
         
@@ -135,8 +127,17 @@ class TiMoSBCDataset(Dataset):
         assert len(prediction) == len(ground_truth)
         score = 0
 
-        prediction = [1 if p == 'yes' else 0 for p in prediction]
-        ground_truth = [1 if g == 'yes' else 0 for g in ground_truth]
+        binary_prediction = []
+        binary_ground_truth = []
+        for p, g in zip(prediction, ground_truth):
+            if p not in ['yes', 'no']:
+                print(p)
+                continue
+            binary_prediction.append(1 if p == 'yes' else 0)
+            binary_ground_truth.append(1 if g == 'yes' else 0)    
+
+        # prediction = [1 if p == 'yes' else 0 for p in prediction]
+        # ground_truth = [1 if g == 'yes' else 0 for g in ground_truth]
 
         accuracy = sum(1 for p, t in zip(prediction, ground_truth) if p == t) / len(ground_truth)
 
