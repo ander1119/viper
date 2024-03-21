@@ -958,91 +958,29 @@ class GPT3Model(BaseModel):
 
 # @cache.cache
 @backoff.on_exception(backoff.expo, Exception, max_tries=10)
-def codex_helper(extended_prompt):
+def codex_helper(messages):
+    # message should be nested list
     assert 0 <= config.codex.temperature <= 1
     assert 1 <= config.codex.best_of <= 20
 
-    if "gpt-3.5" in config.codex.model or "gpt-4" in config.codex.model:
-        if not isinstance(extended_prompt, list):
-            extended_prompt = [extended_prompt]
-
-        responses = []
-        for prompt in extended_prompt:
-            api, examples = prompt.split('# Examples of how to use the API')
-            api, examples = api.strip(), examples.strip()
-            messages = [
-                {"role": "system", "content": "Answer should only include a function named execute_command, and the function should contains multiple line of comments for explaination in function body. Note that you are only allowed to use imported package and defined class in code below:\n" + api},
-            ]
-            examples = examples.split('# example\n')
-            for example in examples[1:]:
-                example = example.strip()
-                question = example.split('\n')[0].strip('# ')
-                possible_answer = example.split('\n')[1].strip('# ')
-                code = '\n'.join(example.split('\n')[2:])
-                messages.append({
-                    "role": "user", 
-                    "content": "please define a function that is able to answer the question \"" + question + "?\" with possible answer \"" + possible_answer + "\"."
-                })
-                messages.append({
-                    "role": "assistant", 
-                    "content": code
-                })  
-            messages.pop()
-            response = openai.ChatCompletion.create(
-                model=config.codex.model,
-                messages=messages,
-                temperature=config.codex.temperature,
-                max_tokens=config.codex.max_tokens,
-                top_p=1.,
-                frequency_penalty=0,
-                presence_penalty=0,
-                #                 best_of=config.codex.best_of,
-                stop=["\n\n\n"],
-            )
-            responses.append(response)
-
-        # responses = [openai.ChatCompletion.create(
-        #     model=config.codex.model,
-        #     messages=[
-        #         # {"role": "system", "content": "You are a helpful assistant."},
-        #         {"role": "system", "content": "Only answer with a function starting def execute_command, and the function should contains multiple line of comments for explaination."},
-        #         # {"role": "system", "content": "Please answer with a function named execute_command like examples provided. muliple comments of explaination for the function are necessary."},
-        #         # {"role": "system", "content": "Only answer with a function starting def execute_command."}
-        #         {"role": "user", "content": prompt}
-        #     ],
-        #     temperature=config.codex.temperature,
-        #     max_tokens=config.codex.max_tokens,
-        #     top_p=1.,
-        #     frequency_penalty=0,
-        #     presence_penalty=0,
-        #     #                 best_of=config.codex.best_of,
-        #     stop=["\n\n\n"],
-        # )
-        #     for prompt in extended_prompt]
-        resp = [r['choices'][0]['message']['content'].replace("execute_command(image)",
-                                                              "execute_command(image, my_fig, time_wait_between_lines, syntax)")
-                for r in responses]
-    #         if len(resp) == 1:
-    #             resp = resp[0]
-    else:
-        warnings.warn('OpenAI Codex is deprecated. Please use GPT-4 or GPT-3.5-turbo.')
-        response = openai.Completion.create(
-            model="code-davinci-002",
+    responses = []
+    for message in messages:
+        response = openai.ChatCompletion.create(
+            model=config.codex.model,
+            messages=message,
             temperature=config.codex.temperature,
-            prompt=extended_prompt,
             max_tokens=config.codex.max_tokens,
-            top_p=1,
+            top_p=1.,
             frequency_penalty=0,
             presence_penalty=0,
-            best_of=config.codex.best_of,
-            stop=["\n\n"],
+            #                 best_of=config.codex.best_of,
+            stop=["\n\n\n"],
         )
+        responses.append(response)
 
-        if isinstance(extended_prompt, list):
-            resp = [r['text'] for r in response['choices']]
-        else:
-            resp = response['choices'][0]['text']
-    
+    resp = [r['choices'][0]['message']['content'].replace("execute_command(image)",
+                                                            "execute_command(image, my_fig, time_wait_between_lines, syntax)")
+            for r in responses]
     return resp
 
 
@@ -1055,59 +993,82 @@ class CodexModel(BaseModel):
 
     def __init__(self, gpu_number=1):
         super().__init__(gpu_number=gpu_number)
-        with open(config.codex.prompt) as f:
-            self.base_prompt = f.read().strip()
-        self.fixed_code = None
-        if config.use_fixed_code:
-            with open(config.fixed_code_file) as f:
-                self.fixed_code = f.read()
 
-    def forward(self, prompt, input_type='image', prompt_file=None, base_prompt=None, extra_context=None):
-        if config.use_fixed_code:  # Use the same program for every sample, like in socratic models
-            return [self.fixed_code] * len(prompt) if isinstance(prompt, list) else self.fixed_code
+        self.api_spec = open(config.codex.api_prompt).read().strip()
+        self.examples = [open(ep).read().strip() for ep in config.codex.example_prompt]
+        self.prototype = open(config.codex.prototype_prompt).read().strip()
 
-        if prompt_file is not None and base_prompt is None:  # base_prompt takes priority
-            with open(prompt_file) as f:
-                base_prompt = f.read().strip()
-        elif base_prompt is None:
-            base_prompt = self.base_prompt
+    def format_messages(self, extended_prompt):
+        if not isinstance(extended_prompt, list):
+            extended_prompt = [extended_prompt]
 
+        messages = []
+        for prompt in extended_prompt:
+            message = [{
+                "role": "system", 
+                "content":  """
+                            Answer should only include a function named execute_command, 
+                            and the function should contains multiple line of comments for explaination in function body. 
+                            Note that you are only allowed to use imported package and defined class in code below:\n
+                            """ 
+                            + self.api_spec
+            }]
+            for example in self.examples:
+                question = example.split('\n')[0].strip('# ')
+                possible_answer = example.split('\n')[1].strip('# ')
+                code = '\n'.join(example.split('\n')[2:])
+                message.append({
+                    "role": "user", 
+                    "content": "please define a function that is able to answer the question \"" + question + "?\" with possible answer \"" + possible_answer + "\"."
+                })
+                message.append({
+                    "role": "assistant", 
+                    "content": code
+                })
+            message.append({
+                "role": "user",
+                "content": prompt
+            })
+            messages.append(message)
+
+        return messages
+
+    def forward(self, prompt, input_type='image', extra_context=None):
         if isinstance(prompt, list):
-            extended_prompt = [base_prompt.replace("INSERT_QUERY_HERE", p).
+            extended_prompt = [self.prototype.replace("INSERT_QUERY_HERE", p).
                                replace('INSERT_TYPE_HERE', input_type).
                                replace('EXTRA_CONTEXT_HERE', str(ec) if ec is not None else '')
                                for p, ec in zip(prompt, extra_context)]
         elif isinstance(prompt, str):
-            extended_prompt = [base_prompt.replace("INSERT_QUERY_HERE", prompt).
+            extended_prompt = [self.prototype.replace("INSERT_QUERY_HERE", prompt).
                                replace('INSERT_TYPE_HERE', input_type).
                                replace('EXTRA_CONTEXT_HERE', extra_context if extra_context is not None else '')]
         else:
             raise TypeError("prompt must be a string or a list of strings")
 
-        result = self.forward_(extended_prompt)
-        if not isinstance(prompt, list):
-            result = result[0] 
-        # result = [
-        #     r.strip('`').replace('python', '').strip('\n') for r in result
-        # ]
-        return result
+        messages = self.format_messages(extended_prompt)
 
-    def forward_(self, extended_prompt):
-        if len(extended_prompt) > self.max_batch_size:
+        result = self.forward_(messages)
+        if not isinstance(prompt, list):
+            result = result[0]
+        return result, messages
+
+    def forward_(self, messages):
+        if len(messages) > self.max_batch_size:
             response = []
-            for i in range(0, len(extended_prompt), self.max_batch_size):
-                response += self.forward_(extended_prompt[i:i + self.max_batch_size])
+            for i in range(0, len(messages), self.max_batch_size):
+                response += self.forward_(messages[i:i + self.max_batch_size])
             return response
         try:
-            response = codex_helper(extended_prompt)
+            response = codex_helper( messages)
         except openai.error.RateLimitError as e:
             print("Retrying Codex, splitting batch")
-            if len(extended_prompt) == 1:
+            if len(messages) == 1:
                 warnings.warn("This is taking too long, maybe OpenAI is down? (status.openai.com/)")
             # Will only be here after the number of retries in the backoff decorator.
             # It probably means a single batch takes up the entire rate limit.
-            sub_batch_1 = extended_prompt[:len(extended_prompt) // 2]
-            sub_batch_2 = extended_prompt[len(extended_prompt) // 2:]
+            sub_batch_1 = messages[:len(messages) // 2]
+            sub_batch_2 = messages[len(messages) // 2:]
             if len(sub_batch_1) > 0:
                 response_1 = self.forward_(sub_batch_1)
             else:
@@ -1121,8 +1082,114 @@ class CodexModel(BaseModel):
             # Some other error like an internal OpenAI error
             print("Retrying Codex")
             print(e)
-            response = self.forward_(extended_prompt)
+            response = self.forward_(messages)
         return response
+    
+class ReflectionModel(BaseModel):
+    name = 'reflection'
+    requires_gpu = False
+    max_batch_size = 5
+
+    # Not batched, but every call will probably be a batch (coming from the same process)
+
+    def __init__(self, gpu_number=1):
+        super().__init__(gpu_number=gpu_number)
+
+    def format_messages(self, codes, original_messages, reflection):
+        # messages = []
+        # for code, original_message, outputs in zip(codes, original_messages, code_outputs):
+        #     original_message.append({
+        #         "role": "assistant", 
+        #         "content": code
+        #     })
+        #     original_message.append({
+        #         "role": "user", 
+        #         "content": outputs
+        #     })
+
+        #     messages.append(original_message)
+
+        # return messages
+        original_messages.append({
+            "role": "assistant", 
+            "content": codes
+        })
+        original_messages.append({
+            "role": "user", 
+            "content": reflection
+        })
+
+        return original_messages
+
+
+    def format_reflection(self, code_outputs):
+        # outputs = [
+        #     f"""
+        #     The function was compiled and executed with specific video. Here's result:\n
+        #     \tanswers: {co['answer']}\n
+        #     \tgroundtruth: {co['groundtruth']}\n
+        #     \tinfo: {co['info']}\n
+        #     \tcompilation_error: {co['compilation_error']}\n
+        #     \truntime_error: {co['runtime_error']}\n
+        #     Please reflect on the result and provide feedback to the assistant. 
+        #     """ for co in code_outputs
+        # ]
+        # return outputs
+
+        reflection = f"""
+            The function was compiled and executed with specific video. Here's result:\n
+            \tanswers: {code_outputs['answer']}\n
+            \tgroundtruth: {code_outputs['groundtruth']}\n
+            \tinfo: {code_outputs['info']}\n
+            \treason: {code_outputs['reason']}\n
+            \tcompilation_error: {code_outputs['compilation_error']}\n
+            \truntime_error: {code_outputs['runtime_error']}\n
+            Please reflect on the result and provide feedback to the assistant. 
+            """
+        return reflection
+
+    def forward(self, codes, messages, code_outputs):
+        reflections = self.format_reflection(code_outputs)
+        messages = self.format_messages(codes, messages, reflections)
+        if not isinstance(codes, list):
+            messages = [messages]
+        result = self.forward_(messages)
+        if not isinstance(codes, list):
+            result = result[0]
+        return result
+
+    def forward_(self, messages):
+        if len(messages) > self.max_batch_size:
+            response = []
+            for i in range(0, len(messages), self.max_batch_size):
+                response += self.forward_(messages[i:i + self.max_batch_size])
+            return response
+        try:
+            response = codex_helper(messages)
+        except openai.error.RateLimitError as e:
+            print("Retrying Codex, splitting batch")
+            if len(messages) == 1:
+                warnings.warn("This is taking too long, maybe OpenAI is down? (status.openai.com/)")
+            # Will only be here after the number of retries in the backoff decorator.
+            # It probably means a single batch takes up the entire rate limit.
+            sub_batch_1 = messages[:len(messages) // 2]
+            sub_batch_2 = messages[len(messages) // 2:]
+            if len(sub_batch_1) > 0:
+                response_1 = self.forward_(sub_batch_1)
+            else:
+                response_1 = []
+            if len(sub_batch_2) > 0:
+                response_2 = self.forward_(sub_batch_2)
+            else:
+                response_2 = []
+            response = response_1 + response_2
+        except Exception as e:
+            # Some other error like an internal OpenAI error
+            print("Retrying Codex")
+            print(e)
+            response = self.forward_(messages)
+        return response
+    
 
 
 class CodeLlama(CodexModel):
