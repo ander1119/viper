@@ -108,7 +108,7 @@ class VideoSegment:
         info_formatting = '\n'.join([f"- {k}: {format_dict(v)}" for k, v in info.items()])
         prompt = prompt.format(info=info_formatting, question=question, options=options)
         answer = self.forward('gpt3_general', prompt)
-        answer = answer.strip()
+        answer = eval(answer)
         return answer
 
     def frame_iterator(self) -> Iterator[ImagePatch]:
