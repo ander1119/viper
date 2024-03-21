@@ -7,11 +7,19 @@ dataset:
   max_num_frames: 120
   split: val
   batch_size: 16
-  # max_samples: 1
-  start_sample: 5
+  max_samples: 10
+  start_sample: 0
 
 codex:
-  prompt: ./prompts/benchmarks/timos_bc.prompt
+  # prompt: ./prompts/benchmarks/timos_bc.prompt
+  api_prompt: ./prompts/benchmarks/timos/api.prompt
+  example_prompt: [
+    ./prompts/benchmarks/timos/example_1.prompt,
+    ./prompts/benchmarks/timos/example_2.prompt,
+    # ./prompts/benchmarks/timos/example_3.prompt,
+  ]
+  prototype_prompt: ./prompts/benchmarks/timos/prototype.prompt
+
 select_answer_prompt: ./prompts/gpt3/timos_bc_question_reason.txt
 fixed_code_file: ./prompts/fixed_code/blip2_video.prompt
 

@@ -24,6 +24,7 @@ load_models:                                        # Which pretrained models to
     xvlm: True
     codex: True
     codellama: False
+    reflection: True
 
 detect_thresholds:                                  # Thresholds for the models that perform detection
     glip: 0.5
