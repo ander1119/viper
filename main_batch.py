@@ -39,7 +39,7 @@ def my_collate(batch):
     return to_return
 
 
-def run_program(parameters, queues_in_, input_type_, retrying=False):
+def run_program(parameters, queues_in_, input_type_, retrying=True):
     from image_patch import ImagePatch, llm_query, best_image_match, distance, bool_to_yesno
     from video_segment import VideoSegment
 
@@ -55,18 +55,26 @@ def run_program(parameters, queues_in_, input_type_, retrying=False):
 
     code = code.replace('```', '').replace('python', '')
     code = code_header + code.strip()
+
+    answer = None
+    reason = None
+    info = None
+    compilation_error = ''
+    runtime_error = ''
+
     try:
         exec(compile(code, 'Codex', 'exec'), globals())
     except Exception as e:
+        compilation_error = str(e)
         print(f'Sample {sample_id} failed at compilation time with error: {e}')
-        try:
-            with open(config.fixed_code_file, 'r') as f:
-                fixed_code = f.read()
-            code = code_header + fixed_code
-            exec(compile(code, 'Codex', 'exec'), globals())
-        except Exception as e2:
-            print(f'Not even the fixed code worked. Sample {sample_id} failed at compilation time with error: {e2}')
-            return None, code
+        # try:
+        #     with open(config.fixed_code_file, 'r') as f:
+        #         fixed_code = f.read()
+        #     code = code_header + fixed_code
+        #     exec(compile(code, 'Codex', 'exec'), globals())
+        # except Exception as e2:
+        #     print(f'Not even the fixed code worked. Sample {sample_id} failed at compilation time with error: {e2}')
+        #     return None, code
 
     queues = [queues_in_, queue_results]
 
@@ -75,30 +83,40 @@ def run_program(parameters, queues_in_, input_type_, retrying=False):
     llm_query_partial = partial(llm_query, queues=queues)
 
     try:
-        result = globals()[f'execute_command_{sample_id}'](
+        result, info = globals()[f'execute_command_{sample_id}'](
             # Inputs to the function
             image, possible_answers, query,
             # Classes to be used
             image_patch_partial, video_segment_partial,
             # Functions to be used
             llm_query_partial, bool_to_yesno, distance, best_image_match)
+        answer = result['answer']
+        reason = result['reason']
     except Exception as e:
         # print full traceback
         traceback.print_exc()
-        if retrying:
-            return None, code
-        print(f'Sample {sample_id} failed with error: {e}. Next you will see an "expected an indented block" error. ')
+        # print(f'Sample {sample_id} failed with error: {e}. Next you will see an "expected an indented block" error. ')
+        runtime_error = str(e)
+        # if retrying:
+        #     return None, code
         # Retry again with fixed code
-        new_code = "["  # This code will break upon execution, and it will be caught by the except clause
-        result = run_program((new_code, sample_id, image, possible_answers, query), queues_in_, input_type_,
-                             retrying=True)[0]
+        # new_code = "["  # This code will break upon execution, and it will be caught by the except clause
+        # result = run_program((new_code, sample_id, image, possible_answers, query), queues_in_, input_type_,
+        #                      retrying=True)[0]
 
     # The function run_{sample_id} is defined globally (exec doesn't work locally). A cleaner alternative would be to
     # save it in a global dict (replace globals() for dict_name in exec), but then it doesn't detect the imported
     # libraries for some reason. Because defining it globally is not ideal, we just delete it after running it.
     if f'execute_command_{sample_id}' in globals():
         del globals()[f'execute_command_{sample_id}']  # If it failed to compile the code, it won't be defined
-    return result, code
+    return {
+        'answer': answer,
+        'compilation_error': compilation_error,
+        'runtime_error': runtime_error,
+        'info': info,
+        'code': code,
+        'reason': reason,
+    }
 
 
 def worker_init(queue_results_):
@@ -137,9 +155,6 @@ def main():
 
     dataset = get_dataset(config.dataset)
 
-    with open(config.codex.prompt) as f:
-        base_prompt = f.read().strip()
-
     codes_all = None
     if config.use_cached_codex:
         results = pd.read_csv(config.cached_codex_path)
@@ -149,9 +164,15 @@ def main():
                             collate_fn=my_collate)
     input_type = dataset.input_type
 
-    all_results = []
     all_answers = []
+    all_infos = []
+    all_compilation_errors = []
+    all_runtime_errors = []
     all_codes = []
+    all_reasons = []
+    all_reflection = []
+
+    all_groundtruths = []
     all_ids = []
     all_queries = []
     all_img_paths = []
@@ -169,8 +190,7 @@ def main():
                 # TODO compute Codex for next batch as current batch is being processed
 
                 if not config.use_cached_codex:
-                    codes = codex(prompt=batch['query'], base_prompt=base_prompt, input_type=input_type,
-                                  extra_context=batch['extra_context'])
+                    codes, messages = codex(prompt=batch['query'], input_type=input_type, extra_context=batch['extra_context'])
                 else:
                     codes = codes_all[i * batch_size:(i + 1) * batch_size]  # If cache
 
@@ -179,9 +199,13 @@ def main():
                     if not config.multiprocessing:
                         # Otherwise, we would create a new model for every process
                         results = []
-                        for c, sample_id, img, possible_answers, query in \
-                                zip(codes, batch['sample_id'], batch['image'], batch['possible_answers'], batch['query']):
+                        for c, sample_id, img, possible_answers, query, gt, msg in \
+                                zip(codes, batch['sample_id'], batch['image'], batch['possible_answers'], batch['query'], batch['answer'], messages):
                             result = run_program([c, sample_id, img, possible_answers, query], queues_in, input_type)
+                            result['groundtruth'] = gt
+                            # reflection_result = reflection(c, msg, result)
+                            reflection_result = forward('reflection', c, msg, result)
+                            result['reflection_result'] = reflection_result
                             results.append(result)
                     else:
                         results = list(pool.imap(partial(
@@ -194,17 +218,22 @@ def main():
                                   "model can be dangerous. Set the flag 'execute_code' to True if you want to execute "
                                   "it.")
 
-                all_results += [r[0] for r in results]
-                all_codes += [r[1] for r in results]
+                all_answers += [r['answer'] for r in results]
+                all_infos += [r['info'] for r in results]
+                all_codes += [r['code'] for r in results]
+                all_compilation_errors += [r['compilation_error'] for r in results]
+                all_runtime_errors += [r['runtime_error'] for r in results]
+                all_reasons += [r['reason'] for r in results]
+                all_reflection += [r['reflection_result'] for r in results]
                 all_ids += batch['sample_id']
-                all_answers += batch['answer']
+                all_groundtruths += batch['answer']
                 all_possible_answers += batch['possible_answers']
                 all_query_types += batch['query_type']
                 all_queries += batch['query']
                 all_img_paths += [dataset.get_sample_path(idx) for idx in batch['index']]
                 if i % config.log_every == 0:
                     try:
-                        accuracy = dataset.accuracy(all_results, all_answers, all_possible_answers, all_query_types)
+                        accuracy = dataset.accuracy(all_answers, all_groundtruths, all_possible_answers, all_query_types)
                         console.print(f'Accuracy at Batch {i}/{n_batches}: {accuracy}')
                     except Exception as e:
                         console.print(f'Error computing accuracy: {e}')
@@ -216,7 +245,7 @@ def main():
             console.print("Completing logging and exiting...")
 
     try:
-        accuracy = dataset.accuracy(all_results, all_answers, all_possible_answers, all_query_types)
+        accuracy = dataset.accuracy(all_answers, all_groundtruths, all_possible_answers, all_query_types)
         console.print(f'Final accuracy: {accuracy}')
     except Exception as e:
         print(f'Error computing accuracy: {e}')
@@ -235,11 +264,32 @@ def main():
                 filename = 'results_' + str(max([int(ef.stem.split('_')[-1]) for ef in existing_files if
                                                  str.isnumeric(ef.stem.split('_')[-1])]) + 1) + '.csv'
         print('Saving results to', filename)
-        df = pd.DataFrame([all_results, all_answers, all_codes, all_ids, all_queries, all_img_paths,
-                           all_possible_answers]).T
-        df.columns = ['result', 'answer', 'code', 'id', 'query', 'img_path', 'possible_answers']
+        df = pd.DataFrame([all_answers, 
+                           all_groundtruths, 
+                           all_ids, 
+                           all_queries, 
+                           all_img_paths,
+                           all_possible_answers,
+                           all_codes,
+                           all_infos,
+                           all_reasons,
+                           all_reflection,
+                           all_compilation_errors,
+                           all_runtime_errors]).T
+        df.columns = [
+            'answer', 
+            'groundtruth', 
+            'id', 'query', 
+            'img_path', 
+            'possible_answers', 
+            'code', 
+            'info', 
+            'reason', 
+            'reflection',
+            'compilation_error', 
+            'runtime_error'
+            ]
         # make the result column a string
-        df['result'] = df['result'].apply(str)
         df.to_csv(results_dir / filename, header=True, index=False, encoding='utf-8', sep='|')
         # torch.save([all_results, all_answers, all_codes, all_ids, all_queries, all_img_paths], results_dir/filename)
 
