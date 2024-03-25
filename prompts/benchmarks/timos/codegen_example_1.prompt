@@ -1,3 +1,5 @@
+Correct example
+
 # is trope "Kick the Dog" present in the video segment
 # possible answers: ['yes', 'no']
 def execute_command(video, possible_answers, query)->[str, dict]

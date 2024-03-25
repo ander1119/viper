@@ -995,7 +995,7 @@ class CodexModel(BaseModel):
         super().__init__(gpu_number=gpu_number)
 
         self.api_spec = open(config.codex.api_prompt).read().strip()
-        self.examples = [open(ep).read().strip() for ep in config.codex.example_prompt]
+        self.examples = '\n'.join([open(ep).read().strip() for ep in config.codex.example_prompt])
         self.prototype = open(config.codex.prototype_prompt).read().strip()
 
     def format_messages(self, extended_prompt):
@@ -1006,31 +1006,19 @@ class CodexModel(BaseModel):
         for prompt in extended_prompt:
             message = [{
                 "role": "system", 
-                "content":  """
-                            Answer should only include a function named execute_command, 
-                            and the function should contains multiple line of comments for explaination in function body. 
-                            Note that you are only allowed to use imported package and defined class in code below:\n
-                            """ 
-                            + self.api_spec
+                "content":  "Answer should only include a function named execute_command, and the function should contains multiple line of comments for explaination in function body"
             }]
-            for example in self.examples:
-                question = example.split('\n')[0].strip('# ')
-                possible_answer = example.split('\n')[1].strip('# ')
-                code = '\n'.join(example.split('\n')[2:])
-                message.append({
-                    "role": "user", 
-                    "content": "please define a function that is able to answer the question \"" + question + "?\" with possible answer \"" + possible_answer + "\"."
-                })
-                message.append({
-                    "role": "assistant", 
-                    "content": code
-                })
+            instruction = f"""
+                            You are only allowed to use imported package and defined class in code below:\n
+                            {self.api_spec}
+                            There's some correct and incorrect function examples below, Note that the function should always return (answer, info) tuple\n
+                            """
             message.append({
-                "role": "user",
-                "content": prompt
+                "role": "user", 
+                "content": str(instruction + self.examples + prompt)
             })
             messages.append(message)
-
+            
         return messages
 
     def forward(self, prompt, input_type='image', extra_context=None):
@@ -1047,7 +1035,6 @@ class CodexModel(BaseModel):
             raise TypeError("prompt must be a string or a list of strings")
 
         messages = self.format_messages(extended_prompt)
-
         result = self.forward_(messages)
         if not isinstance(prompt, list):
             result = result[0]
@@ -1095,6 +1082,8 @@ class ReflectionModel(BaseModel):
     def __init__(self, gpu_number=1):
         super().__init__(gpu_number=gpu_number)
 
+        self.reflection_examples = [open(ep).read().strip() for ep in config.codex.reflection_example_prompt]
+
     def format_messages(self, codes, original_messages, reflection):
         # messages = []
         # for code, original_message, outputs in zip(codes, original_messages, code_outputs):
@@ -1136,17 +1125,28 @@ class ReflectionModel(BaseModel):
         # ]
         # return outputs
 
-        reflection = f"""
-            The function was compiled and executed with specific video. Here's result:\n
+        instruction = """
+            If you are allowed to request one new api to strengthen the function or even correct the answer, what kind of api would you like to request?
+            Please reflect on the code and result, analyze which instruction leads to the incorrect answer and request a new api to solve the problem. 
+            The revised function should comments that define the new api in detail and the reason why you need it.
+            Here's some examples about analyzing specific function and their result, requesting api according to problems the function about to solve :\n
+        """
+
+        examples = '\n'.join(self.reflection_examples) + '\n'
+
+        target = f"""
+            Generated function: \n{code_outputs['code']}\n
+            This function was compiled and executed with specific video. Here's result:\n
             \tanswers: {code_outputs['answer']}\n
             \tgroundtruth: {code_outputs['groundtruth']}\n
             \tinfo: {code_outputs['info']}\n
             \treason: {code_outputs['reason']}\n
             \tcompilation_error: {code_outputs['compilation_error']}\n
             \truntime_error: {code_outputs['runtime_error']}\n
-            Please reflect on the result and provide feedback to the assistant. 
+            Revised function:\n
             """
-        return reflection
+        
+        return str(instruction + examples + target)
 
     def forward(self, codes, messages, code_outputs):
         reflections = self.format_reflection(code_outputs)
@@ -1299,7 +1299,7 @@ class BLIPModel(BaseModel):
                 else:
                     raise e
 
-        self.qa_prompt = "Question: {} Short answer:"
+        self.qa_prompt = "Question: {} Long answer:"
         self.caption_prompt = "a photo of"
         self.half_precision = half_precision
         self.max_words = 50

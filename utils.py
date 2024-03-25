@@ -16,6 +16,10 @@ from typing import Union
 
 clip_stats = (0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)
 
+def format_dict(x):
+    if isinstance(x, dict):
+        x = ''.join([f'\n\t- {k}: {format_dict(v)}' for k, v in x.items()])
+    return x
 
 def is_interactive() -> bool:
     try:

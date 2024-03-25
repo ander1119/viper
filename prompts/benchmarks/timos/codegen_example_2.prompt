@@ -1,3 +1,5 @@
+Correct Example
+
 # is trope "Downer Ending" present in the video segment
 # possible answers: ['yes', 'no']
 def execute_command(video, possible_answers, query)->[str, dict]
@@ -22,8 +24,12 @@ def execute_command(video, possible_answers, query)->[str, dict]
 
         if "yes" in sadness_query or "yes" in tragedy_query:
             # Caption the frame
-            caption = frame.simple_query("What is in the frame? Is there any sadness or tragedy present in the frame?")
+            caption = frame.simple_query("What is in the frame?")
+            sadness_query = frame.simple_query("What sadness or mourning event is in the frame?")
+            tragedy_query = frame.simple_query("What visible tragedy or destruction event is in the frame?")
             info[f"Caption of {ending_segment.start + 1} th frame"] = caption
+            info[f"Sadness or mourning event in {ending_segment.start + 1} th frame"] = sadness_query
+            info[f"Visible tragedy or destruction event in {ending_segment.start + 1} th frame"] = tragedy_query
     # Answer the query
     answer = video_segment.select_answer(info, query, possible_answers)
     return answer, info

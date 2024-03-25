@@ -7,18 +7,21 @@ dataset:
   max_num_frames: 120
   split: val
   batch_size: 16
-  max_samples: 10
+  # max_samples: 20
   start_sample: 0
 
 codex:
   # prompt: ./prompts/benchmarks/timos_bc.prompt
   api_prompt: ./prompts/benchmarks/timos/api.prompt
   example_prompt: [
-    ./prompts/benchmarks/timos/example_1.prompt,
-    ./prompts/benchmarks/timos/example_2.prompt,
-    # ./prompts/benchmarks/timos/example_3.prompt,
+    ./prompts/benchmarks/timos/codegen_example_1.prompt,
+    ./prompts/benchmarks/timos/codegen_example_2.prompt,
+    ./prompts/benchmarks/timos/codegen_example_3.prompt,
   ]
   prototype_prompt: ./prompts/benchmarks/timos/prototype.prompt
+  reflection_example_prompt: [
+   ./prompts/benchmarks/timos/reflection_example_2.prompt,
+  ]
 
 select_answer_prompt: ./prompts/gpt3/timos_bc_question_reason.txt
 fixed_code_file: ./prompts/fixed_code/blip2_video.prompt
@@ -26,4 +29,4 @@ fixed_code_file: ./prompts/fixed_code/blip2_video.prompt
 results_dir: ./results/timos_bc/
 
 gpt3:
-  model: gpt-3.5-turbo-1106
+  model: gpt-3.5-turbo-16k

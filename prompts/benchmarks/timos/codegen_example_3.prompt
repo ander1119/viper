@@ -1,0 +1,26 @@
+Incorrect Example
+
+# is trope "Love at First Sight" present in the video segment
+# possible answers: ['yes', 'no']
+def execute_command(video, possible_answers, query)->[str, dict]:
+    # Trope: Love at First Sight
+    # Definition: An instance where two characters meet for the first time and immediately fall in love, often leading to significant plot developments.
+    # Thought: The trope detection involves three steps:
+    # 1. Frame Selection: Iterate through each frame to find when the two characters first meet.
+    # 2. Emotional and Contextual Analysis: Analyze the frames for visual cues of love at first sight. This involves detecting facial expressions, body language, and any other indications of immediate romantic interest.
+    # 3. Answer Selection: Use select_answer API to choose the most likely answer based on the collected information.
+    video_segment = VideoSegment(video)
+    info = {}
+    characters_met = False  # Flag to check if the characters have met
+    for i, frame in enumerate(video_segment.frame_iterator()):
+        if frame.exists("character A") and frame.exists("character B") and not characters_met:
+            characters_met = True  # Indicates the characters have met
+            emotional_response = frame.simple_query("Do they look in love?")
+            if emotional_response == "yes":
+                # Capture the moment of first meeting with emotional cues indicating love at first sight
+                info[f"Love at First Sight detected in frame {i}"] = "Two characters appear to be in love at their first meeting."
+    # If no specific moment of love at first sight is detected, the info remains empty
+    answer = video_segment.select_answer(info, query, possible_answers)
+    return answer, info
+
+ImagePatch.exists() api is called with improper object_name("character A" and "character B"), since for same object the api can't distinguish their difference  

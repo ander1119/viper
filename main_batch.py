@@ -1,6 +1,3 @@
-import datetime
-import json
-import math
 import os
 import pathlib
 from functools import partial
@@ -11,15 +8,13 @@ import traceback
 import pandas as pd
 import torch.multiprocessing as mp
 from joblib import Memory
-from num2words import num2words
-import numpy as np
 from omegaconf import OmegaConf
 from rich.console import Console
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from configs import config
-from utils import seed_everything
+from utils import format_dict, seed_everything
 import datasets
 
 # See https://github.com/pytorch/pytorch/issues/11201, https://github.com/pytorch/pytorch/issues/973
@@ -55,6 +50,8 @@ def run_program(parameters, queues_in_, input_type_, retrying=True):
 
     code = code.replace('```', '').replace('python', '')
     code = code_header + code.strip()
+
+    print(code)
 
     answer = None
     reason = None
@@ -219,7 +216,7 @@ def main():
                                   "it.")
 
                 all_answers += [r['answer'] for r in results]
-                all_infos += [r['info'] for r in results]
+                all_infos += [format_dict(r['info']) for r in results]
                 all_codes += [r['code'] for r in results]
                 all_compilation_errors += [r['compilation_error'] for r in results]
                 all_runtime_errors += [r['runtime_error'] for r in results]

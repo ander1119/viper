@@ -1,0 +1,82 @@
+Generated functions:
+def execute_command_tt0071129_28(video, possible_answers, query, ImagePatch, VideoSegment, llm_query, bool_to_yesno, distance, best_image_match):
+    # Answer is:def execute_command(video, possible_answers, query)->[str, dict]:
+    # Trope: Adult Fear
+    # Definition: Things that mature, well-adjusted adults generally are concerned about, as opposed to supernatural fears.
+    # Thought: The trope detection involves three steps:
+    # 1. Frame Selection: Iterate through each frame to find frames that contain elements related to adult fears.
+    # 2. Object Detection: Identify objects or situations in the frames that are commonly associated with adult fears.
+    # 3. Answer Selection: Use select_answer API to choose the most likely answer based on the collected information.
+    video_segment = VideoSegment(video)
+    info = {}
+    for i, frame in enumerate(video_segment.frame_iterator()):
+        # Assuming functions exist to identify objects related to adult fears
+        if frame.exists("adult fear"):
+            # Caption the frame
+            caption = frame.simple_query("What is in the frame?")
+            # Query specific objects or situations related to adult fears
+            fear_query = frame.find("adult fear")[0].simple_query("What specific adult fear is in the frame?")
+            # Append information of frame to info dictionary
+            info[f"Caption of {i} th frame"] = caption
+            info[f"Adult fear in {i} th frame"] = fear_query
+    # Answer the query
+    answer = video_segment.select_answer(info, query, possible_answers)
+    return answer, info
+
+This function was compiled and executed with specific video. Here's result:
+    answer: 'yes'
+    groundtruth: 'no'
+    info: {
+        - Caption of 2 th frame: people on bikes
+        - Adult fear in 2 th frame: person
+        - Caption of 4 th frame: person
+        - Adult fear in 4 th frame: person
+        - Caption of 5 th frame: people
+        - Adult fear in 5 th frame: person
+        - Caption of 7 th frame: person
+        - Adult fear in 7 th frame: flying
+        - Caption of 9 th frame: person, person and person
+        - Adult fear in 9 th frame: person
+        - Caption of 12 th frame: people walking down the stairs
+    }
+    reason to choose the answer: The trope 'Adult Fear' is relevant to the movie because it involves things that mature, well-adjusted adults generally are concerned about. From the captions and adult fears listed in multiple frames, it is clear that the movie includes fears related to people, flying, water, spiders, bed bugs, and snow, which are all common concerns for adults.
+    compilation_error: ''
+    runtime_error: ''
+Revised function:
+def execute_command_tt0071129_28(video, possible_answers, query, ImagePatch, VideoSegment, llm_query, bool_to_yesno, distance, best_image_match):
+    # Answer is:def execute_command(video, possible_answers, query)->[str, dict]:
+    # Trope: Adult Fear
+    # Definition: Things that mature, well-adjusted adults generally are concerned about, as opposed to supernatural fears.
+    # Thought: The trope detection involves three steps:
+    # 1. Frame Selection: Iterate through each frame to find frames that contain elements related to adult fears.
+    # 2. Object Detection: Identify objects or situations in the frames that are commonly associated with adult fears.
+    # 3. Answer Selection: Use select_answer API to choose the most likely answer based on the collected information.
+    #
+    # Wrong Instructions: in line 12, if frame.exists("adult fear"), adult fear is too vague for api to capture object or mistake object as adult fear 
+    # Correction Method: replace frame.exists("adult fear") with some physical object like "bill", "insurance"
+    # Additonal Required Function: since we need to know what potential object would related to adult fear, we need an new api to return such list
+    # def get_physical_object(concept: str) -> list[str]:
+    #     # this function return top 10 potential physical objects that highly related to the concept
+    #     # Parameters:
+    #     # - concept (str): abstract concept that is not physical object
+    #     # Returns:
+    #     # - list[str]: list of physical object related to the concept
+    #     # Note: the function is highly recommend to query LLM and ask it to return in specific format 
+    video_segment = VideoSegment(video)
+    info = {}
+    physical_objects = get_physical_object("adult_fear")
+    for i, frame in enumerate(video_segment.frame_iterator()):
+        # Assuming functions exist to identify objects related to adult fears
+        if frame.exist("adult"):
+            for obj in physical_objects:
+                if frame.exists(obj):
+                    # Caption the frame
+                    caption = frame.simple_query("What is in the frame?")
+                    # Query specific objects or situations related to adult fears
+                    fear_query = frame.simple_query(f"What interaction is between {obj} and adult character")
+                    # Append information of frame to info dictionary
+                    info[f"Caption of {i} th frame"] = caption
+                    info[f"Interaction between character and {obj} in {i} th frame"] = fear_query
+    # Answer the query
+    answer = video_segment.select_answer(info, query, possible_answers)
+    return answer, info
