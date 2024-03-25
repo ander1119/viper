@@ -1126,11 +1126,19 @@ class ReflectionModel(BaseModel):
         # return outputs
 
         instruction = """
-            If you are allowed to request one new api to strengthen the function or even correct the answer, what kind of api would you like to request?
-            Please reflect on the code and result, analyze which instruction leads to the incorrect answer and request a new api to solve the problem. 
-            The revised function should comments that define the new api in detail and the reason why you need it.
+            Please reflect on the code and result, in advance to analyze which instruction leads to the incorrect answer.\n
+            Modify the current function based on any potential deficiencies or logical errors.\n
+            In addition to using the APIs provided above, new APIs can be requested based on the needs of the problem.\n
+            The request for a new API must be clearly defined and accompanied by the reason for its necessity.\n
             Here's some examples about analyzing specific function and their result, requesting api according to problems the function about to solve :\n
         """
+
+        # instruction = """
+        #     If you are allowed to request one new api to strengthen the function or even correct the answer, what kind of api would you like to request?
+        #     Please reflect on the code and result, analyze which instruction leads to the incorrect answer and request a new api to solve the problem. 
+        #     The revised function should comments that define the new api in detail and the reason why you need it.
+        #     Here's some examples about analyzing specific function and their result, requesting api according to problems the function about to solve :\n
+        # """
 
         examples = '\n'.join(self.reflection_examples) + '\n'
 
@@ -1335,7 +1343,7 @@ class BLIPModel(BaseModel):
         inputs = self.processor(images=image, text=question, return_tensors="pt", padding="longest").to(self.dev)
         if self.half_precision:
             inputs['pixel_values'] = inputs['pixel_values'].half()
-        generated_ids = self.model.generate(**inputs, length_penalty=-1, num_beams=5, max_length=10, min_length=1,
+        generated_ids = self.model.generate(**inputs, length_penalty=-1, num_beams=5, max_length=50, min_length=10,
                                             do_sample=False, top_p=0.9, repetition_penalty=1.0,
                                             num_return_sequences=1, temperature=1)
         generated_text = self.processor.batch_decode(generated_ids, skip_special_tokens=True)
