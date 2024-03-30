@@ -98,7 +98,7 @@ class VideoSegment:
 
         return VideoSegment(self.trimmed_video, start, end, self.start, queues=self.queues)
 
-    def select_answer(self, info: dict, question: str, options=None) -> str:
+    def select_answer_with_reason(self, info: dict, question: str, options=None) -> str:
         def format_dict(x):
             if isinstance(x, dict):
                 x = ''.join([f'\n\t- {k}: {format_dict(v)}' for k, v in x.items()])
@@ -107,9 +107,18 @@ class VideoSegment:
             prompt = f.read()
         info_formatting = '\n'.join([f"- {k}: {format_dict(v)}" for k, v in info.items()])
         prompt = prompt.format(info=info_formatting, question=question, options=options)
-        answer = self.forward('gpt3_general', prompt)
-        answer = eval(answer)
-        return answer
+        result = self.forward('gpt3_general', prompt)
+        try:
+            result = eval(result)
+            answer = result.get('answer', 'None')
+            reason = result.get('reason', f'gpt3_general return {result}') 
+        except:
+            answer = 'None'
+            reason = f'gpt3_general return {result}'
+        return answer, reason
+        # answer = self.forward('gpt3_general', prompt)
+        # answer = eval(answer)
+        # return answer
 
     def frame_iterator(self) -> Iterator[ImagePatch]:
         """Returns an iterator over the frames in the video segment."""
