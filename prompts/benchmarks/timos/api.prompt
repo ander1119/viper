@@ -330,8 +330,20 @@ class VideoSegment:
 
         return VideoSegment(self.trimmed_video, start, end, self.start)
 
-    def select_answer(self, info: dict, question: str, options: List[str]) -> str:
-        return select_answer(self.trimmed_video, info, question, options)
+    def select_answer_with_reason(self, info: dict, question: str, options: List[str]) -> (str, str):
+        """Return selected answer from options and reason for why choosing the option
+
+        Parameters
+        ----------
+        info: dict 
+            collected information from video_segment for function to refers to
+        question: str
+            question to answer
+        options: List[str]
+            candiate options from the question. only one option is truth
+        """
+        
+        return select_answer_with_reason(self.trimmed_video, info, question, options)
 
     def frame_iterator(self) -> Iterator[ImagePatch]:
         """Returns an iterator over the frames in the video segment.
