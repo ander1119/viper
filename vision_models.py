@@ -987,7 +987,7 @@ def codex_helper(messages):
 class CodexModel(BaseModel):
     name = 'codex'
     requires_gpu = False
-    max_batch_size = 5
+    max_batch_size = 10
 
     # Not batched, but every call will probably be a batch (coming from the same process)
 
@@ -1006,12 +1006,16 @@ class CodexModel(BaseModel):
         for prompt in extended_prompt:
             message = [{
                 "role": "system", 
-                "content":  "Answer should only include a function named execute_command, and the function should contains multiple line of comments for explaination in function body"
+                # "content":  "Answer should only include a function named execute_command, and the function should contains multiple line of comments for explaination in function body"
+                'content': "You are a professional programmer"
             }]
             instruction = f"""
-                            You are only allowed to use imported package and defined class in code below:\n
+                            You are only allowed to use imported package and defined class below:\n
                             {self.api_spec}
-                            There's some correct and incorrect function examples below, Note that the function should always return (answer, info) tuple\n
+                            There's some correct and incorrect function examples for referring, please follow example format to complete the function in last part.\n
+                            Note that function should always return (answer, reason, info) tuple and included lines of comment in function body for explainations.\n
+                            Also use info to collect every intermediate result from each api call (frame.find(), frame.simple_query()...)\n
+                            You MUST only return the function.\n
                             """
             message.append({
                 "role": "user", 
@@ -1030,7 +1034,7 @@ class CodexModel(BaseModel):
         elif isinstance(prompt, str):
             extended_prompt = [self.prototype.replace("INSERT_QUERY_HERE", prompt).
                                replace('INSERT_TYPE_HERE', input_type).
-                               replace('EXTRA_CONTEXT_HERE', extra_context if extra_context is not None else '')]
+                               replace('EXTRA_CONTEXT_HERE', str(extra_context) if extra_context is not None else '')]
         else:
             raise TypeError("prompt must be a string or a list of strings")
 
@@ -1038,6 +1042,7 @@ class CodexModel(BaseModel):
         result = self.forward_(messages)
         if not isinstance(prompt, list):
             result = result[0]
+            messages = messages[0]
         return result, messages
 
     def forward_(self, messages):
@@ -1047,7 +1052,7 @@ class CodexModel(BaseModel):
                 response += self.forward_(messages[i:i + self.max_batch_size])
             return response
         try:
-            response = codex_helper( messages)
+            response = codex_helper(messages)
         except openai.error.RateLimitError as e:
             print("Retrying Codex, splitting batch")
             if len(messages) == 1:
@@ -1075,7 +1080,7 @@ class CodexModel(BaseModel):
 class ReflectionModel(BaseModel):
     name = 'reflection'
     requires_gpu = False
-    max_batch_size = 5
+    max_batch_size = 10
 
     # Not batched, but every call will probably be a batch (coming from the same process)
 
@@ -1084,54 +1089,40 @@ class ReflectionModel(BaseModel):
 
         self.reflection_examples = [open(ep).read().strip() for ep in config.codex.reflection_example_prompt]
 
-    def format_messages(self, codes, original_messages, reflection):
-        # messages = []
-        # for code, original_message, outputs in zip(codes, original_messages, code_outputs):
-        #     original_message.append({
-        #         "role": "assistant", 
-        #         "content": code
-        #     })
-        #     original_message.append({
-        #         "role": "user", 
-        #         "content": outputs
-        #     })
-
-        #     messages.append(original_message)
-
+    def format_stage1_messages(self, codes, original_messages, reflection):
         # return messages
-        original_messages.append({
+        stage1_messages = original_messages.copy()
+
+        stage1_messages.append({
             "role": "assistant", 
             "content": codes
         })
-        original_messages.append({
+        stage1_messages.append({
             "role": "user", 
             "content": reflection
         })
 
-        return original_messages
+        return stage1_messages
+    
+    def format_stage2_messages(self, stage1_messages, potential_issues, stage2_reflection):
+        stage1_messages.append({
+            "role": "assistant", 
+            "content": potential_issues
+        })
+        stage1_messages.append({
+            "role": "user", 
+            "content": stage2_reflection
+        })
+
+        return stage1_messages
 
 
-    def format_reflection(self, code_outputs):
-        # outputs = [
-        #     f"""
-        #     The function was compiled and executed with specific video. Here's result:\n
-        #     \tanswers: {co['answer']}\n
-        #     \tgroundtruth: {co['groundtruth']}\n
-        #     \tinfo: {co['info']}\n
-        #     \tcompilation_error: {co['compilation_error']}\n
-        #     \truntime_error: {co['runtime_error']}\n
-        #     Please reflect on the result and provide feedback to the assistant. 
-        #     """ for co in code_outputs
-        # ]
-        # return outputs
-
+    def format_stage1_reflection(self, code_outputs):
         instruction = """
-            Please reflect on the code and result, in advance to analyze which instruction leads to the incorrect answer.\n
-            Modify the current function based on any potential deficiencies or logical errors.\n
-            In addition to using the APIs provided above, new APIs can be requested based on the needs of the problem.\n
-            The request for a new API must be clearly defined and accompanied by the reason for its necessity.\n
-            Here's some examples about analyzing specific function and their result, requesting api according to problems the function about to solve :\n
+            Please reflect on the code and intermediate result, in advance to analyze which lines leads to the incorrect answer.\n
+            Here's some examples about analyzing specific functions and their corresponding potential issues,\n 
         """
+        #             requesting api according to problems the function about to solve :\n
 
         # instruction = """
         #     If you are allowed to request one new api to strengthen the function or even correct the answer, what kind of api would you like to request?
@@ -1143,28 +1134,45 @@ class ReflectionModel(BaseModel):
         examples = '\n'.join(self.reflection_examples) + '\n'
 
         target = f"""
-            Generated function: \n{code_outputs['code']}\n
-            This function was compiled and executed with specific video. Here's result:\n
+            Original function: \n{code_outputs['code']}\n
+            This function was compiled and executed with specific video as input. Here's intermediate result:\n
             \tanswers: {code_outputs['answer']}\n
             \tgroundtruth: {code_outputs['groundtruth']}\n
             \tinfo: {code_outputs['info']}\n
             \treason: {code_outputs['reason']}\n
             \tcompilation_error: {code_outputs['compilation_error']}\n
-            \truntime_error: {code_outputs['runtime_error']}\n
-            Revised function:\n
+            \truntime_error: {code_outputs['runtime_error']}\n\n
+            Potential Issues:\n
             """
         
         return str(instruction + examples + target)
+    
+    def format_stage2_reflection(self, codes, potential_issues):
+        instruction = f"""
+            Please modify function\n{codes}\n based on potential issues\n{potential_issues}\n
+            You MUST only return the function.\n
+        """
+
+        return instruction
 
     def forward(self, codes, messages, code_outputs):
-        reflections = self.format_reflection(code_outputs)
-        messages = self.format_messages(codes, messages, reflections)
+        stage1_reflections = self.format_stage1_reflection(code_outputs)
+        stage1_messages = self.format_stage1_messages(codes, messages, stage1_reflections)
         if not isinstance(codes, list):
-            messages = [messages]
-        result = self.forward_(messages)
+            stage1_messages = [stage1_messages]
+        potential_issues = self.forward_(stage1_messages)
         if not isinstance(codes, list):
-            result = result[0]
-        return result
+            stage1_messages = stage1_messages[0]
+            potential_issues = potential_issues[0]
+        stage2_reflections = self.format_stage2_reflection(codes, potential_issues)
+        stage2_messages = self.format_stage2_messages(stage1_messages, potential_issues, stage2_reflections)
+        if not isinstance(codes, list):
+            stage2_messages = [stage2_messages]
+        revised_codes = self.forward_(stage2_messages)
+        if not isinstance(codes, list):
+            revised_codes = revised_codes[0]
+
+        return potential_issues, revised_codes
 
     def forward_(self, messages):
         if len(messages) > self.max_batch_size:
@@ -1276,7 +1284,7 @@ class BLIPModel(BaseModel):
     max_batch_size = 32
     seconds_collect_data = 0.2  # The queue has additionally the time it is executing the previous forward pass
 
-    def __init__(self, gpu_number=1, half_precision=config.blip_half_precision,
+    def __init__(self, gpu_number=0, half_precision=config.blip_half_precision,
                  blip_v2_model_type=config.blip_v2_model_type):
         super().__init__(gpu_number)
 
@@ -1289,7 +1297,8 @@ class BLIPModel(BaseModel):
         
         # with warnings.catch_warnings(), HiddenPrints("BLIP"), torch.cuda.device(self.dev):
         with torch.cuda.device(self.dev):
-            max_memory = {gpu_number: torch.cuda.mem_get_info(self.dev)[0]}
+        # print(torch.cuda.device(gpu_number))
+            max_memory = {gpu_number: torch.cuda.mem_get_info(torch.cuda.device(gpu_number))[0]}
             print(max_memory)
             self.processor = Blip2Processor.from_pretrained(f"Salesforce/{blip_v2_model_type}")
             # Device_map must be sequential for manual GPU selection
@@ -1305,6 +1314,7 @@ class BLIPModel(BaseModel):
                     extra_text = ' You may want to consider setting half_precision to True.' if half_precision else ''
                     raise MemoryError(f"Not enough GPU memory in GPU {self.dev} to load the model.{extra_text}")
                 else:
+                    print(e)
                     raise e
 
         self.qa_prompt = "Question: {} Long answer:"
