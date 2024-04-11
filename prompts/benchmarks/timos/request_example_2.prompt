@@ -1,0 +1,67 @@
+Generated functions:
+    def execute_command(video, possible_answers, query, code)->[str, dict]:
+        # Trope: Adult Fear
+        # Definition: Things that mature, well-adjusted adults generally are concerned about, as opposed to supernatural fears.
+        # Thought: The trope detection involves three steps:
+        # 1. Frame Selection: Iterate through each frame to find frames that contain elements related to adult fears.
+        # 2. Object Detection: Identify objects or situations in the frames that are commonly associated with adult fears.
+        # 3. Answer Selection: Use select_answer API to choose the most likely answer based on the collected information.
+        video_segment = VideoSegment(video)
+        info = {}
+        for i, frame in enumerate(video_segment.frame_iterator()):
+            # Assuming functions exist to identify objects related to adult fears
+            if frame.exists("adult fear"):
+                # Caption the frame
+                caption = frame.simple_query("What is in the frame?")
+                # Query specific objects or situations related to adult fears
+                fear_query = frame.find("adult fear")[0].simple_query("What specific adult fear is in the frame?")
+                # Append information of frame to info dictionary
+                info[f"Caption of {i} th frame"] = caption
+                info[f"Adult fear in {i} th frame"] = fear_query
+        # Answer the query
+        answer, reason = video_segment.select_answer_with_reason(info, query, possible_answers, code)
+        return answer, reason, info
+Potential issue:
+    {
+        "lines": [
+            "if frame.exists('adult fear')"
+        ],
+        "reasons": [
+            "parameter 'adult fear' is to vague for api ImagePatch.exists() to capture object" 
+        ]
+    }
+Revised function:
+    def execute_command(video, possible_answers, query, code)->[str, dict]:
+        # Trope: Adult Fear
+        # Definition: Things that mature, well-adjusted adults generally are concerned about, as opposed to supernatural fears.
+        # Thought: The trope detection involves three steps:
+        # 1. Frame Selection: Iterate through each frame to find frames that contain elements related to adult fears.
+        # 2. Object Detection: Identify objects or situations in the frames that are commonly associated with adult fears.
+        # 3. Answer Selection: Use select_answer API to choose the most likely answer based on the collected information.
+        #
+        # Additonal Required Function: since we need to know what potential physical object would related to adult fear, we need an new api to return such list
+        # def get_physical_object(concept: str) -> list[str]:
+        #     # this function return top 10 potential physical objects that highly related to the concept
+        #     # Parameters:
+        #     # - concept (str): abstract concept that is not physical object
+        #     # Returns:
+        #     # - list[str]: list of physical object related to the concept
+        #     # Note: the function is highly recommend to query LLM and ask it to return in specific format 
+        video_segment = VideoSegment(video)
+        info = {}
+        physical_objects = get_physical_object("adult_fear")
+        for i, frame in enumerate(video_segment.frame_iterator()):
+            # Assuming functions exist to identify objects related to adult fears
+            if frame.exist("adult"):
+                for obj in physical_objects:
+                    if frame.exists(obj):
+                        # Caption the frame
+                        caption = frame.simple_query("What is in the frame?")
+                        # Query specific objects or situations related to adult fears
+                        fear_query = frame.simple_query(f"What interaction is between {obj} and adult character")
+                        # Append information of frame to info dictionary
+                        info[f"Caption of {i} th frame"] = caption
+                        info[f"Interaction between character and {obj} in {i} th frame"] = fear_query
+        # Answer the query
+        answer, reason = video_segment.select_answer_with_reason(info, query, possible_answers, code)
+        return answer, reason, info

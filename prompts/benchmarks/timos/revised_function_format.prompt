@@ -1,0 +1,20 @@
+def execute_command(video, possible_answers, query, code)->[str, dict]
+    # Trope: FILL
+    # Definition: FILL
+    # Thought: FILL
+    # 1. FILL: FILL 
+    # ...
+    # n. FILL: FILL
+    #
+    # Additonal Required Function: FILL
+    # def function_name(parameter1: type, parameter2: type, ...) -> return1, return2, ...:
+    #   # function explaination 
+    #   # Parameters:
+    #   # - parameter1 (type): FILL
+    #   # - parameter2 (type): FILL
+    #   # ...
+    #   # Returns:
+    #   # - return1 (type): FILL
+    #   # - return2 (type): FILL
+    function logic implementation
+    return answer, reason, info

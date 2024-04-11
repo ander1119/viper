@@ -1,16 +1,51 @@
-Identify the presence or absense of a specific trope in a movie. Informations about the movie is provided. Return the option (yes/no) that is most likely to the trope presense and provide the reasons in json format. Note that key string and value string should use double quote. Futhermore within value string it's forbidden to use double quote, you should use ` or ' instead
+Identify the presence or absense of a specific trope in a movie. Code and result executed with the movie is provided. Return the option (yes/no) that is most likely to the trope presense and provide the reasons in json format. Note that key string and value string should use double quote. Futhermore within value string it's forbidden to use double quote, you should use ` or ' instead
 
 Example:
-- Question: is trope "Screw This, I'm Outta Here!" present in the video segment
-- Caption of 200 th frame: a woman is about riding a motorcycle and leave
-- Character mood in 200"th frame: the woman is kind of angry
-- Possible answer: ["yes", "no"]
+- Question: 
+is trope "Screw This, I'm Outta Here!" present in the video segment
+- Possible answer: 
+["yes", "no"]
+- Code: 
+def execute_command(video, possible_answers, query)->[str, dict]:
+    # Trope: Screw This, I'm Outta Here!
+    # Definition: A character, fed up with the situation they're in, decides to leave, often saying something along the lines of ""Screw you guys, I'm going home.""
+    # Thought: we devide the trope detection into 3 steps
+    # 1. Frame Selection: Since ""Screw This, I'm Outta Here!"" might present in every moment of video, we iterate every frame and perform a series of queries, collect information for each candidate frame
+    # 2. Object Detection: ""Screw This, I'm Outta Here!"" usually involves a character who is fed up with the situation
+    # 3. Action Analysis: For frames the character is present, the action like ""character leaving"" or ""character is showing signs of frustration"" are possibly taking place
+    # 4. Answer Selection: Use select_answer api to select the most possible answer with previously collected information 
+    video_segment = VideoSegment(video)
+    # Create a info dictionary
+    info = {{}}
+    for i, frame in enumerate(video_segment.frame_iterator()):
+        # Assuming functions exist to identify the character
+        if frame.exists(""character""):
+            # Caption the frame
+            caption_query = frame.simple_query(""What is happening?"")
+            # Query character action
+            character_action = frame.find(""character"")[0].simple_query(""What is he/she doing?"")
+            # Query emotion condition of character
+            character_emotion = frame.simple_query(""What emotion does character have?"")
+            # Append infomation of frame to info dictionary
+            info[f"Caption of {{i}} th frame"] = caption_query
+            info[f"Action of character in {{i}} th frame"] = character_action
+            info[f"Character emotion in {{i}} th frame"] = character_emotion
+    # Answer the query
+    answer = video_segment.select_answer(info, query, possible_answers)
+    return answer
+- Info: 
+{{"Caption of 200 th frame": "a woman is about riding a motorcycle and leave", "Action of character in 200 th frame": "riding a motorcycle", "Character emotion in 200 th frame": "kind of angry"}}
 Take a close look at the question and information provided and select one of the possible answers.
 - Selected answer: {{"answer": "yes","reason": "trope `Screw This, I'm Outta Here` invloves a character expressing a sudden decision to abandon a situation or task, often accompanied by a sense of frustration or resignation. From caption and character mood in 200 th frame it might suggest the character is about to leave a situation due to anger, which conveys a sense of defiance and determination to leave the situation behind"}}
 
 Example:
-- Question: {question}
+- Question: 
+{question}
+- Possible answers: 
+{options}
+- Code: 
+{code}
+- Info: 
 {info}
-- Possible answers: {options}
 Take a close look at the question and information provided and select one of the possible answers.
 - Selected answer:

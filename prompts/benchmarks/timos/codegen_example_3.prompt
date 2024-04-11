@@ -1,7 +1,7 @@
 Incorrect Example:
-    # is trope "Love at First Sight" present in the video segment
+    # is trope "Love at First Sight", which means "An instance where two characters meet for the first time and immediately fall in love, often leading to significant plot developments.", present in the video segment
     # possible answers: ['yes', 'no']
-    def execute_command(video, possible_answers, query)->[str, dict]:
+    def execute_command(video, possible_answers, query, code)->[str, dict]:
         # Trope: Love at First Sight
         # Definition: An instance where two characters meet for the first time and immediately fall in love, often leading to significant plot developments.
         # Thought: The trope detection involves three steps:
@@ -20,7 +20,7 @@ Incorrect Example:
                     # Capture the moment of first meeting with emotional cues indicating love at first sight
                     info[f"Love at First Sight detected in {i} th frame"] = "Two characters appear to be in love at their first meeting."
         # If no specific moment of love at first sight is detected, the info remains empty
-        answer, reason = video_segment.select_answer_with_reason(info, query, possible_answers)
+        answer, reason = video_segment.select_answer_with_reason(info, query, possible_answers, code)
         return answer, reason, info
 Incorrect Reason:
-    ImagePatch.exists() api is called with improper object_name("character A" and "character B"), since for same object the api can't distinguish their difference  
+    In line 11 of function, ImagePatch.exists() api is called with improper object_name("character A" and "character B"), since for same object the api can't distinguish their difference  

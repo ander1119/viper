@@ -182,6 +182,15 @@ class ImagePatch:
         """
         return self.left <= right and self.right >= left and self.lower <= upper and self.upper >= lower
 
+def llm_query(question: str)->str:
+    '''Answers a text question using GPT-3. The input question is always a formatted string with a variable in it.
+    
+    Parameters
+    ----------
+    question: str
+        the text question to ask. Must not contain any reference to 'the image' or 'the photo', etc.
+    '''
+    return llm_query(question)
 
 def best_image_match(list_patches: List[ImagePatch], content: List[str], return_index=False) -> Union[ImagePatch, int]:
     """Returns the patch most likely to contain the content.
@@ -330,7 +339,7 @@ class VideoSegment:
 
         return VideoSegment(self.trimmed_video, start, end, self.start)
 
-    def select_answer_with_reason(self, info: dict, question: str, options: List[str]) -> (str, str):
+    def select_answer_with_reason(self, info: dict, question: str, options: str, code: str) -> (str, str):
         """Return selected answer from options and reason for why choosing the option
 
         Parameters
@@ -339,11 +348,13 @@ class VideoSegment:
             collected information from video_segment for function to refers to
         question: str
             question to answer
-        options: List[str]
+        options: str
             candiate options from the question. only one option is truth
+        code: str
+            A string representation of the function itself and it will be used to analyze the video and answer the query.
         """
         
-        return select_answer_with_reason(self.trimmed_video, info, question, options)
+        return select_answer_with_reason(self.trimmed_video, info, question, options, code)
 
     def frame_iterator(self) -> Iterator[ImagePatch]:
         """Returns an iterator over the frames in the video segment.

@@ -1,5 +1,5 @@
 Generated functions:
-    def execute_command(video, possible_answers, query)->[str, dict]
+    def execute_command(video, possible_answers, query, code)->[str, dict]
         # Trope: Affably Evil
         # Definition: Villains that are not too bad. There is absolutely nothing separating them from being normal, polite people except for the fact that they want to take over the world.
         # Thought: we devide the trope detection into 3 steps
@@ -28,17 +28,19 @@ Generated functions:
                         break
                 if character_found is False
                     characters[character] = [character_info]
-        answer, reason = video_segment.select_answer_with_reason(info, query, possible_answers)
+        answer, reason = video_segment.select_answer_with_reason(info, query, possible_answers, code)
         return answer, reason, info
-Execution Result:
-    answers: 'no'
-    groundtruth: 'yes'
-    info: {}
-    reason to choose the answer: 
-    compilation_error: ''
-    runtime_error: ''
+Potential issue:
+    {
+        "lines": [
+            "if character_in_frame.overlaps_with(character.left, character.lower, character.right, character.upper)"
+        ],
+        "reasons": [
+            "function ImagePatch.overlaps_with() is used to determine whether a crop with the given coordinates overlaps with another ImagePatch, but provided code seems to use overlaps_with to see whether two ImagePatch has same person"
+        ]
+    }
 Revised function:
-    def execute_command(video, possible_answers, query)->[str, dict]
+    def execute_command(video, possible_answers, query, code)->[str, dict]
         # Trope: Affably Evil
         # Definition: Villains that are not too bad. There is absolutely nothing separating them from being normal, polite people except for the fact that they want to take over the world.
         # Thought: we devide the trope detection into 3 steps
@@ -46,10 +48,8 @@ Revised function:
         # 2. Character Behavior Analysis: Analyzing the same character's behavior across different frames for consistency, especially for their polite demeanor or harmful goals.
         # 3. Answer Selection: Use select_answer api to select the most possible answer with previously collected information 
         #
-        # Wrong Instructions: in line 24, if character_in_frame.overlaps_with(character.left, character.lower, character.right, character.upper), is apparently wrong, the function ImagePatch.overlaps_with() is used to determine whether a crop with the given coordinates overlaps with the ImagePatch
-        # Correction Method: replace ImagePatch.overlaps_with() with other function
-        # Additional Required Function: since we need to track character accross frames, we need an api to identify if two ImagePatch contains same person. And we define this function as below
-        # def is_same_character(patch_a: ImagePatch, patch_b: ImagePatch) -> bool:
+        # Additional Required Function: since we need to track character accross frames, we need an function to identify if two ImagePatch contains same person. And we define function 'has_same_person()' as below
+        # def has_same_person(patch_a: ImagePatch, patch_b: ImagePatch) -> bool:
         #     # this function determine whether given image patches contains same character or not
         #     # Parameters:
         #     # - patch_a (ImagePatch): An ImagePath object represent a single character in a frame
@@ -77,11 +77,11 @@ Revised function:
                 }
                 character_found = False
                 for character in characters:
-                    if is_same_character(character, character_in_frame) is True:
+                    if has_same_person(character, character_in_frame) is True:
                         characters[character].append(character_info)
                         character_found = True
                         break
                 if character_found is False
                     characters[character] = [character_info]
-        answer, reason = video_segment.select_answer_with_reason(info, query, possible_answers)
+        answer, reason = video_segment.select_answer_with_reason(info, query, possible_answers, code)
         return answer, reason, info

@@ -1,0 +1,65 @@
+Generated functions:
+    def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+        # Trope: Adult Fear
+        # Definition: Concerns that resonate more deeply with adults than children, rooted in real-world issues rather than fantastical fears. These might include job loss, the safety of children, illness, or the breakdown of relationships.
+        # Approach: To detect this trope, we analyze the video segment for scenes that depict real-world concerns or emotional distress relevant to adult fears.
+        # 1. Frame Selection: Iterate through the video segment to identify frames that may contain elements of Adult Fear.
+        # 2. Content Analysis: For selected frames, analyze the content for themes of real-world concerns such as safety, health, or financial stability.
+        # 3. Answer Selection: Compile the information and use the select_answer API to determine if the trope is present.
+        video_segment = VideoSegment(video)
+        info = {}
+        
+        for i, frame in enumerate(video_segment.frame_iterator()):
+            # Querying for presence of real-life fears or concerns
+            real_life_concern = frame.simple_query("Is there a depiction of real-life adult concern?")
+            if "yes" in real_life_concern:
+                # Store the details of the frame where adult concerns are depicted
+                frame_description = frame.simple_query("What is happening in this frame?")
+                info[f"Real-life concern detected in frame {i}"] = frame_description
+                # Assuming the question is direct and relates to the definition provided
+                answer, reason = video_segment.select_answer_with_reason(info, query, possible_answers, code)
+                return answer, reason, info
+        
+        # If no specific adult fear content is detected in the video
+        answer = "no"
+        reason = "No scenes depicting adult concerns were found in the video."
+        return answer, reason, info
+Potential issue:
+    {
+        "lines": [
+            "if 'yes' in real_life_concern:",
+        ]
+        "reasons": [
+            "the condition should be more rigorous, maybe checking emotional tone of the frame helps"
+        ]
+    }
+Revised function:
+    def execute_command(video, possible_answers, query) -> [str, dict]:
+        # Trope: Adult Fear
+        # Definition: Concerns that resonate more deeply with adults than children, rooted in real-world issues rather than fantastical fears. These might include job loss, the safety of children, illness, or the breakdown of relationships.
+        # Approach: To detect this trope, we analyze the video segment for scenes that depict real-world concerns or emotional distress relevant to adult fears.
+        # 1. Frame Selection: Iterate through the video segment to identify frames that may contain elements of Adult Fear.
+        # 2. Content Analysis: For selected frames, analyze the content for themes of real-world concerns such as safety, health, or financial stability.
+        # 3. Emotional Analysis: Look for expressions of worry, stress, or sadness that might indicate the presence of adult fears.
+        # 4. Answer Selection: Compile the information and use the select_answer API to determine if the trope is present.
+        #
+        # Additional Required Function: since we need to track character accross frames, we need an function to identify if two ImagePatch contains same person. And we define function 'has_same_person()' as below
+        video_segment = VideoSegment(video)
+        info = {}
+        for i, frame in enumerate(video_segment.frame_iterator()):
+            # Querying for presence of real-life fears or concerns
+            real_life_concern = frame.simple_query("Is there a depiction of real-life adult concern?")
+            # Additional function to analyze emotional tone of the scene
+            emotional_tone = analyze_emotional_tone(frame)  
+            if "yes" in real_life_concern and emotional_tone == "high stress":
+                # Store the details of the frame where adult concerns are depicted
+                frame_description = frame.simple_query("What is happening in this frame?")
+                info[f"Real-life concern detected in frame {i}"] = frame_description
+                info[f"Emotional tone in frame {i}"] = emotional_tone
+                # Assuming the question is direct and relates to the definition provided
+                answer, reason = video_segment.select_answer_with_reason(info, query, possible_answers, code)
+                return answer, reason, info
+        # If no specific adult fear content is detected in the video
+        answer = "no"
+        reason = "No scenes depicting adult concerns were found in the video."
+        return answer, reason, info

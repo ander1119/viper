@@ -1,7 +1,7 @@
 Correct example:
-    # is trope "Kick the Dog" present in the video segment
+    # is trope "Kick the Dog", which means "an act of cruelty by a character, typically towards a more vulnerable or defenseless entity, to establish the character's malevolence", present in the video segment
     # possible answers: ['yes', 'no']
-    def execute_command(video, possible_answers, query)->[str, dict]
+    def execute_command(video, possible_answers, query, code)->[str, dict]
         # Trope: Kick the Dog
         # Definition: an act of cruelty by a character, typically towards a more vulnerable or defenseless entity, to establish the character's malevolence
         # Thought: we devide the trope detection into 4 steps
@@ -30,5 +30,5 @@ Correct example:
                 info[f"Action of victim in {i} th frame"] = victim_action
                 info[f"Victim emotion in {i} th frame"] = victim_emotion
         # Answer the query
-        answer, reason = video_segment.select_answer_with_answer(info, query, possible_answers)
+        answer, reason = video_segment.select_answer_with_reason(info, query, possible_answers, code)
         return answer, reason, info

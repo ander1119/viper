@@ -1,7 +1,7 @@
 Correct Example:
-    # is trope "Downer Ending" present in the video segment
+    # is trope "Downer Ending", which means "an ending that is sad, tragic, or otherwise less positive than the audience might have expected, often leaving the protagonist or key characters in a worse state than they were at the beginning or facing significant loss" present in the video segment
     # possible answers: ['yes', 'no']
-    def execute_command(video, possible_answers, query)->[str, dict]
+    def execute_command(video, possible_answers, query, code)->[str, dict]
         # Trope: Downer Ending
         # Definition: an ending that is sad, tragic, or otherwise less positive than the audience might have expected, often leaving the protagonist or key characters in a worse state than they were at the beginning or facing significant loss
         # Thought: we devide the trope detection into 3 steps
@@ -31,5 +31,5 @@ Correct Example:
                 info[f"Sadness or mourning event in {ending_segment.start + 1} th frame"] = sadness_detail
                 info[f"Visible tragedy or destruction event in {ending_segment.start + 1} th frame"] = tragedy_detail
         # Answer the query
-        answer, reason = video_segment.select_answer_with_answer(info, query, possible_answers)
+        answer, reason = video_segment.select_answer_with_reason(info, query, possible_answers, code)
         return answer, reason, info
