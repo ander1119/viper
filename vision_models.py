@@ -995,6 +995,8 @@ class CodexModel(BaseModel):
         super().__init__(gpu_number=gpu_number)
 
         self.api_spec = open(config.codex.api_prompt).read().strip()
+        self.function_signature = open(config.codex.function_signature_prompt).read().strip()
+        self.function_format = open(config.codex.function_format_prompt).read().strip()
         self.examples = '\n'.join([open(ep).read().strip() for ep in config.codex.example_prompt])
         self.prototype = open(config.codex.prototype_prompt).read().strip()
 
@@ -1007,19 +1009,21 @@ class CodexModel(BaseModel):
             message = [{
                 "role": "system", 
                 # "content":  "Answer should only include a function named execute_command, and the function should contains multiple line of comments for explaination in function body"
-                'content': "You are a professional programmer"
+                'content': "You are a professional programmer. You would be asked to follow the API specification and examples to complete the function. Or analyze the code and request a new API to solve the problem."
             }]
-            instruction = f"""
-                            You are only allowed to use imported package and defined class below:\n
-                            {self.api_spec}
-                            There's some correct and incorrect function examples for referring, please follow example format to complete the function in last part.\n
-                            Note that function should always return (answer, reason, info) tuple and included lines of comment in function body for explainations.\n
-                            Also use info to collect every intermediate result from each api call (frame.find(), frame.simple_query()...)\n
-                            You MUST only return the function.\n
-                            """
+            instruction = f"""You are only allowed to use imported package and defined class below to complete the function:
+            {self.api_spec}
+            The function parameter and return value should follow the signature below:
+            {self.function_signature}
+            Here's some correct and incorrect (with reason) function examples for you to refer:
+            {self.examples}
+            Please follow the format to return the function. 
+            {self.function_format}
+            You MUST only return the function.
+            """
             message.append({
                 "role": "user", 
-                "content": str(instruction + self.examples + prompt)
+                "content": str(instruction + prompt)
             })
             messages.append(message)
             
@@ -1088,6 +1092,8 @@ class ReflectionModel(BaseModel):
         super().__init__(gpu_number=gpu_number)
 
         self.reflection_examples = [open(ep).read().strip() for ep in config.codex.reflection_example_prompt]
+        self.request_examples = [open(ep).read().strip() for ep in config.codex.request_example_prompt]
+        self.revised_function_format = open(config.codex.revised_function_format_prompt).read().strip()
 
     def format_stage1_messages(self, codes, original_messages, reflection):
         # return messages
@@ -1116,11 +1122,10 @@ class ReflectionModel(BaseModel):
 
         return stage1_messages
 
-
     def format_stage1_reflection(self, code_outputs):
-        instruction = """
-            Please reflect on the code and intermediate result, in advance to analyze which lines leads to the incorrect answer.\n
-            Here's some examples about analyzing specific functions and their corresponding potential issues,\n 
+        instruction = """Please reflect on the code and intermediate result, in advance to analyze which lines leads to the incorrect answer.
+        Note that you can only point out one issue at a time.
+        Here's some examples about analyzing specific functions and their corresponding potential issue:
         """
         #             requesting api according to problems the function about to solve :\n
 
@@ -1131,29 +1136,49 @@ class ReflectionModel(BaseModel):
         #     Here's some examples about analyzing specific function and their result, requesting api according to problems the function about to solve :\n
         # """
 
-        examples = '\n'.join(self.reflection_examples) + '\n'
+        examples = '\n\n'.join(self.reflection_examples)
 
-        target = f"""
-            Original function: \n{code_outputs['code']}\n
-            This function was compiled and executed with specific video as input. Here's intermediate result:\n
-            \tanswers: {code_outputs['answer']}\n
-            \tgroundtruth: {code_outputs['groundtruth']}\n
-            \tinfo: {code_outputs['info']}\n
-            \treason: {code_outputs['reason']}\n
-            \tcompilation_error: {code_outputs['compilation_error']}\n
-            \truntime_error: {code_outputs['runtime_error']}\n\n
-            Potential Issues:\n
-            """
+        target = f"""Here's target function I need you to point out the issue.
+        Generated function:
+        {code_outputs['code']}
+        Execution result:
+            answers: {code_outputs['answer']}
+            groundtruth: {code_outputs['groundtruth']}
+            info: {code_outputs['info']}
+            reason: {code_outputs['reason']}
+            compilation_error: {code_outputs['compilation_error']}
+            runtime_error: {code_outputs['runtime_error']}
+        Potential issue:
+        """
         
         return str(instruction + examples + target)
     
     def format_stage2_reflection(self, codes, potential_issues):
-        instruction = f"""
-            Please modify function\n{codes}\n based on potential issues\n{potential_issues}\n
-            You MUST only return the function.\n
+        # instruction = f"""
+        #     Please modify function\n{codes}\n based on potential issues\n{potential_issues}\n
+        #     You MUST only return the function.\n
+        # """
+
+        instruction = """You are allowed to request one additional function trying to deal with one issue.
+        The requested function should follow restrictions:
+            1. no complex logic
+            2. do not directly deal with trope 
+        Please clearly define the function spec, here's some examples for you to refer:
         """
 
-        return instruction
+        examples = '\n\n'.join(self.request_examples)
+
+        target = f"""Here's function 'execute_command' and potential issue, I need you to request a new function to deal with the issue.
+        Generated function:
+        {codes}
+        Potential issue:
+        {potential_issues}
+        Please follow the format to return the revised function. 
+        {self.revised_function_format}
+        You MUST only return the function.
+        """
+
+        return instruction + examples + target
 
     def forward(self, codes, messages, code_outputs):
         stage1_reflections = self.format_stage1_reflection(code_outputs)
