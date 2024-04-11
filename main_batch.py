@@ -46,7 +46,7 @@ def run_program(parameters, queues_in_, input_type_, retrying=True):
     code_header = f'def execute_command_{sample_id}(' \
                   f'{input_type_}, possible_answers, query, ' \
                   f'ImagePatch, VideoSegment, ' \
-                  'llm_query, bool_to_yesno, distance, best_image_match):\n' \
+                  'llm_query, bool_to_yesno, distance, best_image_match, code):\n' \
                   f'    # Answer is:'
 
     code = code.replace('```', '').replace('python', '')
@@ -87,7 +87,7 @@ def run_program(parameters, queues_in_, input_type_, retrying=True):
             # Classes to be used
             image_patch_partial, video_segment_partial,
             # Functions to be used
-            llm_query_partial, bool_to_yesno, distance, best_image_match)
+            llm_query_partial, bool_to_yesno, distance, best_image_match, code)
     except Exception as e:
         # print full traceback
         traceback.print_exc()
