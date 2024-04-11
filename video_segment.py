@@ -1,4 +1,5 @@
 from __future__ import annotations
+import json
 
 import torch
 from typing import Union, Iterator
@@ -98,15 +99,12 @@ class VideoSegment:
 
         return VideoSegment(self.trimmed_video, start, end, self.start, queues=self.queues)
 
-    def select_answer_with_reason(self, info: dict, question: str, options=None) -> str:
-        def format_dict(x):
-            if isinstance(x, dict):
-                x = ''.join([f'\n\t- {k}: {format_dict(v)}' for k, v in x.items()])
-            return x
+    def select_answer_with_reason(self, info: dict, question: str, options: str, code: str) -> str:
         with open(config.select_answer_prompt, 'r') as f:
             prompt = f.read()
-        info_formatting = '\n'.join([f"- {k}: {format_dict(v)}" for k, v in info.items()])
-        prompt = prompt.format(info=info_formatting, question=question, options=options)
+        # info_formatting = '\n'.join([f"- {k}: {format_dict(v)}" for k, v in info.items()])
+        info_formatting = json.dumps(info)
+        prompt = prompt.format(info=info_formatting, question=question, options=options, code=code)
         result = self.forward('gpt3_general', prompt)
         try:
             result = eval(result)
