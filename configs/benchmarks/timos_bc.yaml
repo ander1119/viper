@@ -7,20 +7,29 @@ dataset:
   max_num_frames: 120
   split: val
   batch_size: 16
-  # max_samples: 20
+  # max_samples: 1
   start_sample: 0
 
 codex:
   # prompt: ./prompts/benchmarks/timos_bc.prompt
   api_prompt: ./prompts/benchmarks/timos/api.prompt
+  function_signature_prompt: ./prompts/benchmarks/timos/function_signature.prompt
+  function_format_prompt: ./prompts/benchmarks/timos/function_format.prompt
   example_prompt: [
     ./prompts/benchmarks/timos/codegen_example_1.prompt,
     ./prompts/benchmarks/timos/codegen_example_2.prompt,
     ./prompts/benchmarks/timos/codegen_example_3.prompt,
+    ./prompts/benchmarks/timos/codegen_example_4.prompt,
+    ./prompts/benchmarks/timos/codegen_example_5.prompt,
   ]
   prototype_prompt: ./prompts/benchmarks/timos/prototype.prompt
   reflection_example_prompt: [
-   ./prompts/benchmarks/timos/reflection_example_2.prompt,
+   ./prompts/benchmarks/timos/simple_reflection_example_1.prompt,
+  ]
+  revised_function_format_prompt: ./prompts/benchmarks/timos/revised_function_format.prompt
+  request_example_prompt: [
+    ./prompts/benchmarks/timos/request_example_1.prompt,
+    ./prompts/benchmarks/timos/request_example_2.prompt,
   ]
 
 select_answer_prompt: ./prompts/gpt3/timos_bc_question_reason.txt
@@ -30,3 +39,5 @@ results_dir: ./results/timos_bc/
 
 gpt3:
   model: gpt-3.5-turbo-16k
+
+num_reflections: 3
