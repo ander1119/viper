@@ -169,6 +169,8 @@ def main():
     # all_reflection = []
     all_potential_issues = []
     all_revised_codes = []
+    # anytool result
+    all_tool_codes = []
 
     all_groundtruths = []
     all_ids = []
@@ -187,16 +189,20 @@ def main():
                 # Combine all queries and get Codex predictions for them
                 # TODO compute Codex for next batch as current batch is being processed
 
-                for sample_id, img, possible_answers, query, gt, extra_context \
-                        in zip(batch['sample_id'], batch['image'], batch['possible_answers'], batch['query'], batch['answer'], batch['extra_context']):
-
+                for sample_id, img, possible_answers, query, gt, extra_context, code, issue, tool_spec, dfs_filename, revised_code \
+                        in zip(batch['sample_id'], batch['image'], batch['possible_answers'], batch['query'], batch['answer'], batch['extra_context'], batch['code'], batch['issue'], batch['tool_spec'], batch['dfs_filename'], batch['revised_code']):
                     # code -> str, message -> list[dict[str, str]]
-                    code, message = codex(prompt=query, input_type=input_type, extra_context=extra_context)
+                    _, message = codex(prompt=query, input_type=input_type, extra_context=extra_context)
                     execution_result = run_program([code, sample_id, img, possible_answers, query], queues_in, input_type)
                     execution_result['groundtruth'] = gt
-                    potential_issues, revised_code = forward('reflection', code, message, execution_result)
-                    execution_result['potential_issues'] = potential_issues
+                    # potential_issues, revised_code, message = forward('reflection', code, message, execution_result)
+                    _, _, message = forward('reflection', code, message, execution_result, issue)
+                    execution_result['potential_issues'] = issue
                     execution_result['revised_code'] = revised_code
+
+                    tool_code = forward('anytool', message, revised_code, tool_spec, dfs_filename)
+                    execution_result['tool_code'] = tool_code
+                    all_tool_codes.append(execution_result['tool_code'])
 
                     all_answers.append(execution_result['answer'])
                     all_infos.append(json.dumps(execution_result['info'], indent=2))
@@ -211,26 +217,26 @@ def main():
                     all_possible_answers.append(possible_answers)
                     all_queries.append(query)
 
-                    for r in tqdm(range(1, config.num_reflections), desc='Reflections'):
-                        code = revised_code
-                        execution_result = run_program([code, sample_id, img, possible_answers, query], queues_in, input_type)
-                        execution_result['groundtruth'] = gt
-                        potential_issues, revised_code = forward('reflection', code, message, execution_result)
-                        execution_result['potential_issues'] = potential_issues
-                        execution_result['revised_code'] = revised_code
+                    # for r in tqdm(range(1, config.num_reflections), desc='Reflections'):
+                    #     code = revised_code
+                    #     execution_result = run_program([code, sample_id, img, possible_answers, query], queues_in, input_type)
+                    #     execution_result['groundtruth'] = gt
+                    #     potential_issues, revised_code = forward('reflection', code, message, execution_result)
+                    #     execution_result['potential_issues'] = potential_issues
+                    #     execution_result['revised_code'] = revised_code
 
-                        all_answers.append(execution_result['answer'])
-                        all_infos.append(json.dumps(execution_result['info'], indent=2))
-                        all_codes.append(execution_result['code'])
-                        all_compilation_errors.append(execution_result['compilation_error'])
-                        all_runtime_errors.append(execution_result['runtime_error'])
-                        all_reasons.append(execution_result['reason'])
-                        all_potential_issues.append(execution_result['potential_issues'])
-                        all_revised_codes.append(execution_result['revised_code'])
-                        all_ids.append(sample_id + f'_{r}')
-                        all_groundtruths.append(gt)
-                        all_possible_answers.append(possible_answers)
-                        all_queries.append(query)
+                    #     all_answers.append(execution_result['answer'])
+                    #     all_infos.append(json.dumps(execution_result['info'], indent=2))
+                    #     all_codes.append(execution_result['code'])
+                    #     all_compilation_errors.append(execution_result['compilation_error'])
+                    #     all_runtime_errors.append(execution_result['runtime_error'])
+                    #     all_reasons.append(execution_result['reason'])
+                    #     all_potential_issues.append(execution_result['potential_issues'])
+                    #     all_revised_codes.append(execution_result['revised_code'])
+                    #     all_ids.append(sample_id + f'_{r}')
+                    #     all_groundtruths.append(gt)
+                    #     all_possible_answers.append(possible_answers)
+                    #     all_queries.append(query)
         except Exception as e:
             # print full stack trace
             traceback.print_exc()
@@ -265,6 +271,7 @@ def main():
                            all_possible_answers,
                            all_codes,
                            all_revised_codes,
+                           all_tool_codes,
                            all_infos,
                            all_reasons,
                         #    all_reflection,
@@ -280,6 +287,7 @@ def main():
             'possible_answers', 
             'code', 
             'revised_code', 
+            'tool_code',
             'info', 
             'reason', 
             # 'reflection',
