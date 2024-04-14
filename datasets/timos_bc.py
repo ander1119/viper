@@ -11,7 +11,7 @@ import numpy as np
 def load_file(file_name):
     annos = None
     if os.path.splitext(file_name)[-1] == '.csv':
-        return pd.read_csv(file_name)
+        return pd.read_csv(file_name, sep='|')
     with open(file_name, 'r') as fp:
         if os.path.splitext(file_name)[1]== '.txt':
             annos = fp.readlines()
@@ -55,6 +55,9 @@ class TiMoSBCDataset(Dataset):
         sample_list_path = self.anno_path
         self.sample_list = load_file(sample_list_path)
 
+        result_list_path = kwargs['result_path']
+        self.result_list = load_file(result_list_path)
+
         if max_samples is not None:
             # self.sample_list = self.sample_list.sample(n=max_samples)
             self.sample_list = self.sample_list[start_sample:start_sample+max_samples]
@@ -95,9 +98,29 @@ class TiMoSBCDataset(Dataset):
 
         query_type = str(cur_sample['qid']).split('_')[0]
 
-        out_dict = {"sample_id": str(cur_sample['qid']), "answer": answer, "image": video, "query": question, 'pil_img': -1,
-                    "query_type": query_type, 'index': idx, 'possible_answers': possible_answers,
-                    'extra_context': possible_answers}
+        # for api tool part
+        result = self.result_list.iloc[idx]
+        code = result['code']
+        issue = result['potential_issues']
+        tool_spec = result['tool_spec']
+        dfs_filename = result['dfs_filename']
+        revised_code = result['revised_code']
+        
+        out_dict = {
+            "sample_id": str(cur_sample['qid']), 
+            "answer": answer, "image": video, 
+            "query": question, 
+            "pil_img": -1,
+            "query_type": query_type, 
+            "index": idx, 
+            "possible_answers": possible_answers,
+            'extra_context': possible_answers,
+            'code': code,
+            'issue': issue,
+            'tool_spec': tool_spec,
+            'dfs_filename': dfs_filename,
+            'revised_code': revised_code,
+        }
 
         return out_dict
 
