@@ -5,6 +5,7 @@ process(name, *args, **kwargs), where *args and **kwargs are the arguments of th
 """
 
 import abc
+import json
 import backoff
 import contextlib
 import openai
@@ -1043,11 +1044,12 @@ class CodexModel(BaseModel):
             raise TypeError("prompt must be a string or a list of strings")
 
         messages = self.format_messages(extended_prompt)
-        result = self.forward_(messages)
+        # result = self.forward_(messages)
         if not isinstance(prompt, list):
-            result = result[0]
+        #     result = result[0]
             messages = messages[0]
-        return result, messages
+        # return result, messages
+        return None, messages
 
     def forward_(self, messages):
         if len(messages) > self.max_batch_size:
@@ -1180,24 +1182,26 @@ class ReflectionModel(BaseModel):
 
         return instruction + examples + target
 
-    def forward(self, codes, messages, code_outputs):
+    def forward(self, codes, messages, code_outputs, issues):
         stage1_reflections = self.format_stage1_reflection(code_outputs)
         stage1_messages = self.format_stage1_messages(codes, messages, stage1_reflections)
-        if not isinstance(codes, list):
-            stage1_messages = [stage1_messages]
-        potential_issues = self.forward_(stage1_messages)
-        if not isinstance(codes, list):
-            stage1_messages = stage1_messages[0]
-            potential_issues = potential_issues[0]
-        stage2_reflections = self.format_stage2_reflection(codes, potential_issues)
-        stage2_messages = self.format_stage2_messages(stage1_messages, potential_issues, stage2_reflections)
-        if not isinstance(codes, list):
-            stage2_messages = [stage2_messages]
-        revised_codes = self.forward_(stage2_messages)
-        if not isinstance(codes, list):
-            revised_codes = revised_codes[0]
+        # if not isinstance(codes, list):
+        #     stage1_messages = [stage1_messages]
+        # potential_issues = self.forward_(stage1_messages)
+        # if not isinstance(codes, list):
+        #     stage1_messages = stage1_messages[0]
+            # potential_issues = potential_issues[0]
+            # issues = issues[0]
+        stage2_reflections = self.format_stage2_reflection(codes, issues)
+        stage2_messages = self.format_stage2_messages(stage1_messages, issues, stage2_reflections)
+        # if not isinstance(codes, list):
+        #     stage2_messages = [stage2_messages]
+        # revised_codes = self.forward_(stage2_messages)
+        # if not isinstance(codes, list):
+            # revised_codes = revised_codes[0]
 
-        return potential_issues, revised_codes
+        # return potential_issues, revised_codes, stage2_messages
+        return None, None, stage2_messages
 
     def forward_(self, messages):
         if len(messages) > self.max_batch_size:
@@ -1232,6 +1236,87 @@ class ReflectionModel(BaseModel):
         return response
     
 
+class AnyToolModel(BaseModel):
+    name = 'anytool'
+    requires_gpu = False
+    max_batch_size = 10
+
+    # Not batched, but every call will probably be a batch (coming from the same process)
+
+    def __init__(self, gpu_number=1):
+        super().__init__(gpu_number=gpu_number)
+
+    def format_message(self, message, revised_code, instruction):
+        message.append({
+            "role": "assistant", 
+            "content": revised_code
+        })
+        message.append({
+            "role": "user", 
+            "content": instruction
+        })
+
+        return message
+
+    def format_instruction(self, dfs_filename, tool_spec):
+        dfs_file = json.load(open(dfs_filename, 'r'))
+        api_pool = dfs_file['answer_generation']['function']
+        api_pool_description = json.dumps(api_pool, indent=4)
+        train_messages = dfs_file['answer_generation']['train_messages'][-1]
+        train_messages = json.dumps(train_messages, indent=4)
+        instruction = f"""
+            For the additional required function:
+            {tool_spec}
+            we have several api that can be used to complete / implement the function, here's api details:
+            {api_pool_description}
+            Also, here's possible way to implement the function:
+            {train_messages}
+            Please implement the additional required function and return code as response
+        """
+
+        return instruction
+
+    def forward(self, message, revised_code, tool_spec, dfs_filename):
+        instruction = self.format_instruction(dfs_filename, tool_spec)
+        message = self.format_message(message, revised_code, instruction)
+        if not isinstance(revised_code, list):
+            message = [message]
+        tool = self.forward_(message)
+        if not isinstance(revised_code, list):
+            tool = tool[0]
+        return tool
+
+    def forward_(self, messages):
+        if len(messages) > self.max_batch_size:
+            response = []
+            for i in range(0, len(messages), self.max_batch_size):
+                response += self.forward_(messages[i:i + self.max_batch_size])
+            return response
+        try:
+            response = codex_helper(messages)
+        except openai.error.RateLimitError as e:
+            print("Retrying Codex, splitting batch")
+            if len(messages) == 1:
+                warnings.warn("This is taking too long, maybe OpenAI is down? (status.openai.com/)")
+            # Will only be here after the number of retries in the backoff decorator.
+            # It probably means a single batch takes up the entire rate limit.
+            sub_batch_1 = messages[:len(messages) // 2]
+            sub_batch_2 = messages[len(messages) // 2:]
+            if len(sub_batch_1) > 0:
+                response_1 = self.forward_(sub_batch_1)
+            else:
+                response_1 = []
+            if len(sub_batch_2) > 0:
+                response_2 = self.forward_(sub_batch_2)
+            else:
+                response_2 = []
+            response = response_1 + response_2
+        except Exception as e:
+            # Some other error like an internal OpenAI error
+            print("Retrying Codex")
+            print(e)
+            response = self.forward_(messages)
+        return response
 
 class CodeLlama(CodexModel):
     name = 'codellama'
