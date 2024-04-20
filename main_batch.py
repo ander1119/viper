@@ -168,7 +168,8 @@ def main():
     all_reasons = []
     # all_reflection = []
     all_potential_issues = []
-    all_revised_codes = []
+    all_revised_functions = []
+    all_requested_function_specs = []
 
     all_groundtruths = []
     all_ids = []
@@ -177,47 +178,52 @@ def main():
     all_possible_answers = []
     all_query_types = []
 
+    NO_EXECUTION = 'NO EXECUTION'
+
     with mp.Pool(processes=num_processes, initializer=worker_init, initargs=(queues_results,)) \
             if config.multiprocessing else open(os.devnull, "w") as pool:
         try:
             n_batches = len(dataloader)
 
             for i, batch in tqdm(enumerate(dataloader), total=n_batches):
-
-                # Combine all queries and get Codex predictions for them
-                # TODO compute Codex for next batch as current batch is being processed
-
                 for sample_id, img, possible_answers, query, gt, extra_context \
                         in zip(batch['sample_id'], batch['image'], batch['possible_answers'], batch['query'], batch['answer'], batch['extra_context']):
 
                     # code -> str, message -> list[dict[str, str]]
                     code, message = codex(prompt=query, input_type=input_type, extra_context=extra_context)
-                    execution_result = run_program([code, sample_id, img, possible_answers, query], queues_in, input_type)
-                    execution_result['groundtruth'] = gt
-                    potential_issues, revised_code = forward('reflection', code, message, execution_result)
+                    execution_result = {'code': code}
+                    if config.execute_code:
+                        execution_result = run_program([code, sample_id, img, possible_answers, query], queues_in, input_type)
+                        execution_result['groundtruth'] = gt
+                    potential_issues, revised_function, requested_function_spec = forward('reflection', code, message, execution_result)
                     execution_result['potential_issues'] = potential_issues
-                    execution_result['revised_code'] = revised_code
+                    execution_result['revised_function'] = revised_function
+                    execution_result['requested_function_spec'] = requested_function_spec
 
-                    all_answers.append(execution_result['answer'])
-                    all_infos.append(json.dumps(execution_result['info'], indent=2))
+                    # result from code execution
+                    all_answers.append(execution_result.get('answer', NO_EXECUTION))
+                    all_infos.append(json.dumps(execution_result['info'], indent=2) if 'info' in execution_result else NO_EXECUTION)
+                    all_compilation_errors.append(execution_result.get('compilation_error', NO_EXECUTION))
+                    all_runtime_errors.append(execution_result.get('runtime_error', NO_EXECUTION))
+                    all_reasons.append(execution_result.get('reason', NO_EXECUTION))
+                    # for other result
                     all_codes.append(execution_result['code'])
-                    all_compilation_errors.append(execution_result['compilation_error'])
-                    all_runtime_errors.append(execution_result['runtime_error'])
-                    all_reasons.append(execution_result['reason'])
                     all_potential_issues.append(execution_result['potential_issues'])
-                    all_revised_codes.append(execution_result['revised_code'])
+                    all_revised_functions.append(execution_result['revised_function'])
+                    all_requested_function_specs.append(execution_result['requested_function_spec'])
+                    # original data input
                     all_ids.append(sample_id)
                     all_groundtruths.append(gt)
                     all_possible_answers.append(possible_answers)
                     all_queries.append(query)
 
                     for r in tqdm(range(1, config.num_reflections), desc='Reflections'):
-                        code = revised_code
+                        code = revised_function
                         execution_result = run_program([code, sample_id, img, possible_answers, query], queues_in, input_type)
                         execution_result['groundtruth'] = gt
-                        potential_issues, revised_code = forward('reflection', code, message, execution_result)
+                        potential_issues, revised_function = forward('reflection', code, message, execution_result)
                         execution_result['potential_issues'] = potential_issues
-                        execution_result['revised_code'] = revised_code
+                        execution_result['revised_code'] = revised_function
 
                         all_answers.append(execution_result['answer'])
                         all_infos.append(json.dumps(execution_result['info'], indent=2))
@@ -226,7 +232,7 @@ def main():
                         all_runtime_errors.append(execution_result['runtime_error'])
                         all_reasons.append(execution_result['reason'])
                         all_potential_issues.append(execution_result['potential_issues'])
-                        all_revised_codes.append(execution_result['revised_code'])
+                        all_revised_functions.append(execution_result['revised_code'])
                         all_ids.append(sample_id + f'_{r}')
                         all_groundtruths.append(gt)
                         all_possible_answers.append(possible_answers)
@@ -264,11 +270,12 @@ def main():
                         #    all_img_paths,
                            all_possible_answers,
                            all_codes,
-                           all_revised_codes,
+                           all_revised_functions,
+                           all_requested_function_specs,
+                           all_potential_issues,   
                            all_infos,
                            all_reasons,
                         #    all_reflection,
-                           all_potential_issues,
                            all_compilation_errors,
                            all_runtime_errors]).T
         df.columns = [
@@ -280,10 +287,11 @@ def main():
             'possible_answers', 
             'code', 
             'revised_code', 
+            'requested_function_spec', 
+            'potential_issues',
             'info', 
             'reason', 
-            # 'reflection',
-            'potential_issues',
+            # 'reflection',,
             'compilation_error', 
             'runtime_error'
             ]
