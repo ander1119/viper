@@ -1,20 +1,4 @@
-def execute_command(video, possible_answers, query, code)->[str, dict]
-    # Trope: FILL
-    # Definition: FILL
-    # Thought: FILL
-    # 1. FILL: FILL 
-    # ...
-    # n. FILL: FILL
-    #
-    # Additonal Required Function: FILL
-    # def function_name(parameter1: type, parameter2: type, ...) -> return1, return2, ...:
-    #   # function explaination 
-    #   # Parameters:
-    #   # - parameter1 (type): FILL
-    #   # - parameter2 (type): FILL
-    #   # ...
-    #   # Returns:
-    #   # - return1 (type): FILL
-    #   # - return2 (type): FILL
-    function logic implementation
-    return answer, reason, info
+{
+    "revised_function": "def execute_command(video, possible_answers, query, code)->[str, dict]\\n\\t# Trope: FILL\\n\\t# Definition: FILL\\n\\t# Thought: FILL\\n\\t# 1. FILL: FILL \\n\\t# ...\\n\\t# n. FILL: FILL\\n\\t#\\n\\t# Additonal Required Function: FILL\\n\\t# def function_name(parameter1: type, parameter2: type, ...) -> return1, return2, ...:\\n\\t#   # function explaination \\n\\t#   # Parameters:\\n\\t#   # - parameter1 (type): FILL\\n\\t#   # - parameter2 (type): FILL\\n\\t#   # ...\\n\\t#   # Returns:\\n\\t#   # - return1 (type): FILL\\n\\t#   # - return2 (type): FILL\\n\\tfunction logic implementation\\n\\treturn answer, reason, info"
+    "requested_function_spec": "def function_name(parameter1: type, parameter2: type, ...) -> return1, return2, ...:\\n\\t# function explaination \\n\\t# Parameters:\\n\\t# - parameter1 (type): FILL\\n\\t# - parameter2 (type): FILL\\n\\t# ...\\n\\t# Returns:\\n\\t# - return1 (type): FILL\\n\\t# - return2 (type): FILL"
+}
