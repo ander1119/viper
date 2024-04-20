@@ -958,7 +958,7 @@ class GPT3Model(BaseModel):
 
 # @cache.cache
 @backoff.on_exception(backoff.expo, Exception, max_tries=10)
-def codex_helper(messages):
+def codex_helper(messages, return_json=False):
     # message should be nested list
     assert 0 <= config.codex.temperature <= 1
     assert 1 <= config.codex.best_of <= 20
@@ -970,6 +970,9 @@ def codex_helper(messages):
             messages=message,
             temperature=config.codex.temperature,
             max_tokens=config.codex.max_tokens,
+            response_format={
+                'type': 'text' if not return_json else 'json_object'
+            },
             top_p=1.,
             frequency_penalty=0,
             presence_penalty=0,
@@ -1123,42 +1126,34 @@ class ReflectionModel(BaseModel):
         return stage1_messages
 
     def format_stage1_reflection(self, code_outputs):
-        instruction = """Please reflect on the code and intermediate result, in advance to analyze which lines leads to the incorrect answer.
+        instruction = """Please reflect on the code and its execution result on unknown movie, in advance to analyze which lines leads to the incorrect answer.
         Note that you can only point out one issue at a time.
         Here's some examples about analyzing specific functions and their corresponding potential issue:
         """
-        #             requesting api according to problems the function about to solve :\n
-
-        # instruction = """
-        #     If you are allowed to request one new api to strengthen the function or even correct the answer, what kind of api would you like to request?
-        #     Please reflect on the code and result, analyze which instruction leads to the incorrect answer and request a new api to solve the problem. 
-        #     The revised function should comments that define the new api in detail and the reason why you need it.
-        #     Here's some examples about analyzing specific function and their result, requesting api according to problems the function about to solve :\n
-        # """
 
         examples = '\n\n'.join(self.reflection_examples)
 
         target = f"""Here's target function I need you to point out the issue.
         Generated function:
         {code_outputs['code']}
-        Execution result:
-            answers: {code_outputs['answer']}
-            groundtruth: {code_outputs['groundtruth']}
-            info: {code_outputs['info']}
-            reason: {code_outputs['reason']}
-            compilation_error: {code_outputs['compilation_error']}
-            runtime_error: {code_outputs['runtime_error']}
-        Potential issue:
         """
+
+        if 'answer' not in code_outputs:
+            target += "There's execution result for you to refer, please point out the issue based on function code alone"
+        else:
+            target += f"""Execution result:
+                answers: {code_outputs['answer']}
+                groundtruth: {code_outputs['groundtruth']}
+                info: {code_outputs['info']}
+                reason: {code_outputs['reason']}
+                compilation_error: {code_outputs['compilation_error']}
+                runtime_error: {code_outputs['runtime_error']}
+                """
+        target += "Please return json object containing 'lines' and 'reason'\n"
         
         return str(instruction + examples + target)
     
     def format_stage2_reflection(self, codes, potential_issues):
-        # instruction = f"""
-        #     Please modify function\n{codes}\n based on potential issues\n{potential_issues}\n
-        #     You MUST only return the function.\n
-        # """
-
         instruction = """You are allowed to request one additional function trying to deal with one issue.
         The requested function should follow restrictions:
             1. no complex logic
@@ -1173,9 +1168,9 @@ class ReflectionModel(BaseModel):
         {codes}
         Potential issue:
         {potential_issues}
-        Please follow the format to return the revised function. 
+        Please follow the format: 
         {self.revised_function_format}
-        You MUST only return the function.
+        Return json object containing 'revised_function' and 'requested_function_spec' as response
         """
 
         return instruction + examples + target
@@ -1193,11 +1188,14 @@ class ReflectionModel(BaseModel):
         stage2_messages = self.format_stage2_messages(stage1_messages, potential_issues, stage2_reflections)
         if not isinstance(codes, list):
             stage2_messages = [stage2_messages]
-        revised_codes = self.forward_(stage2_messages)
+        resp = self.forward_(stage2_messages)
         if not isinstance(codes, list):
-            revised_codes = revised_codes[0]
+            resp = resp[0]
+            resp = eval(resp)
+            revised_functions = resp['revised_function']
+            requested_function_spec = resp['requested_function_spec']
 
-        return potential_issues, revised_codes
+        return potential_issues, revised_functions, requested_function_spec
 
     def forward_(self, messages):
         if len(messages) > self.max_batch_size:
@@ -1206,7 +1204,7 @@ class ReflectionModel(BaseModel):
                 response += self.forward_(messages[i:i + self.max_batch_size])
             return response
         try:
-            response = codex_helper(messages)
+            response = codex_helper(messages, return_json=True)
         except openai.error.RateLimitError as e:
             print("Retrying Codex, splitting batch")
             if len(messages) == 1:
@@ -1350,7 +1348,7 @@ class BLIPModel(BaseModel):
     @torch.no_grad()
     def caption(self, image, prompt=None):
         inputs = self.processor(images=image, text=prompt, return_tensors="pt").to(self.dev, torch.float16)
-        generated_ids = self.model.generate(**inputs, length_penalty=1., num_beams=5, max_length=30, min_length=1,
+        generated_ids = self.model.generate(**inputs, length_penalty=1., num_beams=5, max_length=30, min_length=10,
                                             do_sample=False, top_p=0.9, repetition_penalty=1.0,
                                             num_return_sequences=1, temperature=1)
         generated_text = [cap.strip() for cap in
@@ -1378,7 +1376,7 @@ class BLIPModel(BaseModel):
         inputs = self.processor(images=image, text=question, return_tensors="pt", padding="longest").to(self.dev)
         if self.half_precision:
             inputs['pixel_values'] = inputs['pixel_values'].half()
-        generated_ids = self.model.generate(**inputs, length_penalty=-1, num_beams=5, max_length=50, min_length=10,
+        generated_ids = self.model.generate(**inputs, length_penalty=-1, num_beams=5, max_length=50, min_length=20,
                                             do_sample=False, top_p=0.9, repetition_penalty=1.0,
                                             num_return_sequences=1, temperature=1)
         generated_text = self.processor.batch_decode(generated_ids, skip_special_tokens=True)
