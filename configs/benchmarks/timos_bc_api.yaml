@@ -1,15 +1,16 @@
 dataset:
   data_path: /project/mira/dataset/MovieNet
-  anno_path: /mnt/ssd2/TropeVLM/tropes/trope_bc_with_definition_subset_1_plot_all_trope.json
-  # anno_path: /mnt/ssd2/TropeVLM/tropes/trope_bc_with_definition_has_trope.json
+  # anno_path: /mnt/ssd2/TropeVLM/tropes/trope_bc_with_definition_subset_5_plot_20_trope.json
+  anno_path: /mnt/ssd2/TropeVLM/tropes/trope_bc_with_definition_has_trope.json
   dataset_name: TiMoSBC
   version: multiplechoice
   fps: 10
-  max_num_frames: 30
+  max_num_frames: 1
   split: val
   batch_size: 16
   # max_samples: 1
   start_sample: 0
+  result_path: /mnt/ssd2/TropeVLM/ViperGPT/results/timos_bc/val/api_pool_test.csv
 
 codex:
   # prompt: ./prompts/benchmarks/timos_bc.prompt
