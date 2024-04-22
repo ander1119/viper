@@ -880,6 +880,20 @@ class GPT3Model(BaseModel):
         else:
             response = [r["text"] for r in response['choices']]
         return response
+    
+    def get_summarization(self, prompts) -> list[dict]:
+        responses = []
+        for prompt in prompts:
+            message = [{"role": "user", "content": prompt}]
+            response = openai.ChatCompletion.create(
+                model=self.model,
+                messages=message,
+                # response_format={"type": "json_object"},
+                temperature=self.temperature,
+                # max_tokens=4000,
+            )
+            responses.append(response.choices[0].message.content)
+        return responses
 
     def query_gpt3(self, prompt, model="text-davinci-003", max_tokens=16, logprobs=None, stream=False,
                    stop=None, top_p=1, frequency_penalty=0, presence_penalty=0):
@@ -933,8 +947,10 @@ class GPT3Model(BaseModel):
                 response = self.get_qa(prompt)
             elif process_name == 'gpt3_guess':
                 response = self.process_guesses(prompt)
-            else:  # 'gpt3_general', general prompt, has to be given all of it
+            elif process_name == 'gpt3_general':  # 'gpt3_general', general prompt, has to be given all of it
                 response = self.get_general(prompt)
+            elif process_name == 'gpt3_summarize':
+                response = self.get_summarization(prompt)
         else:
             response = []  # All previously cached
 
@@ -953,7 +969,7 @@ class GPT3Model(BaseModel):
 
     @classmethod
     def list_processes(cls):
-        return ['gpt3_' + n for n in ['qa', 'guess', 'general']]
+        return ['gpt3_' + n for n in ['qa', 'guess', 'general', 'summarize']]
 
 
 # @cache.cache
@@ -1276,7 +1292,7 @@ class BLIPModel(BaseModel):
     max_batch_size = 32
     seconds_collect_data = 0.2  # The queue has additionally the time it is executing the previous forward pass
 
-    def __init__(self, gpu_number=1, half_precision=config.blip_half_precision,
+    def __init__(self, gpu_number=0, half_precision=config.blip_half_precision,
                  blip_v2_model_type=config.blip_v2_model_type):
         super().__init__(gpu_number)
 

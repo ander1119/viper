@@ -99,18 +99,44 @@ class VideoSegment:
         return VideoSegment(self.trimmed_video, start, end, self.start, queues=self.queues)
 
     def select_answer(self, info: dict, question: str, options=None) -> str:
-        def format_dict(x):
-            if isinstance(x, dict):
-                x = ''.join([f'\n\t- {k}: {format_dict(v)}' for k, v in x.items()])
-            return x
+        
+        import json
+
+        def info_summarize(info):
+            prompt = f'You are given an json string that contains caption or query from frames in a video, please remove redundant information from the json string (for example, similar description in adjacent frame). And return the final response in json format. Here is json string you are asked to task:\n{info}\n'
+            return eval(self.forward('gpt3_summarize', prompt))
+            
         with open(config.select_answer_prompt, 'r') as f:
             prompt = f.read()
-        info_formatting = '\n'.join([f"- {k}: {format_dict(v)}" for k, v in info.items()])
+        # info_formatting = '\n'.join([f"- {k}: {format_dict(v)}" for k, v in info.items()])
+        character_limit = 16000 * 4 - len(prompt)
+        chunk_limit = 9000 * 4
+
+        while len(json.dumps(info)) > character_limit:
+            summarized_info = {}
+            chunk_message = {}
+            for key, value in info.items():
+                chunk_message[key] = value
+                if len(json.dumps(chunk_message)) > chunk_limit:
+                    summarization = info_summarize(json.dumps(chunk_message))
+                    summarized_info.update(summarization)
+                    chunk_message = {}
+            info = summarized_info
+
+        info_formatting = json.dumps(info)
         prompt = prompt.format(info=info_formatting, question=question, options=options)
         answer = self.forward('gpt3_general', prompt)
-        answer = eval(answer)
-        return answer
+        
+        # try:
+        #     result = eval(result)
+        #     answer = result.get('answer', 'None')
+        #     reason = result.get('reason', f'gpt3_general return {result}') 
+        # except:
+        #     answer = 'None'
+        #     reason = f'gpt3_general return {result}'
 
+        return answer
+    
     def frame_iterator(self) -> Iterator[ImagePatch]:
         """Returns an iterator over the frames in the video segment."""
         for i in range(self.num_frames):
