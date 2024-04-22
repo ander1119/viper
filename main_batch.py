@@ -1,3 +1,4 @@
+import json
 import os
 import pathlib
 from functools import partial
@@ -80,15 +81,13 @@ def run_program(parameters, queues_in_, input_type_, retrying=True):
     llm_query_partial = partial(llm_query, queues=queues)
 
     try:
-        result, info = globals()[f'execute_command_{sample_id}'](
+        answer = globals()[f'execute_command_{sample_id}'](
             # Inputs to the function
             image, possible_answers, query,
             # Classes to be used
             image_patch_partial, video_segment_partial,
             # Functions to be used
             llm_query_partial, bool_to_yesno, distance, best_image_match)
-        answer = result['answer']
-        reason = result['reason']
     except Exception as e:
         # print full traceback
         traceback.print_exc()
@@ -154,7 +153,7 @@ def main():
 
     codes_all = None
     if config.use_cached_codex:
-        results = pd.read_csv(config.cached_codex_path)
+        results = pd.read_csv(config.cached_codex_path, sep='|')
         codes_all = [r.split('# Answer is:')[1] for r in results['code']]
     # python -c "from joblib import Memory; cache = Memory('cache/', verbose=0); cache.clear()"
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=0, pin_memory=True,
@@ -196,13 +195,13 @@ def main():
                     if not config.multiprocessing:
                         # Otherwise, we would create a new model for every process
                         results = []
-                        for c, sample_id, img, possible_answers, query, gt, msg in \
-                                zip(codes, batch['sample_id'], batch['image'], batch['possible_answers'], batch['query'], batch['answer'], messages):
+                        for c, sample_id, img, possible_answers, query, gt in \
+                                zip(codes, batch['sample_id'], batch['image'], batch['possible_answers'], batch['query'], batch['answer']):
                             result = run_program([c, sample_id, img, possible_answers, query], queues_in, input_type)
                             result['groundtruth'] = gt
                             # reflection_result = reflection(c, msg, result)
-                            reflection_result = forward('reflection', c, msg, result)
-                            result['reflection_result'] = reflection_result
+                            # reflection_result = forward('reflection', c, msg, result)
+                            # result['reflection_result'] = reflection_result
                             results.append(result)
                     else:
                         results = list(pool.imap(partial(
@@ -216,12 +215,12 @@ def main():
                                   "it.")
 
                 all_answers += [r['answer'] for r in results]
-                all_infos += [format_dict(r['info']) for r in results]
+                all_infos += [json.dumps(r['info'], indent=2) for r in results]
                 all_codes += [r['code'] for r in results]
                 all_compilation_errors += [r['compilation_error'] for r in results]
                 all_runtime_errors += [r['runtime_error'] for r in results]
                 all_reasons += [r['reason'] for r in results]
-                all_reflection += [r['reflection_result'] for r in results]
+                # all_reflection += [r['reflection_result'] for r in results]
                 all_ids += batch['sample_id']
                 all_groundtruths += batch['answer']
                 all_possible_answers += batch['possible_answers']
@@ -270,7 +269,7 @@ def main():
                            all_codes,
                            all_infos,
                            all_reasons,
-                           all_reflection,
+                        #    all_reflection,
                            all_compilation_errors,
                            all_runtime_errors]).T
         df.columns = [
@@ -282,7 +281,7 @@ def main():
             'code', 
             'info', 
             'reason', 
-            'reflection',
+            # 'reflection',
             'compilation_error', 
             'runtime_error'
             ]
