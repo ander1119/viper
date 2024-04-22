@@ -39,7 +39,7 @@ def save_file(obj, filename):
 
 class TiMoSBCDataset(Dataset):
     def __init__(self, split, data_path="", tokenize=None, max_samples=None, version='multiplechoice', fps=10,
-                 max_num_frames=240, start_sample=0, **kwargs):
+                 max_num_frames=None, start_sample=0, **kwargs):
 
         assert version in ['multiplechoice']
         
@@ -72,7 +72,7 @@ class TiMoSBCDataset(Dataset):
         vlen = len(video_reader)
         original_fps = video_reader.get_avg_fps()
         num_frames = int(vlen * self.fps / original_fps)
-        num_frames = min(self.max_num_frames, num_frames)
+        num_frames = min(self.max_num_frames, num_frames) if self.max_num_frames is not None else num_frames
         frame_idxs = np.linspace(0, vlen, num_frames, endpoint=False).astype(np.int)
         video = video_reader.get_batch(frame_idxs).byte() # (num_frames, H, W, C)
         video = video.permute(0, 3, 1, 2) # (num_frames, C, H, W)
