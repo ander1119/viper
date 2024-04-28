@@ -1,12 +1,12 @@
 dataset:
   data_path: /project/mira/dataset/MovieNet
-  anno_path: /mnt/ssd2/TropeVLM/tropes/trope_bc_with_definition_subset_5_plot_20_trope.json
+  anno_path: /mnt/ssd2/TropeVLM/tropes/subset_5_plot/trope_bc_with_definition_subset_theboodocksaintsiiallsaintday_20_trope.json
   dataset_name: TiMoSBC
   version: multiplechoice
   fps: 10
   # max_num_frames: 1
   split: val
-  batch_size: 16
+  batch_size: 10
   # max_samples: 1
   start_sample: 0
 
@@ -26,7 +26,7 @@ codex:
 select_answer_prompt: ./prompts/gpt3/timos_bc_question.txt
 fixed_code_file: ./prompts/fixed_code/blip2_video.prompt
 
-results_dir: ./results/timos_bc/
+results_dir: ./results/timos_bc/theboodocksaints
 
 gpt3:
   model: gpt-3.5-turbo-1106
