@@ -5,7 +5,6 @@ from functools import partial
 import warnings
 import traceback
 
-
 import pandas as pd
 import torch.multiprocessing as mp
 from joblib import Memory
@@ -154,7 +153,8 @@ def main():
     codes_all = None
     if config.use_cached_codex:
         results = pd.read_csv(config.cached_codex_path, sep='|')
-        codes_all = [r.split('# Answer is:')[1] for r in results['code']]
+        # codes_all = [r.split('# Answer is:')[1] for r in results['code']]
+        codes_all = {qid: code.split('# Answer is:')[1] for qid, code in zip(results['id'], results['code'])}
     # python -c "from joblib import Memory; cache = Memory('cache/', verbose=0); cache.clear()"
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=0, pin_memory=True,
                             collate_fn=my_collate)
@@ -188,7 +188,8 @@ def main():
                 if not config.use_cached_codex:
                     codes, messages = codex(prompt=batch['query'], input_type=input_type, extra_context=batch['extra_context'])
                 else:
-                    codes = codes_all[i * batch_size:(i + 1) * batch_size]  # If cache
+                    # codes = codes_all[i * batch_size:(i + 1) * batch_size]  # If cache
+                    codes = [codes_all[qid] for qid in batch['sample_id']]
 
                 # Run the code
                 if config.execute_code:
