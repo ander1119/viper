@@ -11,7 +11,7 @@ dataset:                                            # Dataset configuration
     start_sample: 0                                 # Start sample index. Only used if max_samples is not None
 
 load_models:                                        # Which pretrained models to load
-    maskrcnn: False
+    maskrcnn: True
     clip: False
     glip: True
     owlvit: False
@@ -63,7 +63,7 @@ results_dir: ./results/                             # Directory to save the resu
 use_cache: False                                     # Use cache for the models that support it (now, GPT-3)
 clear_cache: False                                  # Clear stored cache
 use_cached_codex: True                             # Use previously-computed Codex results
-cached_codex_path: '/mnt/ssd2/TropeVLM/ViperGPT/results/timos_bc/incontext_codegen_incontext_qa/gpt35_5_plots_20_tropes.csv'                               # Path to the csv results file from which to load Codex results
+cached_codex_path: './results/timos_bc/incontext_codegen_incontext_qa/gpt35_5_plots_20_tropes.csv'                               # Path to the csv results file from which to load Codex results
 log_every: 20                                       # Log accuracy every n batches
 wandb: False                                        # Use Weights and Biases
 
