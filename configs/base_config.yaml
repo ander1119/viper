@@ -11,35 +11,22 @@ dataset:                                            # Dataset configuration
     start_sample: 0                                 # Start sample index. Only used if max_samples is not None
 
 load_models:                                        # Which pretrained models to load
-<<<<<<< HEAD
     maskrcnn: True
-=======
-    maskrcnn: False
->>>>>>> 9f3048f0d7f875b876723f7baea117f42e384629
     clip: False
     glip: True
     owlvit: False
     tcl: False
     gpt3_qa: True
     gpt3_general: True
-<<<<<<< HEAD
-    depth: False
-    blip: False
-=======
     gpt3_summarize: True
     depth: False
     blip: True
->>>>>>> 9f3048f0d7f875b876723f7baea117f42e384629
     saliency: False
     xvlm: False
     codex: True
     codellama: False
-<<<<<<< HEAD
     reflection: True
     gemini: True
-=======
-    # reflection: True
->>>>>>> 9f3048f0d7f875b876723f7baea117f42e384629
 
 detect_thresholds:                                  # Thresholds for the models that perform detection
     glip: 0.5
@@ -66,10 +53,10 @@ gpt3:                                               # GPT-3 configuration
 codex:
     temperature: 0.                                 # Temperature for Codex. (Almost) deterministic if 0
     best_of: 1                                      # Number of tries to choose from. Use when temperature > 0
-    max_tokens: 512                                 # Maximum number of tokens to generate for Codex
+    max_tokens: 4096                                 # Maximum number of tokens to generate for Codex
     prompt: ./prompts/chatapi.prompt                # Codex prompt file, which defines the API. (doesn't support video for now due to token limits)
     # model: gpt-4                           # Codex model to use. [code-davinci-002, gpt-3.5-turbo, gpt-4]. See openai.Model.list() for available models
-    model: gpt-3.5-turbo-1106
+    model: gpt-3.5-turbo-0125
 # Saving and loading parameters
 save: True                                          # Save the results to a file
 save_new_results: True                              # If False, overwrite the results file
@@ -77,7 +64,7 @@ results_dir: ./results/                             # Directory to save the resu
 use_cache: False                                     # Use cache for the models that support it (now, GPT-3)
 clear_cache: False                                  # Clear stored cache
 use_cached_codex: True                             # Use previously-computed Codex results
-cached_codex_path: 'results/timos_bc/incontext_codegen_incontext_qa/gpt35_5_plots_20_tropes.csv'                               # Path to the csv results file from which to load Codex results
+cached_codex_path: '/mnt/ssd2/TropeVLM/ViperGPT/results/timos_bc/incontext_codegen_incontext_qa/gpt35_5_plots_20_tropes.csv'                               # Path to the csv results file from which to load Codex results
 log_every: 20                                       # Log accuracy every n batches
 wandb: False                                        # Use Weights and Biases
 

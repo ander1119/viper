@@ -1,6 +1,6 @@
 dataset:
   data_path: /project/mira/dataset/MovieNet
-  anno_path: /mnt/ssd2/TropeVLM/tropes/subset_5_plot/trope_bc_with_definition_subset_ozthegreatandpowerful_20_trope.json
+  anno_path: ../tropes/subset_5_plot/trope_bc_with_definition_subset_ozthegreatandpowerful_20_trope.json
   dataset_name: TiMoSBC
   version: multiplechoice
   fps: 10

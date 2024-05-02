@@ -4,9 +4,9 @@ import torch
 from typing import Union, Iterator
 
 from configs import config
+from vision_models import DeepFaceModel
 from image_patch import ImagePatch
 from vision_processes import forward
-
 
 class VideoSegment:
     """A Python class containing a set of frames represented as ImagePatch objects, as well as relevant information.
@@ -63,6 +63,10 @@ class VideoSegment:
 
         if self.trimmed_video.shape[0] == 0:
             raise Exception("VideoSegment has duration=0")
+        
+        self.role_face_db = {}
+
+        self.deepface_model = DeepFaceModel()
 
     def forward(self, model_name, *args, **kwargs):
         return forward(model_name, *args, queues=self.queues, **kwargs)
@@ -97,6 +101,25 @@ class VideoSegment:
             end = min(end, self.num_frames)
 
         return VideoSegment(self.trimmed_video, start, end, self.start, queues=self.queues)
+
+    def face_identify(self, image: ImagePatch) -> str:
+        """Identifies the person in the given image and returns their name."""
+        # return self.forward('deepface', image, self.role_face_db)
+        # idx = 0
+        # while os.path.exists(f'./tmp2/{idx}.jpg'):
+        #     idx += 1
+        # show_single_image(image.cropped_image, save_path=f'./tmp2/{idx}.jpg')
+        # for pid, faces in self.role_face_db.items():
+        #     for i, face in enumerate(faces):
+        #         img_path = f'./tmp/{pid}/{i}.jpg'
+        #         if not os.path.exists(img_path):
+        #             show_single_image(face.cropped_image, save_path=img_path)
+        # state_role_face_db = {
+        #     pid: len(faces) for pid, faces in self.role_face_db.items()
+        # }
+        # print(state_role_face_db)
+
+        return self.deepface_model.forward(image, self.role_face_db)
 
     def select_answer(self, info: dict, question: str, options=None) -> str:
         
@@ -162,17 +185,17 @@ class VideoSegment:
 
         # info_formatting = json.dumps(info)
         prompt = prompt.format(info=info, question=question, options=options)
-        answer = self.forward('gpt3_general', prompt)
+        result = self.forward('gpt3_general', prompt)
         
-        # try:
-        #     result = eval(result)
-        #     answer = result.get('answer', 'None')
-        #     reason = result.get('reason', f'gpt3_general return {result}') 
-        # except:
-        #     answer = 'None'
-        #     reason = f'gpt3_general return {result}'
+        try:
+            result = eval(result)
+            answer = result.get('answer', 'None')
+            reason = result.get('reason', f'gpt3_general return {result}') 
+        except:
+            answer = 'None'
+            reason = f'gpt3_general return {result}'
 
-        return answer
+        return answer, reason
     
     def frame_iterator(self) -> Iterator[ImagePatch]:
         """Returns an iterator over the frames in the video segment."""
