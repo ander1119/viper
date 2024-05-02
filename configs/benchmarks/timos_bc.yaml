@@ -1,13 +1,13 @@
 dataset:
   data_path: /project/mira/dataset/MovieNet
-  anno_path: /mnt/ssd2/TropeVLM/tropes/trope_bc_with_definition_subset_5_plot_20_trope.json
+  anno_path: ../tropes/trope_bc_with_definition_subset_5_plot_20_trope.json
   dataset_name: TiMoSBC
   version: multiplechoice
   fps: 10
   max_num_frames: 120
   split: val
   batch_size: 16
-  # max_samples: 20
+  # max_samples: 0
   start_sample: 0
 
 codex:
@@ -30,3 +30,5 @@ results_dir: ./results/timos_bc/
 
 gpt3:
   model: gpt-3.5-turbo-16k
+
+vqa_model: gemini
