@@ -27,6 +27,7 @@ load_models:                                        # Which pretrained models to
     codellama: False
     reflection: True
     gemini: True
+    deepface: True
 
 detect_thresholds:                                  # Thresholds for the models that perform detection
     glip: 0.5
@@ -64,7 +65,7 @@ results_dir: ./results/                             # Directory to save the resu
 use_cache: False                                     # Use cache for the models that support it (now, GPT-3)
 clear_cache: False                                  # Clear stored cache
 use_cached_codex: True                             # Use previously-computed Codex results
-cached_codex_path: '/mnt/ssd2/TropeVLM/ViperGPT/results/timos_bc/incontext_codegen_incontext_qa/gpt35_5_plots_20_tropes.csv'                               # Path to the csv results file from which to load Codex results
+cached_codex_path: './results/timos_bc/faceid_test/gpt35_1_plot_all_tropes_faceid.csv'                               # Path to the csv results file from which to load Codex results
 log_every: 20                                       # Log accuracy every n batches
 wandb: False                                        # Use Weights and Biases
 
