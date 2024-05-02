@@ -97,7 +97,7 @@ class BaseModel(abc.ABC):
 class ObjectDetector(BaseModel):
     name = 'object_detector'
 
-    def __init__(self, gpu_number=1):
+    def __init__(self, gpu_number=0):
         super().__init__(gpu_number)
 
         # with HiddenPrints('ObjectDetector'):
@@ -159,7 +159,7 @@ class DepthEstimationModel(BaseModel):
 class CLIPModel(BaseModel):
     name = 'clip'
 
-    def __init__(self, gpu_number=1, version="ViT-L/14@336px"):  # @336px
+    def __init__(self, gpu_number=0, version="ViT-L/14@336px"):  # @336px
         super().__init__(gpu_number)
 
         import clip
@@ -330,7 +330,7 @@ class CLIPModel(BaseModel):
 class MaskRCNNModel(BaseModel):
     name = 'maskrcnn'
 
-    def __init__(self, gpu_number=1, threshold=config.detect_thresholds.maskrcnn):
+    def __init__(self, gpu_number=0, threshold=config.detect_thresholds.maskrcnn):
         super().__init__(gpu_number)
         # with HiddenPrints('MaskRCNN'):
         obj_detect = torchvision.models.detection.maskrcnn_resnet50_fpn_v2(weights='COCO_V1').to(self.dev)
@@ -374,7 +374,7 @@ class MaskRCNNModel(BaseModel):
 class OwlViTModel(BaseModel):
     name = 'owlvit'
 
-    def __init__(self, gpu_number=1, threshold=config.detect_thresholds.owlvit):
+    def __init__(self, gpu_number=0, threshold=config.detect_thresholds.owlvit):
         super().__init__(gpu_number)
 
         from transformers import OwlViTProcessor, OwlViTForObjectDetection
@@ -621,7 +621,7 @@ class GLIPModel(BaseModel):
 class TCLModel(BaseModel):
     name = 'tcl'
 
-    def __init__(self, gpu_number=1):
+    def __init__(self, gpu_number=0):
 
         from base_models.tcl.tcl_model_pretrain import ALBEF
         from base_models.tcl.tcl_vit import interpolate_pos_embed
@@ -792,7 +792,7 @@ class GPT3Model(BaseModel):
     to_batch = False
     requires_gpu = False
 
-    def __init__(self, gpu_number=1):
+    def __init__(self, gpu_number=0):
         super().__init__(gpu_number=gpu_number)
         with open(config.gpt3.qa_prompt) as f:
             self.qa_prompt = f.read().strip()
@@ -1253,7 +1253,7 @@ class CodeLlama(CodexModel):
 
     # Not batched, but every call will probably be a batch (coming from the same process)
 
-    def __init__(self, gpu_number=1):
+    def __init__(self, gpu_number=0):
         super().__init__(gpu_number=gpu_number)
 
         from transformers import LlamaForCausalLM, CodeLlamaTokenizer
@@ -1319,7 +1319,7 @@ class GeminiModel(BaseModel):
     to_batch = False
     requires_gpu = False
 
-    def __init__(self, gpu_number=1):
+    def __init__(self, gpu_number=0):
         super().__init__(gpu_number=gpu_number)
         self.model = genai.GenerativeModel('gemini-pro-vision')
         self.safety_setting = [
@@ -1382,7 +1382,7 @@ class BLIPModel(BaseModel):
     max_batch_size = 32
     seconds_collect_data = 0.2  # The queue has additionally the time it is executing the previous forward pass
 
-    def __init__(self, gpu_number=1, half_precision=config.blip_half_precision,
+    def __init__(self, gpu_number=0, half_precision=config.blip_half_precision,
                  blip_v2_model_type=config.blip_v2_model_type):
         super().__init__(gpu_number)
 
@@ -1521,7 +1521,7 @@ class DeepFaceModel(BaseModel):
 class SaliencyModel(BaseModel):
     name = 'saliency'
 
-    def __init__(self, gpu_number=1,
+    def __init__(self, gpu_number=0,
                  path_checkpoint=f'{config.path_pretrained_models}/saliency_inspyrenet_plus_ultra'):
         from base_models.inspyrenet.saliency_transforms import get_transform
         from base_models.inspyrenet.InSPyReNet import InSPyReNet
