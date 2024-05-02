@@ -76,7 +76,7 @@ class TiMoSBCDataset(Dataset):
             num_frames = min(self.max_num_frames, num_frames)
         else:
             num_frames = num_frames // 3
-        frame_idxs = np.linspace(0, vlen, num_frames, endpoint=False).astype(np.int)
+        frame_idxs = np.linspace(0, vlen, num_frames, endpoint=False).astype(np.int64)
         video = video_reader.get_batch(frame_idxs).byte() # (num_frames, H, W, C)
         video = video.permute(0, 3, 1, 2) # (num_frames, C, H, W)
         return video
