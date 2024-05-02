@@ -1,6 +1,6 @@
 answer|groundtruth|id|trope|query|img_path|possible_answers|code|info|reason|compilation_error|runtime_error
 NO EXECUTION|yes|tt0100157_0|Big Bad|"Is the trope ""Big Bad"", which means ""The character who is the direct cause of all of the bad happenings in a story."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Big Bad
     # Definition: The character who is the direct cause of all of the bad happenings in a story.
     # Thought: To detect the ""Big Bad"" trope, we need to identify the character responsible for the major negative events in the story.
@@ -42,7 +42,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_1|Jerkass|"Is the trope ""Jerkass"", which means ""A character who is so completely obnoxious that it is unbelievable anyone would willingly interact with them."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Jerkass
     # Definition: A character who is so completely obnoxious that it is unbelievable anyone would willingly interact with them.
     # Thought: To detect the ""Jerkass"" trope, we need to analyze the behavior and interactions of characters in the video.
@@ -75,7 +75,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_2|Faux Affably Evil|"Is the trope ""Faux Affably Evil"", which means ""A villain whose politeness is an act that only serves to enhance their evil."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Faux Affably Evil
     # Definition: A villain whose politeness is an act that only serves to enhance their evil.
     # Thought: To detect the trope ""Faux Affably Evil"" in the video, we need to analyze the behavior and actions of a character who appears polite but uses this facade to further their evil intentions.
@@ -111,7 +111,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_3|Smug Snake|"Is the trope ""Smug Snake"", which means ""A type of character (usually a villain) who tends to treat friends and enemies alike with equal disdain."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Smug Snake
     # Definition: A type of character (usually a villain) who tends to treat friends and enemies alike with equal disdain.
     # Thought: To detect the ""Smug Snake"" trope, we need to identify a character in the video who displays arrogance and disdain towards others, regardless of their affiliation. This involves analyzing character interactions, expressions, and behaviors to determine if the character fits the trope description.
@@ -148,7 +148,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_4|Abusive Parents|"Is the trope ""Abusive Parents"", which means ""This includes parents who are emotionally, verbally, physically, or mentally abusive, or who neglectfully allow their children to be abused 
 by others if they don't abuse the child themselves"", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Abusive Parents
     # Definition: This includes parents who are emotionally, verbally, physically, or mentally abusive, or who neglectfully allow their children to be abused by others if they don't abuse the child themselves.
     # Thought: To detect the presence of the ""Abusive Parents"" trope, we need to analyze the video frames for signs of abusive behavior or neglectful actions by parents towards their children.
@@ -168,11 +168,11 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Behavior in {i}th frame""] = behavior_query
             info[f""Abusive Behavior in {i}th frame""] = abusive_behavior
     # Determine if the ""Abusive Parents"" trope is relevant based on the collected data
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_5|Would Hurt a Child|"Is the trope ""Would Hurt a Child"", which means ""People that do hurt children, sometimes even kill them."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Would Hurt a Child
     # Definition: People that do hurt children, sometimes even kill them.
     # Thought: To detect the trope ""Would Hurt a Child"", we need to analyze the video frames for instances where a child is in danger or being harmed. This involves identifying the child character, the perpetrator, and the action that indicates harm.
@@ -195,7 +195,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_6|Action Girl|"Is the trope ""Action Girl"", which means ""An Action Girl is a female badass who is tough and kicks butt."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Action Girl
     # Definition: An Action Girl is a female character who is tough, skilled in combat, and often takes on physically demanding roles traditionally reserved for male characters.
     # Thought: To determine if the trope ""Action Girl"" is relevant to the movie, we need to identify a female character who exhibits traits of toughness, combat skills, and engages in physically demanding actions typically associated with male characters.
@@ -224,7 +224,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_7|Reasonable Authority Figure|"Is the trope ""Reasonable Authority Figure"", which means ""Authirity that is open to heros' inasane ideas.  Often, they'll ask for proof and facts rather than follow baseless accusations, but even then, 
 they'll usually humor the heroes and go check out their theories."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Reasonable Authority Figure
     # Definition: An authority figure who is open to the ideas and suggestions of the protagonists, even if they seem far-fetched or unconventional. They are willing to investigate and consider the heroes' theories rather than dismissing them outright.
     # Thought: To detect the ""Reasonable Authority Figure"" trope, we need to focus on the behavior and responses of authority figures towards the heroes' ideas and actions.
@@ -254,7 +254,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_8|Papa Wolf|"Is the trope ""Papa Wolf"", which means ""Paternal instinct can transform a Bumbling Dad into an Action Dad. If someone threatens his kids they will soon wish 
 they'd never come within a mile of them."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Papa Wolf
     # Definition: Paternal instinct can transform a Bumbling Dad into an Action Dad. If someone threatens his kids they will soon wish they'd never come within a mile of them.
     # Thought: To detect the ""Papa Wolf"" trope, we need to identify instances where a character, typically a father figure, exhibits extreme protective behavior towards their children. This behavior often involves a shift from a passive or bumbling demeanor to a fierce and protective one.
@@ -291,7 +291,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_9|Deadpan Snarker|"Is the trope ""Deadpan Snarker"", which means ""A character prone to gnomic, sarcastic, sometimes bitter, occasionally whimsical asides."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Deadpan Snarker
     # Definition: A character prone to gnomic, sarcastic, sometimes bitter, occasionally whimsical asides.
     # Thought: To detect the ""Deadpan Snarker"" trope, we need to identify a character exhibiting the described behavior throughout the video.
@@ -313,7 +313,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
         return ""no"", ""No character exhibiting Deadpan Snarker behavior was detected."", info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_10|Determinator|"Is the trope ""Determinator"", which means ""A character \ good or evil, male or female, young or old \ who never gives up. Ever. No matter what."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Determinator
     # Definition: A character, good or evil, male or female, young or old, who never gives up. Ever. No matter what.
     # Thought: To detect the ""Determinator"" trope, we need to identify a character in the video who exhibits relentless determination and perseverance in the face of challenges or obstacles.
@@ -352,7 +352,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_11|Only Sane Man|"Is the trope ""Only Sane Man"", which means ""When there is a group of characters who are all just totally weird, either in general or in a particular scenario, the Only Sane Man is the only 
 one who, well, isn't."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Only Sane Man
     # Definition: When there is a group of characters who are all just totally weird, either in general or in a particular scenario, the Only Sane Man is the only one who, well, isn't.
     # Thought: To detect the ""Only Sane Man"" trope, we need to identify the characters in the video and analyze their behaviors to determine if one character stands out as the voice of reason or normalcy amidst the eccentricities of the others.
@@ -417,7 +417,7 @@ NO EXECUTION|no|tt0100157_12|Anti-Hero|"Is the trope ""Anti-Hero"", which means 
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_13|Asshole Victim|"Is the trope ""Asshole Victim"", which means ""When the victim is a bad guy."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Asshole Victim
     # Definition: A narrative trope where the victim of a crime or misdeed is someone who had it coming because they were themselves morally dubious or outright villainous.
     # Thought Process:
@@ -445,11 +445,11 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Incident description in {i}th frame""] = incident_description
             info[f""Morality check in {i}th frame""] = morality_query
     # After collecting information, use it to determine the presence of the trope
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_14|Jerk with a Heart of Gold|"Is the trope ""Jerk with a Heart of Gold"", which means ""A person you would expect to be a big Jerkass has some redeeming qualities behind their tough demeanor."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Jerk with a Heart of Gold
     # Definition: A person you would expect to be a big Jerkass has some redeeming qualities behind their tough demeanor.
     # Thought: To detect the ""Jerk with a Heart of Gold"" trope, we need to analyze the behavior and actions of a character who initially appears as a jerk but later reveals a softer side or positive traits.
@@ -478,7 +478,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_15|Even Evil Has Standards|"Is the trope ""Even Evil Has Standards"", which means ""Keep a villain safely on the ""still sympathetic"" side of the Moral Event Horizon; give him something that he simply will not do."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Even Evil Has Standards
     # Definition: Keep a villain safely on the ""still sympathetic"" side of the Moral Event Horizon; give him something that he simply will not do.
     # Thought: To detect the trope ""Even Evil Has Standards"", we need to analyze the behavior of the villainous character in the video.
@@ -499,12 +499,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Moral boundary in frame {i}""] = moral_boundary
 
     # Determine if the trope is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_16|Affably Evil|"Is the trope ""Affably Evil"", which means ""Villains that are not too bad. There is absolutely nothing separating them from being normal, polite people except for the fact that they want 
 to take over the world."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Affably Evil
     # Definition: Villains that are not too bad. There is absolutely nothing separating them from being normal, polite people except for the fact that they want to take over the world.
     # Thought: To detect the ""Affably Evil"" trope, we need to analyze the behavior and characteristics of the potential villains in the video.
@@ -533,7 +533,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_17|Too Dumb to Live|"Is the trope ""Too Dumb to Live"", which means ""People who are so stupid that they simply do not deserve to survive."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Too Dumb to Live
     # Definition: People who are so stupid that they simply do not deserve to survive.
     # Thought: To detect the ""Too Dumb to Live"" trope, we need to analyze the behavior of characters in the video and determine if their actions are consistently foolish or reckless to the point of endangering their lives.
@@ -564,7 +564,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_18|Butt-Monkey|"Is the trope ""Butt-Monkey"", which means ""The character who is always the butt of the demeaning joke or the ""put them through hell"" plotline."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Butt-Monkey
     # Definition: The character who is always the butt of the demeaning joke or the ""put them through hell"" plotline.
     # Thought: To detect the ""Butt-Monkey"" trope, we need to identify a character who is consistently subjected to misfortune or ridicule throughout the video.
@@ -595,7 +595,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_19|Ax-Crazy|"Is the trope ""Ax-Crazy"", which means ""An ""ax-crazy"" character is someone who is psychologically unstable and presents a clear and immediate danger to others."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Ax-Crazy
     # Definition: An ""ax-crazy"" character is someone who is psychologically unstable and presents a clear and immediate danger to others.
     # Thought: To detect the ""Ax-Crazy"" trope, we need to analyze the behavior and actions of characters in the video to identify signs of psychological instability and danger to others.
@@ -629,7 +629,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_20|Adorkable|"Is the trope ""Adorkable"", which means ""An adorkable character might be socially inept, shy or clumsy. However, rather than making them an outcast, these quirks give the character 
 an endearing vulnerability."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Adorkable
     # Definition: An adorkable character might be socially inept, shy, or clumsy. However, rather than making them an outcast, these quirks give the character an endearing vulnerability.
     # Thought: To determine if the trope ""Adorkable"" is relevant to the movie, we need to identify a character exhibiting socially inept, shy, or clumsy behavior, while still being endearing to the audience.
@@ -667,7 +667,7 @@ NO EXECUTION|yes|tt0100157_21|Berserk Button|"Is the trope ""Berserk Button"", w
 # 3. Emotional Analysis: Analyze the character's expressions, body language, and actions to determine the intensity of their anger.
 # 4. Answer Selection: Use the collected information to decide if the ""Berserk Button"" trope is relevant to the movie.
 
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     video_segment = VideoSegment(video)
     info = {}
     
@@ -685,13 +685,13 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Character's reaction in frame {i}""] = character_reaction
     
     # Analyze the collected information to determine the relevance of the ""Berserk Button"" trope
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_22|Ms. Fanservice|"Is the trope ""Ms. Fanservice"", which means ""A female character who provides a significant amount of Fanservice (generally for males), ranging from simple revealing of cleavage, midriff, 
 shoulders or legs, to shots of her curves, hips or derriere (even when covered)."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Ms. Fanservice
     # Definition: A female character who provides a significant amount of Fanservice (generally for males), ranging from simple revealing of cleavage, midriff, shoulders or legs, to shots of her curves, hips or derriere (even when covered).
     # Thought: To detect the presence of the ""Ms. Fanservice"" trope, we need to focus on identifying specific visual cues and character behaviors that align with the trope's definition. This involves analyzing the attire, poses, and camera angles used to depict female characters in the video.
@@ -718,12 +718,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Behavior in frame {i}""] = behavior_query
     
     # Analyze the collected information to determine the presence of the trope
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_23|The Alcoholic|"Is the trope ""The Alcoholic"", which means ""This person likes their liquor, and in large amounts."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: The Alcoholic
     # Definition: This person likes their liquor, and in large amounts.
     # Thought: To detect the trope ""The Alcoholic"" in the video, we need to identify specific visual cues and behaviors that indicate a character's excessive drinking habits.
@@ -749,12 +749,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Intoxication level in frame {i}""] = intoxication_level
     
     # Determine if the trope ""The Alcoholic"" is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_24|Disappeared Dad|"Is the trope ""Disappeared Dad"", which means ""The father of a character or characters is missing or absent."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Disappeared Dad
     # Definition: The father of a character or characters is missing or absent.
     # Thought: To detect the ""Disappeared Dad"" trope, we need to analyze the video frames for the absence of a father figure or any clues indicating the father's absence.
@@ -786,7 +786,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_25|Would Hit a Girl|"Is the trope ""Would Hit a Girl"", which means ""A guy (good or evil) has no problems with violence against women."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Would Hit a Girl
     # Definition: A guy (good or evil) has no problems with violence against women.
     # Thought: To detect the trope ""Would Hit a Girl"", we need to analyze the video frames for instances where a male character exhibits violent behavior towards a female character. This involves identifying aggressive actions, expressions, and interactions that suggest a lack of hesitation in using violence against women.
@@ -817,7 +817,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_26|Oh, Crap!|"Is the trope ""Oh, Crap!"", which means ""The moment at which a character realizes that something really, REALLY bad is about to happen."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Oh, Crap!
     # Definition: The moment at which a character realizes that something really, REALLY bad is about to happen.
     # Thought: To detect the ""Oh, Crap!"" moment, we need to identify specific visual and contextual cues that indicate imminent danger or a significant negative event about to occur.
@@ -840,12 +840,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Frame {i} - Event Description""] = event_description
     
     # Analyze the collected information to determine if the ""Oh, Crap!"" moment is present
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_27|Driven to Suicide|"Is the trope ""Driven to Suicide"", which means ""Whatever the reason, a character may be driven to commit suicide."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Driven to Suicide
     # Definition: A character may be driven to commit suicide due to various reasons.
     # Thought: To detect the trope ""Driven to Suicide"", we need to analyze the video for signs of extreme emotional distress, isolation, or other factors that could lead to suicidal behavior.
@@ -874,7 +874,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_28|Adult Fear|"Is the trope ""Adult Fear"", which means ""Things that mature, well-adjusted adults generally are concerned about, as opposed to supernatural fears."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Adult Fear
     # Definition: Things that mature, well-adjusted adults generally are concerned about, as opposed to supernatural fears.
     # Thought: To determine if the trope ""Adult Fear"" is relevant to the movie, we need to analyze the video content for themes and situations that evoke concerns typical of mature, well-adjusted adults.
@@ -896,13 +896,13 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Scene {i} Description""] = scene_description
     
     # Determine if the movie aligns with the concept of ""Adult Fear""
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_29|Not So Different|"Is the trope ""Not So Different"", which means ""When one character in a pair (who'd otherwise be different and/or unrelated) discovers that they actually have some things in common, more 
 than the other character would want to believe."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Not So Different
     # Definition: When one character in a pair (who'd otherwise be different and/or unrelated) discovers that they actually have some things in common, more than the other character would want to believe.
     # Thought: To detect the ""Not So Different"" trope, we need to analyze the interactions and similarities between two characters in the video.
@@ -946,7 +946,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_30|Heroic BSoD|"Is the trope ""Heroic BSoD"", which means ""A stunning revelation or horrible event affects a character or someone they care deeply about, leaving them shocked to the point of mentally
  shutting down for a while."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Heroic BSoD
     # Definition: A stunning revelation or horrible event affects a character or someone they care deeply about, leaving them shocked to the point of mentally shutting down for a while.
     # Thought: To detect the ""Heroic BSoD"" trope, we need to analyze the video for specific emotional and behavioral cues that indicate a character experiencing a mental shutdown due to a shocking event.
@@ -973,7 +973,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_31|"Big \""NO!\"""|"Is the trope ""Big \""NO!\"""", which means ""The moment when a character realizes that something awful has happened, or notices that something awful is about to happen, and screams 
 ""NOOOOOOOOOOOOOOO!"" "", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Big ""NO!""
     # Definition: The moment when a character realizes that something awful has happened, or notices that something awful is about to happen, and screams ""NOOOOOOOOOOOOOOO!""
     # Thought: To detect the ""Big 'NO!'"" trope, we need to identify the specific moment in the video where a character reacts dramatically to a negative event.
@@ -995,7 +995,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_32|Eye Scream|"Is the trope ""Eye Scream"", which means ""When the creator of a work takes advantage of our Primal Fear of having something utterly horrible happen to our eyes, usually involving the 
 invasion of the eye sockets by a foreign body."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Eye Scream
     # Definition: When the creator of a work takes advantage of our Primal Fear of having something utterly horrible happen to our eyes, usually involving the invasion of the eye sockets by a foreign body.
     # Thought: To detect the ""Eye Scream"" trope, we need to focus on identifying scenes where characters' eyes are subjected to extreme or horrifying situations. This involves analyzing both visual and contextual cues related to eye trauma or invasion.
@@ -1030,7 +1030,7 @@ NO EXECUTION|no|tt0100157_33|Gory Discretion Shot|"Is the trope ""Gory Discretio
 # 2. Violence Detection: Look for visual cues such as blood splatter, impact marks, or aftermath scenes that suggest a violent event.
 # 3. Imagination Element: The key aspect is leaving the gruesome details to the viewer's imagination, so we need to identify frames that imply more than they show.
 # 4. Answer Selection: Utilize the collected information to determine if the trope is relevant to the movie.
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     video_segment = VideoSegment(video)
     # Initialize an info dictionary to store relevant information
     info = {}
@@ -1044,11 +1044,11 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
                 # Capture the frame and relevant information
                 info[f""Frame {i} contains potential Gory Discretion Shot""] = ""Violent scene with discreet aftermath""
     # Analyze the collected information to determine the relevance of the trope
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_34|Impaled with Extreme Prejudice|"Is the trope ""Impaled with Extreme Prejudice"", which means "" When someone gets stabbed in a really extreme way.."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Impaled with Extreme Prejudice
     # Definition: When someone gets stabbed in a really extreme way.
     # Thought: To detect this trope, we need to identify instances of extreme stabbing or impalement in the video.
@@ -1064,11 +1064,11 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             if ""extreme"" in action:
                 info[f""Extreme scene detected in frame {i}""] = action
     # Determine if the trope is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_35|Off with His Head!|"Is the trope ""Off with His Head!"", which means ""When someone is going to get his head chopped off."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Off with His Head!
     # Definition: When someone is going to get his head chopped off.
     # Thought: To detect the ""Off with His Head!"" trope, we need to identify scenes where a character is in imminent danger of losing their head.
@@ -1090,7 +1090,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_36|Disney Villain Death|"Is the trope ""Disney Villain Death"", which means ""Villains exit the film by falling off or out of things."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Disney Villain Death
     # Definition: Villains exit the film by falling off or out of things.
     # Thought: To detect the trope ""Disney Villain Death"", we need to identify instances where a villain character meets their demise by falling off or out of something. This involves analyzing the video frames for specific visual cues and character actions that indicate such a scenario.
@@ -1116,7 +1116,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_37|Your Cheating Heart|"Is the trope ""Your Cheating Heart"", which means ""Cheating on your partner."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Your Cheating Heart
     # Definition: Cheating on your partner.
     # Thought: To detect the trope ""Your Cheating Heart"" in the video, we need to identify instances where a character is involved in a romantic relationship and engages in infidelity or deceit towards their partner.
@@ -1146,7 +1146,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_38|"\""The Reason You Suck\"" Speech"|"Is the trope ""\""The Reason You Suck\"" Speech"", which means ""One character delivers a speech to another character on all the reasons why that other character sucks or is a horrible person."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: ""The Reason You Suck"" Speech
     # Definition: One character delivers a speech to another character on all the reasons why that other character sucks or is a horrible person.
     # Thought: To detect this trope, we need to identify a specific type of dialogue interaction between characters that involves one character criticizing another in a detailed and negative manner.
@@ -1168,13 +1168,13 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
                 info[f""Intense dialogue scene at frame {i}""] = ""One character delivering a harsh speech.""
     
     # Determine if the trope is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_39|Tempting Fate|"Is the trope ""Tempting Fate"", which means ""Tempting Fate is when a character says something that dares the universe into making things miserable for them, and the universe takes them up 
 on the challenge."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Tempting Fate
     # Definition: Tempting Fate is when a character says something that dares the universe into making things miserable for them, and the universe takes them up on the challenge.
     # Thought: To detect the ""Tempting Fate"" trope, we need to identify instances where characters make bold or arrogant statements that could provoke negative consequences. This involves analyzing dialogue, character actions, and subsequent events in the video.
@@ -1211,7 +1211,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_40|Disproportionate Retribution|"Is the trope ""Disproportionate Retribution"", which means ""the situation where a person let the opponent know that if they so much as sneeze on someone you protect, it will cost them a limb."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Disproportionate Retribution
     # Definition: A situation where a person lets the opponent know that if they so much as sneeze on someone you protect, it will cost them a limb.
     # Thought: To detect the trope, we need to identify instances where a character threatens extreme retaliation for minor offenses.
@@ -1233,13 +1233,13 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Threat analysis in frame {i}""] = threat_analysis
     
     # Determine if the trope is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_41|Badass Boast|"Is the trope ""Badass Boast"", which means ""The character has got to be pretty impressive to be able to make this kind of boast convincingly, though sometimes a weaker character will 
 bluff like this."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Badass Boast
     # Definition: The character has to be pretty impressive to make this kind of boast convincingly, though sometimes a weaker character will bluff like this.
     # Thought: To detect the ""Badass Boast"" trope, we need to identify instances where a character makes bold and confident statements about their abilities or intentions. This involves analyzing dialogue, character actions, and the context of the scene to determine if the boast is credible or exaggerated.
@@ -1265,11 +1265,11 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
         info[f""Contextual analysis in frame {i}""] = context_analysis
 
     # Use the collected information to determine if the ""Badass Boast"" trope is relevant to the movie
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_42|Groin Attack|"Is the trope ""Groin Attack"", which means ""Groin attack"", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Groin Attack
     # Definition: A physical attack to the groin area, often used for comedic effect or as a self-defense technique in action scenes.
     # Thought: To detect the ""Groin Attack"" trope, we need to focus on identifying specific actions or reactions in the video frames that indicate such an attack.
@@ -1291,12 +1291,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Reaction in frame {i}""] = reaction_description
 
     # Answer selection based on the presence of groin attack cues
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_43|Roaring Rampage of Revenge|"Is the trope ""Roaring Rampage of Revenge"", which means ""The Roaring Rampage of Revenge differs from the standard Revenge plot in that our hero dispenses with the Machiavellian plotting that would 
 define a classic revenge tale and goes straight for the bloodshed."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Roaring Rampage of Revenge
     # Definition: The Roaring Rampage of Revenge differs from the standard Revenge plot in that our hero dispenses with the Machiavellian plotting that would define a classic revenge tale and goes straight for the bloodshed.
     # Thought: To detect the trope ""Roaring Rampage of Revenge"" in the video, we need to identify specific visual and narrative cues that indicate a character's intense and relentless pursuit of vengeance.
@@ -1329,7 +1329,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_44|Big Damn Heroes|"Is the trope ""Big Damn Heroes"", which means ""Any time the heroes/anti heroes get to save the day in a big, awesome manner."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Big Damn Heroes
     # Definition: Any time the heroes/anti-heroes get to save the day in a big, awesome manner.
     # Thought: To detect the ""Big Damn Heroes"" trope, we need to identify moments in the video where the heroes or anti-heroes perform a significant and heroic act that saves the day.
@@ -1361,7 +1361,7 @@ NO EXECUTION|no|tt0100157_45|Heroic Sacrifice|"Is the trope ""Heroic Sacrifice""
 # 3. Sacrificial Act Detection: Analyze the frames for visual cues of sacrifice, such as protecting others at personal cost.
 # 4. Answer Selection: Use the select_answer API to determine if the ""Heroic Sacrifice"" trope is relevant based on the collected information.
 
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     video_segment = VideoSegment(video)
     info = {}
     sacrifice_detected = False  # Flag to check if a sacrifice has been detected
@@ -1380,7 +1380,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_46|Screw This, I'm Outta Here!|"Is the trope ""Screw This, I'm Outta Here!"", which means ""Screw you guys, I'm going home."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Screw This, I'm Outta Here!
     # Definition: A character abruptly leaves a situation, often in a humorous or dramatic fashion, to express frustration or disinterest.
     # Thought: To detect this trope, we need to identify moments where a character displays clear signs of frustration or disinterest, leading to their departure from a scene.
@@ -1411,7 +1411,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_47|Kick the Dog|"Is the trope ""Kick the Dog"", which means ""When a character does something evil for no apparent gain, because the author wants to demonstrate that he's not a nice guy and shift 
 audience sympathy away from him."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Kick the Dog
     # Definition: an act of cruelty by a character, typically towards a more vulnerable or defenseless entity, to establish the character's malevolence
     # Thought: we devide the trope detection into 4 steps
@@ -1442,7 +1442,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_48|Pet the Dog|"Is the trope ""Pet the Dog"", which means ""Show the nasty old crank petting a dog, and you show the audience, aw shucks, they're not that bad of a person after all."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Pet the Dog
     # Definition: Show the nasty old crank petting a dog, and you show the audience, aw shucks, they're not that bad of a person after all.
     # Thought: To detect the ""Pet the Dog"" trope, we need to identify a character who is initially portrayed as negative or antagonistic but later shown in a positive light through a kind or compassionate act towards an animal, typically a dog.
@@ -1474,7 +1474,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_49|Villainous Breakdown|"Is the trope ""Villainous Breakdown"", which means ""The tendency of relatively calm and composed villains to lose their cool over the course of the story."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Villainous Breakdown
     # Definition: The tendency of relatively calm and composed villains to lose their cool over the course of the story.
     # Thought: To detect the ""Villainous Breakdown"" trope, we need to analyze the behavior of the antagonist throughout the video.
@@ -1504,7 +1504,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_50|Precision F-Strike|"Is the trope ""Precision F-Strike"", which means ""When a character suddenly swears in an uncharacteristically strong manner, or when a swear is unexpectedly used in a work with mild language."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Precision F-Strike
     # Definition: When a character suddenly swears in an uncharacteristically strong manner, or when a swear is unexpectedly used in a work with mild language.
     # Thought: To detect the ""Precision F-Strike"" trope, we need to analyze the video for instances where a character uses strong language unexpectedly.
@@ -1524,11 +1524,11 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Frame {i} with strong language""] = dialogue_content
 
     # Analyze the collected information to determine if the trope is relevant
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_51|Cluster F-Bomb|"Is the trope ""Cluster F-Bomb"", which means ""Lots of swearing occur."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Cluster F-Bomb
     # Definition: A trope where there is an excessive use of profanity or swearing in a particular scene or throughout the movie.
     # Thought: To detect the ""Cluster F-Bomb"" trope, we need to analyze the dialogue and context of the video to identify instances of excessive swearing.
@@ -1559,7 +1559,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_52|Jerkass Has a Point|"Is the trope ""Jerkass Has a Point"", which means ""When a jerkass is right."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Jerkass Has a Point
     # Definition: When a character who is generally unpleasant or behaves like a jerk turns out to be correct or justified in a particular situation.
     # Thought: To detect the ""Jerkass Has a Point"" trope, we need to analyze the behavior of a character who is typically disliked but ends up being right. This involves identifying instances where the character's actions or statements are validated by the narrative or events.
@@ -1626,7 +1626,7 @@ NO EXECUTION|no|tt0100157_53|Idiot Ball|"Is the trope ""Idiot Ball"", which mean
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_54|Batman Gambit|"Is the trope ""Batman Gambit"", which means ""A plan that revolves entirely around people doing exactly what you'd expect them to do."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Batman Gambit
     # Definition: A plan that revolves entirely around people doing exactly what you'd expect them to do.
     # Thought: To detect the ""Batman Gambit"" trope, we need to analyze the video for instances where a character's plan relies heavily on predicting the actions of others.
@@ -1651,12 +1651,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Prediction in {i}th frame""] = prediction_query
 
     # Analyze the collected information to determine if the ""Batman Gambit"" trope is relevant
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_55|Police are Useless|"Is the trope ""Police are Useless"", which means ""Whenever someone in film or on TV reports a murder, or a monster, or a stalker or whatever, the police come as close to ignoring them 
 as procedure will allow. "", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Police are Useless
     # Definition: Whenever someone in film or on TV reports a murder, or a monster, or a stalker or whatever, the police come as close to ignoring them as procedure will allow.
     # Thought: To detect the ""Police are Useless"" trope, we need to analyze the behavior of law enforcement in response to reported incidents in the video.
@@ -1682,7 +1682,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_56|The Dragon|"Is the trope ""The Dragon"", which means ""There is almost always someone, person or monster, The Hero has to get past to get at the Big Bad."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: The Dragon
     # Definition: There is almost always someone, person or monster, The Hero has to get past to get at the Big Bad.
     # Thought: To detect the presence of ""The Dragon"" trope, we need to identify a significant antagonist or obstacle that the main character must overcome before reaching the main villain.
@@ -1714,7 +1714,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_57|Cool Car|"Is the trope ""Cool Car"", which means ""The hero's ride has to be just as unique and awesome as the hero is. Enter a Cool Car!"", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Cool Car
     # Definition: The hero's ride has to be just as unique and awesome as the hero is. Enter a Cool Car!
     # Thought: To determine if the trope ""Cool Car"" is relevant to the movie, we need to identify specific visual cues and characteristics associated with a cool car.
@@ -1745,7 +1745,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_58|Body Horror|"Is the trope ""Body Horror"", which means ""This is any form of horror or squickiness involving body parts, parasitism, disfigurement, mutation, or unsettling bodily configuration."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Body Horror
     # Definition: Any form of horror or squickiness involving body parts, parasitism, disfigurement, mutation, or unsettling bodily configuration.
     # Thought: To detect the ""Body Horror"" trope, we need to analyze the video frames for visual cues related to body parts, disfigurement, or unsettling bodily configurations.
@@ -1771,12 +1771,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
         info[f""Unsettling bodily configuration in frame {i}""] = unsettling_config
 
     # Analyze the collected information to determine if the ""Body Horror"" trope is relevant
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
 
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_59|The Reveal|"Is the trope ""The Reveal"", which means ""A character is revealed as another character's father, a god, or secret suitor or arch nemesis in disguise."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: The Reveal
     # Definition: A character is revealed as another character's father, a god, or secret suitor or arch nemesis in disguise.
     # Thought: To detect ""The Reveal"" trope, we need to focus on key moments where significant character relationships or identities are unveiled.
@@ -1804,7 +1804,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_60|Curb-Stomp Battle|"Is the trope ""Curb-Stomp Battle"", which means ""A fight that's extremely one-sided, where one side just absolutely trashes the other with little-to-no effort"", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Curb-Stomp Battle
     # Definition: A fight that's extremely one-sided, where one side just absolutely trashes the other with little-to-no effort.
     # Thought: To detect the ""Curb-Stomp Battle"" trope, we need to analyze the video frames for instances where one side dominates the other with ease.
@@ -1839,7 +1839,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_61|Cassandra Truth|"Is the trope ""Cassandra Truth"", which means ""Sometimes people just won't believe you even though you are telling the truth, because the truth sounds insane."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Cassandra Truth
     # Definition: Sometimes people just won't believe you even though you are telling the truth, because the truth sounds insane.
     # Thought: To detect the ""Cassandra Truth"" trope, we need to focus on situations where a character is sharing a truth that is perceived as unbelievable or insane by others.
@@ -1862,12 +1862,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Reactions in frame {i}""] = reaction_analysis
     
     # Determine if the ""Cassandra Truth"" trope is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_62|Blatant Lies|"Is the trope ""Blatant Lies"", which means ""A glaringly obvious lie."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Blatant Lies
     # Definition: A glaringly obvious lie.
     # Thought: To detect the trope ""Blatant Lies"" in the video, we need to analyze the frames for instances where characters are clearly lying or situations where the truth is intentionally misrepresented.
@@ -1890,7 +1890,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_63|Crapsack World|"Is the trope ""Crapsack World"", which means ""A Crapsack World is a horrible setting of the world where it's dark and hopeless"", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Crapsack World
     # Definition: A Crapsack World is a horrible setting of the world where it's dark and hopeless.
     # Thought: To determine if the trope ""Crapsack World"" is relevant to the movie, we need to analyze the overall atmosphere and setting of the video.
@@ -1914,7 +1914,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_64|Comically Missing the Point|"Is the trope ""Comically Missing the Point"", which means ""A character completely misses a really obvious point for comic effect."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Comically Missing the Point
     # Definition: A character completely misses a really obvious point for comic effect.
     # Thought: To detect the trope ""Comically Missing the Point"" in the video, we need to analyze the frames for instances where a character fails to grasp a clear and evident point, leading to comedic situations.
@@ -1937,12 +1937,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Frame {i}""] = ""Character comically misses the point.""
     
     # Answer the query based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_65|Fanservice|"Is the trope ""Fanservice"", which means ""The use of sex or sexualized situations to reward or entice viewers."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Fanservice
     # Definition: The use of sex or sexualized situations to reward or entice viewers.
     # Thought: To determine if the trope ""Fanservice"" is relevant to the movie, we need to analyze the video content for scenes that involve sexualization or titillation of characters or situations.
@@ -1973,7 +1973,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_66|Fan Disservice|"Is the trope ""Fan Disservice"", which means ""Fan Disservice looks like regular garden variety Fanservice, except that the creators intentionally use the circumstances around it to make the 
 scene outright creepy or disgusting."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Fan Disservice
     # Definition: Fan Disservice looks like regular garden variety Fanservice, except that the creators intentionally use the circumstances around it to make the scene outright creepy or disgusting.
     # Thought: To detect the ""Fan Disservice"" trope, we need to analyze the video frames for elements that may appear as Fanservice but are twisted to be unsettling or disturbing.
@@ -2004,7 +2004,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_67|Brick Joke|"Is the trope ""Brick Joke"", which means ""When two seemingly unrelated jokes work together to create a comedic effect."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Brick Joke
     # Definition: When two seemingly unrelated jokes work together to create a comedic effect.
     # Thought: To detect the ""Brick Joke"" trope, we need to identify two jokes that initially appear unrelated but later combine to create humor. This involves analyzing the video for instances where seemingly disparate elements or events are connected in a humorous way.
@@ -2041,7 +2041,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_68|Hypocritical Humor|"Is the trope ""Hypocritical Humor"", which means ""A type of gag in which a character's actions or words contradict each other and this is Played for Laughs."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Hypocritical Humor
     # Definition: A type of gag in which a character's actions or words contradict each other and this is Played for Laughs.
     # Thought: To detect ""Hypocritical Humor"" in the video, we need to identify instances where a character says or does something that contradicts their previous statements or behavior, resulting in a humorous effect.
@@ -2065,12 +2065,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
                     info[f""Contradiction in {character} at frame {i}""] = ""Contradictory action or statement detected.""
     
     # Determine if there are instances of Hypocritical Humor based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_69|Does This Remind You of Anything?|"Is the trope ""Does This Remind You of Anything?"", which means ""Any situation which is made, sometimes for comic effect, sometimes for dramatic effect, to look like another situation."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Does This Remind You of Anything?
     # Definition: Any situation which is made, sometimes for comic effect, sometimes for dramatic effect, to look like another situation.
     # Thought: To detect this trope, we need to analyze the visual and contextual elements in the video to identify situations that resemble other situations.
@@ -2102,7 +2102,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_70|Black Comedy|"Is the trope ""Black Comedy"", which means ""A sub-genre of comedy and satire where topics and events that are usually treated seriously are treated in a satirical manner, while still being 
 portrayed as the negative events that they are."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Black Comedy
     # Definition: A sub-genre of comedy and satire where topics and events that are usually treated seriously are treated in a satirical manner, while still being portrayed as the negative events that they are.
     # Thought: To detect the presence of ""Black Comedy"" in the video, we need to analyze the content for instances where serious or negative events are presented in a satirical or comedic light.
@@ -2140,7 +2140,7 @@ NO EXECUTION|yes|tt0100157_71|Irony|"Is the trope ""Irony"", which means ""The i
 # 3. Irony Detection: Identify specific instances of verbal irony, situational irony, or dramatic irony within the video content.
 # 4. Answer Selection: Use the select_answer API to determine if the trope of ""Irony"" is relevant to the movie based on the collected information.
 
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     video_segment = VideoSegment(video)
     info = {}
     for i, frame in enumerate(video_segment.frame_iterator()):
@@ -2152,11 +2152,11 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Irony detected in frame {i}""] = irony_description
 
     # Answer the query based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_72|Exact Words|"Is the trope ""Exact Words"", which means ""When the exact wording of a rule, promise, prophecy, etc. matters more than the spirit of the wording, it's an Exact Words situation."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Exact Words
     # Definition: When the exact wording of a rule, promise, prophecy, etc. matters more than the spirit of the wording, it's an Exact Words situation.
     # Thought: To detect the ""Exact Words"" trope, we need to focus on instances where characters adhere strictly to the literal interpretation of words or phrases, leading to unexpected outcomes or conflicts.
@@ -2183,7 +2183,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_73|Stealth Pun|"Is the trope ""Stealth Pun"", which means ""The writers put in a joke (almost always a pun), but never make or put in a Punch Line or explicit statement, hiding it in the set up of the joke. "", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Stealth Pun
     # Definition: A joke, typically a pun, is included by the writers but is not highlighted with a punchline or explicit statement. It's hidden within the setup of the joke, requiring the audience to notice and interpret it themselves.
     # Thought Process:
@@ -2203,12 +2203,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Pun in dialogue at frame {i}""] = dialogue_analysis
             info[f""Visual pun at frame {i}""] = visual_pun_analysis
     # Since Stealth Puns are about subtlety and not explicitly pointing out the joke, we need to balance detection with the likelihood of an actual pun being present without explicit acknowledgment.
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_74|Bittersweet Ending|"Is the trope ""Bittersweet Ending"", which means ""When victory came at a harsh price, when, for whatever reason, the heroes cannot fully enjoy the reward of their actions, when some 
 irrevocable loss has happened during the course of the events, and nothing will ever be the same again."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Bittersweet Ending
     # Definition: When victory came at a harsh price, when, for whatever reason, the heroes cannot fully enjoy the reward of their actions, when some irrevocable loss has happened during the course of the events, and nothing will ever be the same again.
     # Thought: To detect the ""Bittersweet Ending"" trope, we need to analyze the emotional tone and narrative outcome of the video segment.
@@ -2238,7 +2238,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_75|Karma Houdini|"Is the trope ""Karma Houdini"", which means ""The character has done a number of things that deserve a karmic comeuppance, most importantly things that caused harm to the innocent. But 
 when the time comes for the hammer to fall, that's not what happens. At least, not on them. They don\t get what they deserve."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Karma Houdini
     # Definition: The character has done a number of things that deserve a karmic comeuppance, most importantly things that caused harm to the innocent. But when the time comes for the hammer to fall, that's not what happens. At least, not on them. They don't get what they deserve.
     # Thought: To detect the ""Karma Houdini"" trope, we need to analyze the video for instances where a character avoids the consequences of their actions, especially when those actions have caused harm to innocent characters. This involves identifying key moments where the character's expected punishment is averted or minimized.
@@ -2275,7 +2275,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_76|Downer Ending|"Is the trope ""Downer Ending"", which means ""A finale to a movie that ends things in a way that varies from sad to tragic."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Downer Ending
     # Definition: an ending that is sad, tragic, or otherwise less positive than the audience might have expected, often leaving the protagonist or key characters in a worse state than they were at the beginning or facing significant loss
     # Thought: we devide the trope detection into 3 steps
@@ -2308,7 +2308,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_77|Laser-Guided Karma|"Is the trope ""Laser-Guided Karma"", which means ""If you mistreat the people and things around you, karma will strike you down."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Laser-Guided Karma
     # Definition: If you mistreat the people and things around you, karma will strike you down.
     # Thought: To detect the trope ""Laser-Guided Karma"" in the video, we need to follow these steps:
@@ -2340,7 +2340,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_78|Earn Your Happy Ending|"Is the trope ""Earn Your Happy Ending"", which means ""A cast of characters in a story go through a lot more hardship, anguish and grief than is really necessary. In the end, however, you see them get 
 their happily-ever-after."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Earn Your Happy Ending
     # Definition: A cast of characters in a story go through a lot more hardship, anguish, and grief than is really necessary. In the end, however, you see them get their happily-ever-after.
     # Thought: To determine if the trope ""Earn Your Happy Ending"" is relevant to the movie, we need to analyze the overall narrative arc and character journeys.
@@ -2375,12 +2375,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     }
     
     # Answering the query based on the analysis
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_79|Karmic Death|"Is the trope ""Karmic Death"", which means ""When the villain dies in a manner that is completely their own fault. Or, at least, obviously not the hero's."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Karmic Death
     # Definition: When the villain dies in a manner that is completely their own fault. Or, at least, obviously not the hero's.
     # Thought: To detect the ""Karmic Death"" trope, we need to analyze the video frames where the villain meets their demise. This involves identifying the villain, the circumstances of their death, and whether it aligns with the trope's definition.
@@ -2406,7 +2406,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
         return ""no"", ""No villain found in the video segment"", info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_80|Nice Job Breaking It, Hero!|"Is the trope ""Nice Job Breaking It, Hero!"", which means ""The hero has accomplished their goal, but it turns out that by the very act of success, they've unwittingly made things worse."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Nice Job Breaking It, Hero!
     # Definition: The hero has accomplished their goal, but it turns out that by the very act of success, they've unwittingly made things worse.
     # Thought: To detect this trope, we need to analyze the video for instances where the hero's actions lead to unintended negative consequences.
@@ -2467,7 +2467,7 @@ NO EXECUTION|no|tt0100157_81|My God, What Have I Done?|"Is the trope ""My God, W
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_82|What the Hell, Hero?|"Is the trope ""What the Hell, Hero?"", which means ""When characters In-Universe call out one of the heroes for doing something clearly unheroic, if not outright heinous."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: What the Hell, Hero?
     # Definition: When characters In-Universe call out one of the heroes for doing something clearly unheroic, if not outright heinous.
     # Thought: To detect the ""What the Hell, Hero?"" trope, we need to identify instances where a character's actions are questioned by others within the narrative.
@@ -2493,7 +2493,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_83|Hope Spot|"Is the trope ""Hope Spot"", which means ""The Protagonist is about to face utter defeat. Suddenly, he finds a glimmer of hope what have you only to be crushed cruelly by the bad guys 
 returning in force."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Hope Spot
     # Definition: The protagonist is about to face utter defeat. Suddenly, he finds a glimmer of hope only to be crushed cruelly by the antagonists returning in force.
     # Thought: To detect the ""Hope Spot"" trope, we need to analyze the video for a specific sequence where the protagonist faces a seemingly insurmountable challenge, experiences a brief moment of hope, and then has that hope dashed by the antagonists.
@@ -2533,7 +2533,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_84|Heel Face Turn|"Is the trope ""Heel Face Turn"", which means ""When a bad guy turns good."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Heel Face Turn
     # Definition: When a bad guy turns good.
     # Thought: To determine if the trope ""Heel Face Turn"" is relevant to the movie, we need to analyze the character development and actions of the antagonists in the video.
@@ -2556,12 +2556,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Moral alignment in frame {i}""] = moral_alignment
 
     # Determine if the trope is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
 
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_85|Took a Level in Badass|"Is the trope ""Took a Level in Badass"", which means ""A charcter who is transformed into someone stronger and tougher that the viewer almost can't recognize him."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Took a Level in Badass
     # Definition: A character who is transformed into someone stronger and tougher that the viewer almost can't recognize him.
     # Thought: To detect the ""Took a Level in Badass"" trope, we need to analyze the character's transformation and actions throughout the video.
@@ -2584,11 +2584,11 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Visual cues in frame {i}""] = visual_cues
 
     # Analyze the collected information to determine the relevance of the trope
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_86|Chekhov's Gun|"Is the trope ""Chekhov's Gun"", which means ""An insignificant object that later turns out to be important."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Chekhov's Gun
     # Definition: An insignificant object that later turns out to be important.
     # Thought: To detect the presence of Chekhov's Gun trope, we need to identify an object or element that seems unimportant initially but plays a crucial role later in the narrative.
@@ -2618,7 +2618,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_87|Foreshadowing|"Is the trope ""Foreshadowing"", which means ""A clue or allusion embedded in the narrative that predicts some later event or revelation."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Foreshadowing
     # Definition: A clue or allusion embedded in the narrative that predicts some later event or revelation.
     # Thought: To detect the presence of foreshadowing in the video, we need to analyze the visual and contextual elements that hint at future events or revelations.
@@ -2641,12 +2641,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Contextual elements in frame {i}""] = contextual_elements
     
     # Determine if the trope of foreshadowing is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_88|Chekhov's Skill|"Is the trope ""Chekhov's Skill"", which means ""Training in any kind of skill, ability, or knowledge that will likely later come in handy."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Chekhov's Skill
     # Definition: Training in any kind of skill, ability, or knowledge that will likely later come in handy.
     # Thought: To determine if the trope ""Chekhov's Skill"" is relevant to the movie, we need to identify instances where a character acquires or demonstrates a skill or knowledge that becomes crucial later in the plot.
@@ -2672,12 +2672,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             }
     
     # Determine if the identified instances align with the trope definition
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_89|Chekhov's Gunman|"Is the trope ""Chekhov's Gunman"", which means ""Any character who is innocuously and unimportantly introduced to the viewer, but who later proves to be important by the end of the episode."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Chekhov's Gunman
     # Definition: Any character who is innocuously and unimportantly introduced to the viewer, but who later proves to be important by the end of the episode.
     # Thought: To detect the trope ""Chekhov's Gunman"", we need to identify a character that seems unimportant initially but becomes significant later in the video.
@@ -2721,7 +2721,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_90|Red Herring|"Is the trope ""Red Herring"", which means ""A clue that leads in the wrong direction."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Red Herring
     # Definition: A clue that leads in the wrong direction.
     # Thought: To detect the presence of the ""Red Herring"" trope, we need to analyze the video for misleading clues or information that divert attention from the actual plot or solution.
@@ -2743,12 +2743,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Misleading Clue in Frame {i}""] = clue_description
     
     # Determine if the ""Red Herring"" trope is relevant based on the presence of misleading clues
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_91|Ironic Echo|"Is the trope ""Ironic Echo"", which means ""When a character repeats a comment they received in a different situation, giving it a flipped or surprising new meaning."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Ironic Echo
     # Definition: When a character repeats a comment they received in a different situation, giving it a flipped or surprising new meaning.
     # Thought: To detect the ""Ironic Echo"" trope, we need to identify instances where a character repeats a comment in a different context, resulting in a new or ironic meaning. This involves analyzing dialogue and character interactions throughout the video.
@@ -2775,7 +2775,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_92|Hoist by His Own Petard|"Is the trope ""Hoist by His Own Petard"", which means ""The villain's own weapon or malicious plan is the cause of their downfall and/or death."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Hoist by His Own Petard
     # Definition: The villain's own weapon or malicious plan is the cause of their downfall and/or death.
     # Thought: To detect the trope ""Hoist by His Own Petard"" in the video, we need to follow these steps:
@@ -2797,11 +2797,11 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[""Villain Actions""] = villain_actions
             info[""Incident Description""] = incident_description
     # If no specific incident is detected, the info remains empty
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_93|Meaningful Echo|"Is the trope ""Meaningful Echo"", which means ""It occurs when characters, in their usual way, say things to one another, and repeat it later on to give extra meaning."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Meaningful Echo
     # Definition: It occurs when characters, in their usual way, say things to one another, and repeat it later on to give extra meaning.
     # Thought: To detect the ""Meaningful Echo"" trope, we need to follow these steps:
@@ -2824,12 +2824,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Repeated dialogues in frame {i}""] = repeated_dialogues
 
     # Analyze the collected information to determine if the trope is relevant
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
 
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_94|Freudian Excuse|"Is the trope ""Freudian Excuse"", which means ""The villain had an abusive and particularly violent childhood (such as Abusive Parents, being bullied by peers, etc.), making them insane and warping their perception on the universe"", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Freudian Excuse
     # Definition: The villain had an abusive and particularly violent childhood (such as Abusive Parents, being bullied by peers, etc.), making them insane and warping their perception of the universe.
     # Thought: To determine if the trope ""Freudian Excuse"" is relevant to the movie, we need to analyze the video content for indications of the villain's past and how it has influenced their actions and perception.

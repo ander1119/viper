@@ -27,7 +27,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Antagonist actions in frame {i}""] = antagonist_actions
     
     # Selecting the answer based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -172,12 +172,12 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
                 }
     
     # Determine if the ""Abusive Parents"" trope is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_5|Would Hurt a Child|"Is the trope ""Would Hurt a Child"", which means ""People that do hurt children, sometimes even kill them."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
-def execute_command(video, possible_answers, query, code)->[str, str, dict]:
+def execute_command(video, possible_answers, query)->[str, str, dict]:
     # Trope: Would Hurt a Child
     # Definition: People that do hurt children, sometimes even kill them.
     # Thought: To determine if the trope ""Would Hurt a Child"" is relevant to the movie, we need to analyze the video content for instances where children are subjected to harm or danger.
@@ -193,7 +193,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             danger_level = frame.simple_query(""Is the child in danger?"")
             info[f""Child action in frame {i}""] = child_action
             info[f""Danger level in frame {i}""] = danger_level
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_6|Action Girl|"Is the trope ""Action Girl"", which means ""An Action Girl is a female badass who is tough and kicks butt."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
@@ -265,7 +265,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Body Language in frame {i}""] = body_language
     
     # Analyze the collected information to determine if the trope is present
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -299,7 +299,7 @@ def execute_command(video, possible_answers, query, code)->[str, dict]:
                 info[f""Frame {i} - Threat Level""] = threat_level
     
     # Determine if the ""Papa Wolf"" trope is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -472,7 +472,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Incident description in {i}th frame""] = incident_description
             info[f""Morality check in {i}th frame""] = morality_query
     # After collecting information, use it to determine the presence of the trope
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_14|Jerk with a Heart of Gold|"Is the trope ""Jerk with a Heart of Gold"", which means ""A person you would expect to be a big Jerkass has some redeeming qualities behind their tough demeanor."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
@@ -539,7 +539,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
                 info[f""Villain's moral boundary in frame {i}""] = moral_boundary
                 info[f""Villain's action in frame {i}""] = villain_action
     
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -560,7 +560,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             evil_intent = character.simple_query(""What are the character's intentions?"")
             if politeness_level == ""very polite"" and ""take over the world"" in evil_intent:
                 info[f""Villain detected in frame {i}""] = ""Character exhibits traits of being Affably Evil.""
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_17|Too Dumb to Live|"Is the trope ""Too Dumb to Live"", which means ""People who are so stupid that they simply do not deserve to survive."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
@@ -659,7 +659,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Danger level in frame {i}""] = danger_level
 
     # Determine if the character fits the ""Ax-Crazy"" trope based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_20|Adorkable|"Is the trope ""Adorkable"", which means ""An adorkable character might be socially inept, shy or clumsy. However, rather than making them an outcast, these quirks give the character 
@@ -693,7 +693,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
                     f""Endearing in {i} frame"": character_endearing
                 })
     
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -764,7 +764,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
                 info[f""Character actions in frame {i}""] = character_action
 
     # Analyze the collected information to determine the relevance of the ""Ms. Fanservice"" trope
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_23|The Alcoholic|"Is the trope ""The Alcoholic"", which means ""This person likes their liquor, and in large amounts."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
@@ -848,7 +848,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
                         info[f""Frame {i} - Female Character Action""] = female_action
                         break  # Found relevant interaction, no need to check further frames
 
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_26|Oh, Crap!|"Is the trope ""Oh, Crap!"", which means ""The moment at which a character realizes that something really, REALLY bad is about to happen."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
@@ -878,7 +878,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Emotions in frame {i}""] = emotion
     
     # Determine if the ""Oh, Crap!"" moment is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -910,7 +910,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Character emotions in frame {i}""] = character_emotions
     
     # Analyzing the collected information to determine the relevance of the trope
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -1032,7 +1032,7 @@ def execute_command(video, possible_answers, query, code)->[str, dict]:
                 # Capture the frame with the ""Big 'NO!'"" moment
                 info[f""Big 'NO!' moment in frame {i}""] = ""Character screams 'NO!' in response to a negative event.""
     # Determine if the ""Big 'NO!'"" trope is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_32|Eye Scream|"Is the trope ""Eye Scream"", which means ""When the creator of a work takes advantage of our Primal Fear of having something utterly horrible happen to our eyes, usually involving the 
@@ -1058,7 +1058,7 @@ def execute_command(video, possible_answers, query, code)->[str, dict]:
             info[f""Frame {i} - Emotional Response""] = emotional_response
     
     # Answer the query based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -1085,7 +1085,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
                 info[f""Frame {i}""] = ""Potential Gory Discretion Shot detected.""
     
     # Analyze the collected information to determine the relevance of the trope
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -1112,7 +1112,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Character reactions in frame {i}""] = character_reactions
     
     # Analyze the collected information to determine relevance of the trope
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -1143,7 +1143,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
                 info[f""Sword action in frame {i}""] = sword_action
     
     # Determine if the trope is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -1228,7 +1228,7 @@ def execute_command(video, possible_answers, query, code)->[str, dict]:
                 info[f""Frame {i} - Character B's Dialogue""] = dialogue_b
                 info[f""Frame {i} - Emotional Context""] = frame.simple_query(""What is the emotional context?"")
     
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -1258,7 +1258,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Universe response in frame {i}""] = universe_response
 
     # Determine if the ""Tempting Fate"" trope is relevant based on the analysis
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_40|Disproportionate Retribution|"Is the trope ""Disproportionate Retribution"", which means ""the situation where a person let the opponent know that if they so much as sneeze on someone you protect, it will cost them a limb."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
@@ -1289,7 +1289,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
                     info[f""Character {character} in frame {i}""] = ""Shows signs of Disproportionate Retribution""
     
     # Answer the query based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -1318,7 +1318,7 @@ def execute_command(video, possible_answers, query, code)->[str, dict]:
             info[f""Character action in frame {i}""] = character_action
     
     # Determine if the ""Badass Boast"" trope is present based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -1380,7 +1380,7 @@ def execute_command(video, possible_answers, query, code)->[str, dict]:
             info[f""Narrative context in frame {i}""] = narrative_context
     
     # Use the collected information to determine if the ""Roaring Rampage of Revenge"" trope is relevant
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -1407,7 +1407,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Impact analysis in frame {i}""] = impact_analysis
     
     # Answer the query based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -1468,7 +1468,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
                     ""Exit Reason"": exit_reason
                 }
 
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_47|Kick the Dog|"Is the trope ""Kick the Dog"", which means ""When a character does something evil for no apparent gain, because the author wants to demonstrate that he's not a nice guy and shift 
@@ -1527,7 +1527,7 @@ def execute_command(video, possible_answers, query, code)->[str, dict]:
                         f""Action in {i} frame"": character_action,
                         f""Emotion in {i} frame"": character_emotion
                     })
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_49|Villainous Breakdown|"Is the trope ""Villainous Breakdown"", which means ""The tendency of relatively calm and composed villains to lose their cool over the course of the story."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
@@ -1594,7 +1594,7 @@ def execute_command(video, possible_answers, query, code)->[str, dict]:
                 ""Speech"": character_speech
             }
     # Answer the query based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_51|Cluster F-Bomb|"Is the trope ""Cluster F-Bomb"", which means ""Lots of swearing occur."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
@@ -1654,7 +1654,7 @@ def execute_command(video, possible_answers, query, code)->[str, dict]:
                 info[f""{jerk_character} statement in frame {i}""] = statement
     
     # Analyze the collected information to determine if the trope is relevant
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -1689,7 +1689,7 @@ def execute_command(video, possible_answers, query, code)->[str, dict]:
                 info[f""Consequences in frame {i}""] = consequences
     
     # Determine if the ""Idiot Ball"" trope is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -1720,7 +1720,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Predicted outcome in frame {i}""] = predicted_outcome
     
     # Determine if the ""Batman Gambit"" trope is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -1842,7 +1842,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
         info[f""Unsettling Configuration in Frame {i}""] = unsettling_config
     
     # Analyzing the collected information to determine the relevance of the ""Body Horror"" trope
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -1927,7 +1927,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Skepticism level in frame {i}""] = skepticism_level
     
     # Analyze the collected information to determine if the Cassandra Truth trope is relevant
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -1953,7 +1953,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Potential lie in frame {i}""] = dialogue
     
     # Analyze the collected information to determine if the trope is relevant
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -1980,7 +1980,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
         info[f""Hopeless characters in frame {i}""] = hopeless_characters
     
     # Determine if the movie fits the trope based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -2040,7 +2040,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Contextual analysis in frame {i}""] = context_analysis
     
     # Answer the query based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -2074,7 +2074,7 @@ def execute_command(video, possible_answers, query, code)->[str, dict]:
                 }
     
     # Determine if the ""Fan Disservice"" trope is present based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -2145,7 +2145,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
                 info[f""Contradiction in character {i}""] = ""Character exhibited hypocritical behavior.""
     
     # Determine if the trope is relevant based on the detected contradictions
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -2168,7 +2168,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Visual resemblance in frame {i}""] = visual_analysis
             info[f""Contextual resemblance in frame {i}""] = contextual_analysis
     # Determine if the trope is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_70|Black Comedy|"Is the trope ""Black Comedy"", which means ""A sub-genre of comedy and satire where topics and events that are usually treated seriously are treated in a satirical manner, while still being 
@@ -2194,7 +2194,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Satirical Analysis in Frame {i}""] = satirical_analysis
     
     # Answer the query based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -2220,7 +2220,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Ironic situation in frame {i}""] = ironic_situation
             info[f""Ironic dialogue in frame {i}""] = ironic_dialogue
     
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -2242,7 +2242,7 @@ def execute_command(video, possible_answers, query, code)->[str, dict]:
             # Capture the frame where the trope is potentially relevant
             info[f""Frame {i}""] = dialogue
     # Analyze the collected information to determine the presence of the trope
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|yes|tt0100157_73|Stealth Pun|"Is the trope ""Stealth Pun"", which means ""The writers put in a joke (almost always a pun), but never make or put in a Punch Line or explicit statement, hiding it in the set up of the joke. "", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
@@ -2266,7 +2266,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Pun in dialogue at frame {i}""] = dialogue_analysis
             info[f""Visual pun at frame {i}""] = visual_pun_analysis
     # Since Stealth Puns are about subtlety and not explicitly pointing out the joke, we need to balance detection with the likelihood of an actual pun being present without explicit acknowledgment.
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_74|Bittersweet Ending|"Is the trope ""Bittersweet Ending"", which means ""When victory came at a harsh price, when, for whatever reason, the heroes cannot fully enjoy the reward of their actions, when some 
@@ -2305,7 +2305,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Narrative impact in frame {ending_segment.start + i}""] = narrative_impact
     
     # Answer the query based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -2343,7 +2343,7 @@ def execute_command(video, possible_answers, query, code)->[str, dict]:
                     info[f""Karma Houdini moment in frame {i}""] = f""{character_actions} led to {consequences}""
     
     # Determine if the ""Karma Houdini"" trope is relevant to the movie
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -2449,7 +2449,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
     info[""Happy Ending Detected""] = happy_ending
 
     # Selecting the answer based on the analysis
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
 
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -2506,7 +2506,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
                 info[f""Consequence detected in frame {i}""] = ""Negative consequences observed.""
     
     # Determine if the trope is relevant based on the consequences
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -2535,7 +2535,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             info[f""Realization in frame {i}""] = realization
 
     # Analyze the collected information to determine if the trope is relevant
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_82|What the Hell, Hero?|"Is the trope ""What the Hell, Hero?"", which means ""When characters In-Universe call out one of the heroes for doing something clearly unheroic, if not outright heinous."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0100157.mp4|['yes', 'no']|"```python
@@ -2563,7 +2563,7 @@ def execute_command(video, possible_answers, query, code)->[str, dict]:
                             ""Reaction"": reaction
                         }
     # Determine if the trope is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
 NO EXECUTION|no|tt0100157_83|Hope Spot|"Is the trope ""Hope Spot"", which means ""The Protagonist is about to face utter defeat. Suddenly, he finds a glimmer of hope what have you only to be crushed cruelly by the bad guys 
@@ -2742,7 +2742,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
             }
     
     # Determine if foreshadowing is relevant based on the collected information
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -2913,7 +2913,7 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]:
         
         repeated_dialogues.append(dialogues)
     
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
@@ -2942,7 +2942,7 @@ def execute_command(video, possible_answers, query, code)->[str, dict]:
             info[f""Mental state in frame {i}""] = mental_state
     
     # Analyze the collected information to determine the relevance of the ""Freudian Excuse"" trope
-    answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
     
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
