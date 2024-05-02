@@ -73,7 +73,7 @@ class TiMoSBCDataset(Dataset):
         original_fps = video_reader.get_avg_fps()
         num_frames = int(vlen * self.fps / original_fps)
         num_frames = min(self.max_num_frames, num_frames) if self.max_num_frames is not None else num_frames
-        frame_idxs = np.linspace(0, vlen, num_frames, endpoint=False).astype(np.int)
+        frame_idxs = np.linspace(0, vlen, num_frames, endpoint=False).astype(np.int64)
         video = video_reader.get_batch(frame_idxs).byte() # (num_frames, H, W, C)
         video = video.permute(0, 3, 1, 2) # (num_frames, C, H, W)
         return video
@@ -141,7 +141,7 @@ class TiMoSBCDataset(Dataset):
 
         accuracy = sum(1 for p, t in zip(prediction, ground_truth) if p == t) / len(ground_truth)
 
-        f1 = precision_recall_fscore_support(ground_truth, prediction, average='macro')
+        f1 = precision_recall_fscore_support(ground_truth, prediction, average='binary')
         score = {
             'precision': f1[0],
             'recall': f1[1],
