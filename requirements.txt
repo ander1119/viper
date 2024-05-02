@@ -45,3 +45,6 @@ git+https://github.com/huggingface/transformers.git
 wandb==0.13.9
 word2number==1.1
 yacs==0.1.8
+deepface==0.0.90
+google-ai-generativelanguage==0.6.2
+google-generativeai==0.5.2
