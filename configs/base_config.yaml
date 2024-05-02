@@ -1,4 +1,4 @@
-multiprocessing: False                              # Run the models and samples in parallel
+multiprocessing: True                              # Run the models and samples in parallel
 path_pretrained_models: './pretrained_models'       # Path to the pretrained models
 execute_code: True                                 # Execute the code after generating it. Only applies to main_batch
 
@@ -11,21 +11,35 @@ dataset:                                            # Dataset configuration
     start_sample: 0                                 # Start sample index. Only used if max_samples is not None
 
 load_models:                                        # Which pretrained models to load
+<<<<<<< HEAD
     maskrcnn: True
+=======
+    maskrcnn: False
+>>>>>>> 9f3048f0d7f875b876723f7baea117f42e384629
     clip: False
     glip: True
     owlvit: False
     tcl: False
     gpt3_qa: True
     gpt3_general: True
+<<<<<<< HEAD
     depth: False
     blip: False
+=======
+    gpt3_summarize: True
+    depth: False
+    blip: True
+>>>>>>> 9f3048f0d7f875b876723f7baea117f42e384629
     saliency: False
-    xvlm: True
+    xvlm: False
     codex: True
     codellama: False
+<<<<<<< HEAD
     reflection: True
     gemini: True
+=======
+    # reflection: True
+>>>>>>> 9f3048f0d7f875b876723f7baea117f42e384629
 
 detect_thresholds:                                  # Thresholds for the models that perform detection
     glip: 0.5
@@ -55,12 +69,12 @@ codex:
     max_tokens: 512                                 # Maximum number of tokens to generate for Codex
     prompt: ./prompts/chatapi.prompt                # Codex prompt file, which defines the API. (doesn't support video for now due to token limits)
     # model: gpt-4                           # Codex model to use. [code-davinci-002, gpt-3.5-turbo, gpt-4]. See openai.Model.list() for available models
-    model: gpt-3.5-turbo-16k
+    model: gpt-3.5-turbo-1106
 # Saving and loading parameters
 save: True                                          # Save the results to a file
 save_new_results: True                              # If False, overwrite the results file
 results_dir: ./results/                             # Directory to save the results
-use_cache: True                                     # Use cache for the models that support it (now, GPT-3)
+use_cache: False                                     # Use cache for the models that support it (now, GPT-3)
 clear_cache: False                                  # Clear stored cache
 use_cached_codex: True                             # Use previously-computed Codex results
 cached_codex_path: 'results/timos_bc/incontext_codegen_incontext_qa/gpt35_5_plots_20_tropes.csv'                               # Path to the csv results file from which to load Codex results
@@ -68,7 +82,7 @@ log_every: 20                                       # Log accuracy every n batch
 wandb: False                                        # Use Weights and Biases
 
 blip_half_precision: True                           # Use 8bit (Faster but slightly less accurate) for BLIP if True
-blip_v2_model_type: blip2-flan-t5-xxl               # Which model to use for BLIP-2
+blip_v2_model_type: blip2-flan-t5-xl               # Which model to use for BLIP-2
 
 use_fixed_code: False                               # Use a fixed code for all samples (do not generate with Codex)
 fixed_code_file: ./prompts/fixed_code/blip2.prompt  # Path to the fixed code file

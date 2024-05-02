@@ -118,7 +118,7 @@ class ObjectDetector(BaseModel):
 class DepthEstimationModel(BaseModel):
     name = 'depth'
 
-    def __init__(self, gpu_number=1, model_type='DPT_Large'):
+    def __init__(self, gpu_number=0, model_type='DPT_Large'):
         super().__init__(gpu_number)
         # with HiddenPrints('DepthEstimation'):
         warnings.simplefilter("ignore")
@@ -425,7 +425,7 @@ class OwlViTModel(BaseModel):
 class GLIPModel(BaseModel):
     name = 'glip'
 
-    def __init__(self, model_size='large', gpu_number=1, *args):
+    def __init__(self, model_size='large', gpu_number=0, *args):
         BaseModel.__init__(self, gpu_number)
 
         with contextlib.redirect_stderr(open(os.devnull, "w")):  # Do not print nltk_data messages when importing
@@ -894,13 +894,21 @@ class GPT3Model(BaseModel):
     def get_summarization(self, prompts) -> list[dict]:
         responses = []
         for prompt in prompts:
-            message = [{"role": "user", "content": prompt}]
+            message = [
+                {
+                    "role": "system",
+                    "content": "You are Text Summarization GPT, With given text that contains information from frames in video, please make a summarization and remove redundant information. Return response with AT MOST 3000 token (about 750 character)."
+                },
+                {
+                    "role": "user", 
+                    "content": prompt
+                }
+            ]
             response = openai.ChatCompletion.create(
                 model=self.model,
                 messages=message,
                 # response_format={"type": "json_object"},
                 temperature=self.temperature,
-                # max_tokens=4000,
             )
             responses.append(response.choices[0].message.content)
         return responses
@@ -1017,7 +1025,7 @@ class CodexModel(BaseModel):
 
     # Not batched, but every call will probably be a batch (coming from the same process)
 
-    def __init__(self, gpu_number=1):
+    def __init__(self, gpu_number=0):
         super().__init__(gpu_number=gpu_number)
 
         self.api_spec = open(config.codex.api_prompt).read().strip()
@@ -1105,7 +1113,7 @@ class ReflectionModel(BaseModel):
 
     # Not batched, but every call will probably be a batch (coming from the same process)
 
-    def __init__(self, gpu_number=1):
+    def __init__(self, gpu_number=0):
         super().__init__(gpu_number=gpu_number)
 
         self.reflection_examples = [open(ep).read().strip() for ep in config.codex.reflection_example_prompt]
@@ -1515,7 +1523,7 @@ class SaliencyModel(BaseModel):
 class XVLMModel(BaseModel):
     name = 'xvlm'
 
-    def __init__(self, gpu_number=1,
+    def __init__(self, gpu_number=0,
                  path_checkpoint=f'{config.path_pretrained_models}/xvlm/retrieval_mscoco_checkpoint_9.pth'):
 
         from base_models.xvlm.xvlm import XVLMBase

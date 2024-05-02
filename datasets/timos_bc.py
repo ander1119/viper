@@ -72,8 +72,11 @@ class TiMoSBCDataset(Dataset):
         vlen = len(video_reader)
         original_fps = video_reader.get_avg_fps()
         num_frames = int(vlen * self.fps / original_fps)
-        num_frames = min(self.max_num_frames, num_frames) if self.max_num_frames is not None else num_frames
-        frame_idxs = np.linspace(0, vlen, num_frames, endpoint=False).astype(np.int64)
+        if self.max_num_frames is not None:
+            num_frames = min(self.max_num_frames, num_frames)
+        else:
+            num_frames = num_frames // 3
+        frame_idxs = np.linspace(0, vlen, num_frames, endpoint=False).astype(np.int)
         video = video_reader.get_batch(frame_idxs).byte() # (num_frames, H, W, C)
         video = video.permute(0, 3, 1, 2) # (num_frames, C, H, W)
         return video
