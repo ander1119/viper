@@ -259,7 +259,7 @@ class ImagePatch:
         question : str
             A string describing the question to be asked.
         """
-        return self.forward('blip', self.cropped_image, question, task='qa')
+        return self.forward(config.vqa_model, self.cropped_image, question, task='qa')
 
     def compute_depth(self):
         """Returns the median depth of the image crop
