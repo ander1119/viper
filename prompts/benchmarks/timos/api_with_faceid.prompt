@@ -1,6 +1,5 @@
 import math
 
-
 class ImagePatch:
     """A Python class containing a crop of an image centered around a particular object, as well as relevant information.
     Attributes
@@ -290,6 +289,26 @@ class VideoSegment:
 
         self.num_frames = self.trimmed_video.shape[0]
 
+    def face_identify(self, image: ImagePatch) -> Union[str, None]:
+        """Returns unique identifier as string for the person in the image, return None if there's no person or the person is unidentifiable
+
+        Examples
+        -------
+        >>> def execute_command(video)->bool:
+        >>>     role_info = {}
+        >>>     video_segment = VideoSegment(video)
+        >>>     for i, frame in enumerate(video_segment.frame_iterator()):
+        >>>         for person in frame.find("person"):
+        >>>             person_id = video_segment.face_identify(person)    
+        >>>             if person_id is not None:
+        >>>                 person_action = person.simple_query("What's he/she doing?")
+        >>>                 if person_id in role_info:
+        >>>                     role_info[person_id].append(person_action)
+        >>>                 else:
+        >>>                     role_info[person_id] = [person_action]
+        """
+        return ImagePatch(self.trimmed_video[index])
+
     def frame_from_index(self, index) -> ImagePatch:
         """Returns the frame at position 'index', as an ImagePatch object.
 
@@ -348,39 +367,3 @@ class VideoSegment:
         """
         for i in range(self.num_frames):
             yield self.frame_from_index(i)
-
-
-# Examples of how to use the API
-
-# example
-# is trope "Kick the Dog" present in the video segment
-# possible answers: ['yes', 'no']
-def execute_command(video, possible_answers, query)->[str, dict]
-    # Answer is:def execute_command(video, possible_answers, query)->[str, dict]:
-    # Trope: Only Sane Man
-    # Definition: When there is a group of characters who are all just totally weird, either in general or in a particular scenario, the Only Sane Man is the only one who, well, isn't.
-    # Thought: we devide the trope detection into 3 steps
-    # 1. Frame Selection: Since ""Only Sane Man"" might present in every moment of video, we iterate every frame and perform a series of queries, collect information for each candidate frame
-    # 2. Character Analysis: For each frame, we need to identify the characters and to see if they are weird or not. If there is a character who behaves normally while others are acting weird, this character could be the ""Only Sane Man""
-    # 3. Answer Selection: Use select_answer api to select the most possible answer with previously collected information 
-    video_segment = VideoSegment(video)
-    # Create a info dictionary
-    info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
-        # Assuming functions exist to identify characters
-        characters = frame.find(""character"")
-        if len(characters) > 1:
-            # Query each character's behavior
-            is_weirds = [character.simple_query(""Is he/she weird?"") for character in characters]
-            # Check if there is only one character behaving normally
-            n_weirds = [iw for iw in is_weirds if ""yes"" in iw]
-            if len(n_weirds) == len(characters) - 1:
-                info[f""Count of characters in {i} th frame""] = behaviors
-    # Answer the query
-    answer = video_segment.select_answer(info, query, possible_answers)
-    return answer
-
-# example
-# INSERT_QUERY_HERE
-# possible answers: EXTRA_CONTEXT_HERE
-def execute_command(INSERT_TYPE_HERE):
