@@ -32,6 +32,16 @@ from utils import HiddenPrints
 with open('api.key') as f:
     openai.api_key = f.read().strip()
 
+import time
+import copy
+import google.generativeai as genai
+
+if os.environ.get('GEMINI_API_KEY') is None:
+    with open('gemini_api.key') as f:
+        genai.configure(api_key=f.read().strip())
+else:
+    genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
+
 cache = Memory('cache/' if config.use_cache else None, verbose=0)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 console = Console(highlight=False)
@@ -85,7 +95,7 @@ class BaseModel(abc.ABC):
 class ObjectDetector(BaseModel):
     name = 'object_detector'
 
-    def __init__(self, gpu_number=0):
+    def __init__(self, gpu_number=1):
         super().__init__(gpu_number)
 
         # with HiddenPrints('ObjectDetector'):
@@ -108,7 +118,7 @@ class ObjectDetector(BaseModel):
 class DepthEstimationModel(BaseModel):
     name = 'depth'
 
-    def __init__(self, gpu_number=2, model_type='DPT_Large'):
+    def __init__(self, gpu_number=1, model_type='DPT_Large'):
         super().__init__(gpu_number)
         # with HiddenPrints('DepthEstimation'):
         warnings.simplefilter("ignore")
@@ -147,7 +157,7 @@ class DepthEstimationModel(BaseModel):
 class CLIPModel(BaseModel):
     name = 'clip'
 
-    def __init__(self, gpu_number=0, version="ViT-L/14@336px"):  # @336px
+    def __init__(self, gpu_number=1, version="ViT-L/14@336px"):  # @336px
         super().__init__(gpu_number)
 
         import clip
@@ -318,7 +328,7 @@ class CLIPModel(BaseModel):
 class MaskRCNNModel(BaseModel):
     name = 'maskrcnn'
 
-    def __init__(self, gpu_number=0, threshold=config.detect_thresholds.maskrcnn):
+    def __init__(self, gpu_number=1, threshold=config.detect_thresholds.maskrcnn):
         super().__init__(gpu_number)
         # with HiddenPrints('MaskRCNN'):
         obj_detect = torchvision.models.detection.maskrcnn_resnet50_fpn_v2(weights='COCO_V1').to(self.dev)
@@ -362,7 +372,7 @@ class MaskRCNNModel(BaseModel):
 class OwlViTModel(BaseModel):
     name = 'owlvit'
 
-    def __init__(self, gpu_number=0, threshold=config.detect_thresholds.owlvit):
+    def __init__(self, gpu_number=1, threshold=config.detect_thresholds.owlvit):
         super().__init__(gpu_number)
 
         from transformers import OwlViTProcessor, OwlViTForObjectDetection
@@ -415,7 +425,7 @@ class OwlViTModel(BaseModel):
 class GLIPModel(BaseModel):
     name = 'glip'
 
-    def __init__(self, model_size='large', gpu_number=2, *args):
+    def __init__(self, model_size='large', gpu_number=1, *args):
         BaseModel.__init__(self, gpu_number)
 
         with contextlib.redirect_stderr(open(os.devnull, "w")):  # Do not print nltk_data messages when importing
@@ -609,7 +619,7 @@ class GLIPModel(BaseModel):
 class TCLModel(BaseModel):
     name = 'tcl'
 
-    def __init__(self, gpu_number=0):
+    def __init__(self, gpu_number=1):
 
         from base_models.tcl.tcl_model_pretrain import ALBEF
         from base_models.tcl.tcl_vit import interpolate_pos_embed
@@ -780,7 +790,7 @@ class GPT3Model(BaseModel):
     to_batch = False
     requires_gpu = False
 
-    def __init__(self, gpu_number=0):
+    def __init__(self, gpu_number=1):
         super().__init__(gpu_number=gpu_number)
         with open(config.gpt3.qa_prompt) as f:
             self.qa_prompt = f.read().strip()
@@ -1224,7 +1234,7 @@ class CodeLlama(CodexModel):
 
     # Not batched, but every call will probably be a batch (coming from the same process)
 
-    def __init__(self, gpu_number=0):
+    def __init__(self, gpu_number=1):
         super().__init__(gpu_number=gpu_number)
 
         from transformers import LlamaForCausalLM, CodeLlamaTokenizer
@@ -1285,6 +1295,67 @@ class CodeLlama(CodexModel):
         torch.cuda.empty_cache()
         return response
 
+class GeminiModel(BaseModel):
+    name = 'gemini'
+    to_batch = False
+    requires_gpu = False
+
+    def __init__(self, gpu_number=1):
+        super().__init__(gpu_number=gpu_number)
+        self.model = genai.GenerativeModel('gemini-pro-vision')
+        self.safety_setting = [
+            {
+                "category": "HARM_CATEGORY_HARASSMENT",
+                "threshold": "BLOCK_NONE",
+            },
+            {
+                "category": "HARM_CATEGORY_HATE_SPEECH",
+                "threshold": "BLOCK_NONE",
+            },
+            {
+                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                "threshold": "BLOCK_NONE",
+            },
+            {
+                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                "threshold": "BLOCK_NONE",
+            },
+        ]
+
+    def forward(self, image, question=None, task=None):
+        image = copy.deepcopy(image)
+        if isinstance(image, torch.Tensor):
+            image = torchvision.transforms.ToPILImage()(image)
+
+        assert isinstance(image, Image.Image)
+
+        if question is None:
+            question = 'Describe the image in detail'
+
+        config = genai.GenerationConfig(
+            candidate_count=1, top_p=0.9, temperature=1, max_output_tokens=250
+        )
+        retry_count = 3
+        while retry_count > 0:
+            try:
+                response = self.model.generate_content([question, image], generation_config=config, safety_settings=self.safety_setting)
+                break
+            except Exception as e:
+                print(f'Error: {e}')
+                time.sleep(60)
+                retry_count -= 1
+
+        # if block reason = 2 -> skip
+        if response.prompt_feedback.block_reason == response.prompt_feedback.BlockReason.OTHER:
+            answer = 'No Result'
+        elif response.candidates[0].finish_reason != response.candidates[0].FinishReason.STOP:
+            if response.candidates[0].finish_reason == response.candidates[0].FinishReason.MAX_TOKENS:
+                time.sleep(60)
+            answer = self.forward(image, question=question)
+        else:
+            answer = response.text
+
+        return answer
 
 class BLIPModel(BaseModel):
     name = 'blip'
@@ -1292,7 +1363,7 @@ class BLIPModel(BaseModel):
     max_batch_size = 32
     seconds_collect_data = 0.2  # The queue has additionally the time it is executing the previous forward pass
 
-    def __init__(self, gpu_number=0, half_precision=config.blip_half_precision,
+    def __init__(self, gpu_number=1, half_precision=config.blip_half_precision,
                  blip_v2_model_type=config.blip_v2_model_type):
         super().__init__(gpu_number)
 
@@ -1397,7 +1468,7 @@ class BLIPModel(BaseModel):
 class SaliencyModel(BaseModel):
     name = 'saliency'
 
-    def __init__(self, gpu_number=0,
+    def __init__(self, gpu_number=1,
                  path_checkpoint=f'{config.path_pretrained_models}/saliency_inspyrenet_plus_ultra'):
         from base_models.inspyrenet.saliency_transforms import get_transform
         from base_models.inspyrenet.InSPyReNet import InSPyReNet
