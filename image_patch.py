@@ -111,6 +111,12 @@ class ImagePatch:
 
         self.possible_options = load_json('./useful_lists/possible_options.json')
 
+    def to_uint8_numpy(self):
+        return (self.cropped_image.permute(1, 2, 0).numpy() * 255).astype(np.uint8)
+    
+    def __str__(self) -> str:
+        return f"ImagePatch({self.left}, {self.lower}, {self.right}, {self.upper})"
+
     def forward(self, model_name, *args, **kwargs):
         return forward(model_name, *args, queues=self.queues, **kwargs)
 
