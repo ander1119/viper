@@ -97,10 +97,19 @@ class TiMoSBCDataset(Dataset):
         answer = possible_answers[answer_idx]
 
         query_type = str(cur_sample['qid']).split('_')[0]
-
-        out_dict = {"sample_id": str(cur_sample['qid']), "answer": answer, "image": video, "query": question, 'pil_img': -1,
-                    "query_type": query_type, 'index': idx, 'possible_answers': possible_answers,
-                    'extra_context': possible_answers}
+        trope = str(cur_sample['trope'])
+        out_dict = {
+            "sample_id": str(cur_sample['qid']), 
+            "answer": answer, 
+            "image": video, 
+            "query": question, 
+            'pil_img': -1,
+            "query_type": query_type, 
+            'index': idx, 
+            'possible_answers': possible_answers,
+            'extra_context': possible_answers,
+            'trope': trope,
+        }
 
         return out_dict
 
