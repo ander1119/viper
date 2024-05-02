@@ -35,4 +35,4 @@ results_dir: ./results/timos_bc/
 gpt3:
   model: gpt-3.5-turbo-0125
 
-vqa_model: gemini
+vqa_model: blip

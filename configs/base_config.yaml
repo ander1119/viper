@@ -26,7 +26,7 @@ load_models:                                        # Which pretrained models to
     codex: True
     codellama: False
     reflection: True
-    gemini: True
+    gemini: False
     deepface: True
 
 detect_thresholds:                                  # Thresholds for the models that perform detection
