@@ -218,3 +218,5 @@ LAVIS/
 pretrained_models/
 
 test_code/
+
+test_*
