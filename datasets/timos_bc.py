@@ -76,7 +76,7 @@ class TiMoSBCDataset(Dataset):
             num_frames = min(self.max_num_frames, num_frames)
         else:
             num_frames = num_frames // 3
-        frame_idxs = np.linspace(0, vlen, num_frames, endpoint=False).astype(np.int)
+        frame_idxs = np.linspace(0, vlen, num_frames, endpoint=False).astype(np.int64)
         video = video_reader.get_batch(frame_idxs).byte() # (num_frames, H, W, C)
         video = video.permute(0, 3, 1, 2) # (num_frames, C, H, W)
         return video
@@ -97,10 +97,19 @@ class TiMoSBCDataset(Dataset):
         answer = possible_answers[answer_idx]
 
         query_type = str(cur_sample['qid']).split('_')[0]
-
-        out_dict = {"sample_id": str(cur_sample['qid']), "answer": answer, "image": video, "query": question, 'pil_img': -1,
-                    "query_type": query_type, 'index': idx, 'possible_answers': possible_answers,
-                    'extra_context': possible_answers}
+        trope = str(cur_sample['trope'])
+        out_dict = {
+            "sample_id": str(cur_sample['qid']), 
+            "answer": answer, 
+            "image": video, 
+            "query": question, 
+            'pil_img': -1,
+            "query_type": query_type, 
+            'index': idx, 
+            'possible_answers': possible_answers,
+            'extra_context': possible_answers,
+            'trope': trope,
+        }
 
         return out_dict
 
@@ -144,7 +153,7 @@ class TiMoSBCDataset(Dataset):
 
         accuracy = sum(1 for p, t in zip(prediction, ground_truth) if p == t) / len(ground_truth)
 
-        f1 = precision_recall_fscore_support(ground_truth, prediction, average='macro')
+        f1 = precision_recall_fscore_support(ground_truth, prediction, average='binary')
         score = {
             'precision': f1[0],
             'recall': f1[1],

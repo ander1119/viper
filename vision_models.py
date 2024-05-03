@@ -5,6 +5,7 @@ process(name, *args, **kwargs), where *args and **kwargs are the arguments of th
 """
 
 import abc
+import uuid
 import backoff
 import contextlib
 import openai
@@ -25,12 +26,23 @@ from torch import hub
 from torch.nn import functional as F
 from torchvision import transforms
 from typing import List, Union
+from deepface import DeepFace
 
 from configs import config
 from utils import HiddenPrints
 
 with open('api.key') as f:
     openai.api_key = f.read().strip()
+
+import time
+import copy
+import google.generativeai as genai
+
+if os.environ.get('GEMINI_API_KEY') is None:
+    with open('gemini_api.key') as f:
+        genai.configure(api_key=f.read().strip())
+else:
+    genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
 
 cache = Memory('cache/' if config.use_cache else None, verbose=0)
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -912,6 +924,7 @@ class GPT3Model(BaseModel):
                 messages=messages,
                 max_tokens=max_tokens,
                 temperature=self.temperature,
+                response_format={ "type": "json_object" },
             )
         else:
             response = openai.Completion.create(
@@ -1019,6 +1032,8 @@ class CodexModel(BaseModel):
         super().__init__(gpu_number=gpu_number)
 
         self.api_spec = open(config.codex.api_prompt).read().strip()
+        self.function_signature = open(config.codex.function_signature_prompt).read().strip()
+        self.function_format = open(config.codex.function_format_prompt).read().strip()
         self.examples = '\n'.join([open(ep).read().strip() for ep in config.codex.example_prompt])
         self.prototype = open(config.codex.prototype_prompt).read().strip()
 
@@ -1030,16 +1045,22 @@ class CodexModel(BaseModel):
         for prompt in extended_prompt:
             message = [{
                 "role": "system", 
-                "content":  "Answer should only include a function named execute_command, and the function should contains multiple line of comments for explaination in function body"
+                # "content":  "Answer should only include a function named execute_command, and the function should contains multiple line of comments for explaination in function body"
+                'content': "You are a professional programmer. You would be asked to follow the API specification and examples to complete the function."# Or analyze the code and request a new API to solve the problem."
             }]
-            instruction = f"""
-                            You are only allowed to use imported package and defined class in code below:\n
-                            {self.api_spec}
-                            There's some correct and incorrect function examples below, Note that the function should always return (answer, info) tuple\n
-                            """
+            instruction = f"""You are only allowed to use imported package and defined class below to complete the function:
+            {self.api_spec}
+            The function parameter and return value should follow the signature below:
+            {self.function_signature}
+            Here's some correct and incorrect (with reason) function examples for you to refer:
+            {self.examples}
+            Please follow the format to return the function. 
+            {self.function_format}
+            You MUST return the function ONLY and DO NOT return any unrelevant content.
+            """
             message.append({
                 "role": "user", 
-                "content": str(instruction + self.examples + prompt)
+                "content": str(instruction + prompt)
             })
             messages.append(message)
             
@@ -1293,6 +1314,67 @@ class CodeLlama(CodexModel):
         torch.cuda.empty_cache()
         return response
 
+class GeminiModel(BaseModel):
+    name = 'gemini'
+    to_batch = False
+    requires_gpu = False
+
+    def __init__(self, gpu_number=0):
+        super().__init__(gpu_number=gpu_number)
+        self.model = genai.GenerativeModel('gemini-pro-vision')
+        self.safety_setting = [
+            {
+                "category": "HARM_CATEGORY_HARASSMENT",
+                "threshold": "BLOCK_NONE",
+            },
+            {
+                "category": "HARM_CATEGORY_HATE_SPEECH",
+                "threshold": "BLOCK_NONE",
+            },
+            {
+                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                "threshold": "BLOCK_NONE",
+            },
+            {
+                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                "threshold": "BLOCK_NONE",
+            },
+        ]
+
+    def forward(self, image, question=None, task=None):
+        image = copy.deepcopy(image)
+        if isinstance(image, torch.Tensor):
+            image = torchvision.transforms.ToPILImage()(image)
+
+        assert isinstance(image, Image.Image)
+
+        if question is None:
+            question = 'Describe the image in detail'
+
+        config = genai.GenerationConfig(
+            candidate_count=1, top_p=0.9, temperature=1, max_output_tokens=250
+        )
+        retry_count = 3
+        while retry_count > 0:
+            try:
+                response = self.model.generate_content([question, image], generation_config=config, safety_settings=self.safety_setting)
+                break
+            except Exception as e:
+                print(f'Error: {e}')
+                time.sleep(60)
+                retry_count -= 1
+
+        # if block reason = 2 -> skip
+        if response.prompt_feedback.block_reason == response.prompt_feedback.BlockReason.OTHER:
+            answer = 'No Result'
+        elif response.candidates[0].finish_reason != response.candidates[0].FinishReason.STOP:
+            if response.candidates[0].finish_reason == response.candidates[0].FinishReason.MAX_TOKENS:
+                time.sleep(60)
+            answer = self.forward(image, question=question)
+        else:
+            answer = response.text
+
+        return answer
 
 class BLIPModel(BaseModel):
     name = 'blip'
@@ -1314,7 +1396,6 @@ class BLIPModel(BaseModel):
         # with warnings.catch_warnings(), HiddenPrints("BLIP"), torch.cuda.device(self.dev):
         with torch.cuda.device(self.dev):
             max_memory = {gpu_number: torch.cuda.mem_get_info(self.dev)[0]}
-            print(max_memory)
             self.processor = Blip2Processor.from_pretrained(f"Salesforce/{blip_v2_model_type}")
             # Device_map must be sequential for manual GPU selection
             try:
@@ -1401,6 +1482,41 @@ class BLIPModel(BaseModel):
             response = response[0]
         return response
 
+class DeepFaceModel(BaseModel):
+    name = 'deepface'
+    requires_gpu = False
+
+    def __init__(self, gpu_number=0):
+        super().__init__(gpu_number=gpu_number)
+
+    def forward(self, image, role_face_db: dict):
+        try:
+            img1 = image.to_uint8_numpy()
+            founded_face = DeepFace.extract_faces(img1, detector_backend='retinaface')
+            # print(founded_face)
+            if len(founded_face) > 1:
+                return None
+            min_pid = None
+            min_dist = 1
+            for pid, face_db in role_face_db.items():
+                for face in face_db:
+                    img2 = face.to_uint8_numpy()
+                    response = DeepFace.verify(img1_path=img1, img2_path=img2, detector_backend='retinaface', model_name='ArcFace')
+                    # print(response)
+                    if response['verified'] and response['distance'] < min_dist:
+                        min_pid = pid
+                        min_dist = response['distance']
+            if min_pid is not None:
+                role_face_db[min_pid].append(image)
+                return min_pid
+            else:
+                new_pid = str(uuid.uuid4())
+                role_face_db[new_pid] = [image]
+                return new_pid
+        except Exception as e:
+            # print(e)
+            return None
+            
 
 class SaliencyModel(BaseModel):
     name = 'saliency'
