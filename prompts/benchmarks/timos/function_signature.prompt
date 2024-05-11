@@ -1,4 +1,4 @@
-def execute_command(video, possible_answers, query, code)->[str, str, dict]
+def execute_command(video, possible_answers, query)->[str, str, dict]
     """Returns (answer, reason, info) tuple when answering query with possible_answers
     Parameters
     ----------
@@ -8,8 +8,6 @@ def execute_command(video, possible_answers, query, code)->[str, str, dict]
         A list of possible answers that the command might return as answer
     query (str): 
         The question or query that needs to be answered using the video
-    code (str): 
-        A string representation of the function itself and it will be used to analyze the video and answer the query.
     
     Returns
     -------

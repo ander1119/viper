@@ -1,4 +1,4 @@
-def execute_command(video, possible_answers, query, code)->[str, dict]
+def execute_command(video, possible_answers, query)->[str, dict]
     # Trope: FILL
     # Definition: FILL
     # Thought: FILL

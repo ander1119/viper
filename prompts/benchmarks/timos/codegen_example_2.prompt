@@ -16,10 +16,10 @@ Correct Example:
         }
         for i, frame in enumerate(ending_segment.frame_iterator()):
             # Detect visual cues of sadness, tragedy, or loss
-            sadness_query = frame.simple_query("Is there sadness or mourning?")
-            tragedy_query = frame.simple_query("Is there visible tragedy or destruction?")
+            sadness_query = frame.simple_query("Is there sadness or mourning?", to_yesno=True)
+            tragedy_query = frame.simple_query("Is there visible tragedy or destruction?", to_yesno=True)
 
-            if "yes" in sadness_query or "yes" in tragedy_query:
+            if "yes" in sadness_query.lower() or "yes" in tragedy_query.lower():
                 # Caption the frame
                 caption = frame.simple_query("What is in the frame?")
                 sadness_query = frame.simple_query("What sadness or mourning event is in the frame?")

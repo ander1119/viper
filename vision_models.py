@@ -884,9 +884,11 @@ class GPT3Model(BaseModel):
                                    stop=["\n", "<|endoftext|>"])
         return response
 
-    def get_general(self, prompts) -> list[str]:
+    def get_general(self, prompts, to_json=False, to_yesno=False) -> list[str]:
+        if to_yesno:
+            prompts = [p + "The answer with 'yes' or 'no'" for p in prompts]
         response = self.query_gpt3(prompts, model=self.model, max_tokens=256, top_p=1, frequency_penalty=0,
-                                   presence_penalty=0)
+                                   presence_penalty=0, to_json=to_json)
         if 'gpt' in self.model:
             response = [r['message']['content'] for r in response['choices']]
         else:
@@ -916,7 +918,7 @@ class GPT3Model(BaseModel):
         return responses
 
     def query_gpt3(self, prompt, model="text-davinci-003", max_tokens=16, logprobs=None, stream=False,
-                   stop=None, top_p=1, frequency_penalty=0, presence_penalty=0):
+                   stop=None, top_p=1, frequency_penalty=0, presence_penalty=0, to_json=False):
         if 'gpt' in model:
             messages = [{"role": "user", "content": p} for p in prompt]
             response = openai.ChatCompletion.create(
@@ -924,7 +926,7 @@ class GPT3Model(BaseModel):
                 messages=messages,
                 max_tokens=max_tokens,
                 temperature=self.temperature,
-                response_format={ "type": "json_object" },
+                response_format=None if not to_json else { "type": "json_object" },
             )
         else:
             response = openai.Completion.create(
@@ -942,7 +944,7 @@ class GPT3Model(BaseModel):
             )
         return response
 
-    def forward(self, prompt, process_name):
+    def forward(self, prompt, process_name, to_json=False, to_yesno=False):
         if not self.to_batch:
             prompt = [prompt]
 
@@ -969,7 +971,7 @@ class GPT3Model(BaseModel):
             elif process_name == 'gpt3_guess':
                 response = self.process_guesses(prompt)
             elif process_name == 'gpt3_general':  # 'gpt3_general', general prompt, has to be given all of it
-                response = self.get_general(prompt)
+                response = self.get_general(prompt, to_json=to_json, to_yesno=to_yesno)
             elif process_name == 'gpt3_summarize':
                 response = self.get_summarization(prompt)
         else:
