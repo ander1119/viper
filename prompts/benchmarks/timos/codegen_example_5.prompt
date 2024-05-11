@@ -1,5 +1,5 @@
 Incorrect Example:
-    def execute_command(video, possible_answers, query, code) -> [str, dict]:
+    def execute_command(video, possible_answers, query) -> [str, dict]:
         # Trope: Asshole Victim
         # Definition: A narrative trope where the victim of a crime or misdeed is someone who had it coming because they were themselves morally dubious or outright villainous.
         # Thought Process:
@@ -27,7 +27,7 @@ Incorrect Example:
                 info[f"Incident description in {i}th frame"] = incident_description
                 info[f"Morality check in {i}th frame"] = morality_query
         # After collecting information, use it to determine the presence of the trope
-        answer, reason = video_segment.select_answer(info, query, possible_answers, code)
+        answer, reason = video_segment.select_answer(info, query, possible_answers)
         return answer, reason, info
 Incorrect Reason:
     In line 18 of function, ImagePatch.exists() api is called with unphysical object or object whose definition is too ambiguous

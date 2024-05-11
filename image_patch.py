@@ -182,7 +182,7 @@ class ImagePatch:
 
         filtered_patches = []
         for patch in patches:
-            if "yes" in patch.simple_query(f"Is this a {object_name}?"):
+            if "yes" in patch.simple_query(f"Is this a {object_name}?", to_yesno=True):
                 filtered_patches.append(patch)
         return len(filtered_patches) > 0
 
@@ -256,7 +256,7 @@ class ImagePatch:
 
         return option_list[selected]
 
-    def simple_query(self, question: str):
+    def simple_query(self, question: str, to_yesno: bool = False) -> str:
         """Returns the answer to a basic question asked about the image. If no question is provided, returns the answer
         to "What is this?". The questions are about basic perception, and are not meant to be used for complex reasoning
         or external knowledge.
@@ -264,8 +264,23 @@ class ImagePatch:
         -------
         question : str
             A string describing the question to be asked.
+        to_yesno : bool
+            Whether the answer should be converted to a yes/no answer.
         """
-        return self.forward(config.vqa_model, self.cropped_image, question, task='qa')
+        if to_yesno:
+            question = question + "please answer with 'yes' or 'no'"
+        answer = self.forward(config.vqa_model, self.cropped_image, question, task='qa')
+        # if to_yesno:
+        #     answer = answer.lower()
+        #     if 'yes' in answer:
+        #         answer = 'yes'
+        #     elif 'no' in answer:
+        #         answer = 'no'
+        #     else:
+        #         answer = 'unknown'
+
+        return answer
+
 
     def compute_depth(self):
         """Returns the median depth of the image crop
@@ -336,8 +351,8 @@ class ImagePatch:
         """
         return self.left <= right and self.right >= left and self.lower <= upper and self.upper >= lower
 
-    def llm_query(self, question: str, long_answer: bool = True) -> str:
-        return llm_query(question, None, long_answer)
+    def llm_query(self, question: str, long_answer: bool = True, to_yesno: bool = False) -> str:
+        return llm_query(question, None, long_answer=long_answer, to_yesno=to_yesno)
 
     def print_image(self, size: tuple[int, int] = None):
         show_single_image(self.cropped_image, size)
@@ -426,7 +441,7 @@ def bool_to_yesno(bool_answer: bool) -> str:
     return "yes" if bool_answer else "no"
 
 
-def llm_query(query, context=None, long_answer=True, queues=None):
+def llm_query(query, context=None, long_answer=True, queues=None, to_yesno=False):
     """Answers a text question using GPT-3. The input question is always a formatted string with a variable in it.
 
     Parameters
@@ -435,9 +450,9 @@ def llm_query(query, context=None, long_answer=True, queues=None):
         the text question to ask. Must not contain any reference to 'the image' or 'the photo', etc.
     """
     if long_answer:
-        return forward(model_name='gpt3_general', prompt=query, queues=queues)
+        return forward(model_name='gpt3_general', prompt=query, queues=queues, to_yesno=to_yesno)
     else:
-        return forward(model_name='gpt3_qa', prompt=[query, context], queues=queues)
+        return forward(model_name='gpt3_qa', prompt=[query, context], queues=queues, to_yesno=to_yesno)
 
 
 def process_guesses(prompt, guess1=None, guess2=None, queues=None):

@@ -12,8 +12,8 @@ Incorrect Example:
         for i, frame in enumerate(video_segment.frame_iterator()):
             if frame.exists("character A") and frame.exists("character B") and not characters_met:
                 characters_met = True  # Indicates the characters have met
-                emotional_response = frame.simple_query("Do they look in love?")
-                if emotional_response == "yes":
+                emotional_response = frame.simple_query("Do they look in love?", to_yesno=True)
+                if "yes" in emotional_response.lower():
                     # Capture the moment of first meeting with emotional cues indicating love at first sight
                     info[f"Love at First Sight detected in frame {i}"] = "Two characters appear to be in love at their first meeting."
         # If no specific moment of love at first sight is detected, the info remains empty

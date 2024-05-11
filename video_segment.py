@@ -185,7 +185,7 @@ class VideoSegment:
 
         # info_formatting = json.dumps(info)
         prompt = prompt.format(info=info, question=question, options=options)
-        result = self.forward('gpt3_general', prompt)
+        result = self.forward('gpt3_general', prompt, to_json=True)
         
         try:
             result = eval(result)

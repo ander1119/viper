@@ -51,7 +51,7 @@ def run_program(parameters, queues_in_, input_type_, retrying=True):
     code = code.replace('```', '').replace('python', '')
     code = code_header + code.strip()
 
-    print(code)
+    # print(code)
 
     answer = None
     reason = None
