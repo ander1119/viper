@@ -53,7 +53,7 @@ class ImagePatch:
         Returns a new ImagePatch object containing a crop of the image at the given coordinates.
     """
 
-    def __init__(self, image: Union[Image.Image, torch.Tensor, np.ndarray], left: int = None, lower: int = None,
+    def __init__(self, image: Union[Image.Image, torch.Tensor, np.ndarray], annotation: dict, left: int = None, lower: int = None,
                  right: int = None, upper: int = None, parent_left=0, parent_lower=0, queues=None,
                  parent_img_patch=None):
         """Initializes an ImagePatch object by cropping the image at the given coordinates and stores the coordinates as
@@ -64,6 +64,8 @@ class ImagePatch:
         -------
         image : array_like
             An array-like of the original image.
+        annotation : dict
+            An annotation dictionary containing information about the image. The keys of the dictionary should be "bboxes" and "subtitiles".
         left : int
             An int describing the position of the left border of the crop's bounding box in the original image.
         lower : int
@@ -110,6 +112,13 @@ class ImagePatch:
             raise Exception("ImagePatch has no area")
 
         self.possible_options = load_json('./useful_lists/possible_options.json')
+
+        self.annotation = annotation
+
+    def get_subtitles(self) -> List[str]:
+        subtitles = self.annotation['subtitles']
+        subtitles = [] if subtitles is None else subtitles
+        return subtitles
 
     def to_uint8_numpy(self):
         return (self.cropped_image.permute(1, 2, 0).numpy() * 255).astype(np.uint8)
@@ -256,7 +265,7 @@ class ImagePatch:
 
         return option_list[selected]
 
-    def simple_query(self, question: str):
+    def simple_query(self, question: str, to_yesno: bool = False) -> str:
         """Returns the answer to a basic question asked about the image. If no question is provided, returns the answer
         to "What is this?". The questions are about basic perception, and are not meant to be used for complex reasoning
         or external knowledge.
@@ -264,8 +273,22 @@ class ImagePatch:
         -------
         question : str
             A string describing the question to be asked.
+        to_yesno : bool
+            Whether the answer should be converted to a yes/no answer.
         """
-        return self.forward(config.vqa_model, self.cropped_image, question, task='qa')
+        if to_yesno:
+            question = question + "please answer with 'yes' or 'no'"
+        answer = self.forward(config.vqa_model, self.cropped_image, question, task='qa')
+        # if to_yesno:
+        #     answer = answer.lower()
+        #     if 'yes' in answer:
+        #         answer = 'yes'
+        #     elif 'no' in answer:
+        #         answer = 'no'
+        #     else:
+        #         answer = 'unknown'
+
+        return answer
 
     def compute_depth(self):
         """Returns the median depth of the image crop
@@ -312,7 +335,7 @@ class ImagePatch:
             right = min(self.width, right + 10)
             upper = min(self.height, upper + 10)
 
-        return ImagePatch(self.cropped_image, left, lower, right, upper, self.left, self.lower, queues=self.queues,
+        return ImagePatch(self.cropped_image, self.annotation, left, lower, right, upper, self.left, self.lower, queues=self.queues,
                           parent_img_patch=self)
 
     def overlaps_with(self, left, lower, right, upper):
@@ -336,8 +359,8 @@ class ImagePatch:
         """
         return self.left <= right and self.right >= left and self.lower <= upper and self.upper >= lower
 
-    def llm_query(self, question: str, long_answer: bool = True) -> str:
-        return llm_query(question, None, long_answer)
+    def llm_query(self, question: str, long_answer: bool = True, to_yesno: bool = False) -> str:
+        return llm_query(question, None, long_answer=long_answer, to_yesno=to_yesno)
 
     def print_image(self, size: tuple[int, int] = None):
         show_single_image(self.cropped_image, size)
@@ -426,7 +449,7 @@ def bool_to_yesno(bool_answer: bool) -> str:
     return "yes" if bool_answer else "no"
 
 
-def llm_query(query, context=None, long_answer=True, queues=None):
+def llm_query(query, context=None, long_answer=True, queues=None, to_yesno=False):
     """Answers a text question using GPT-3. The input question is always a formatted string with a variable in it.
 
     Parameters
@@ -435,9 +458,9 @@ def llm_query(query, context=None, long_answer=True, queues=None):
         the text question to ask. Must not contain any reference to 'the image' or 'the photo', etc.
     """
     if long_answer:
-        return forward(model_name='gpt3_general', prompt=query, queues=queues)
+        return forward(model_name='gpt3_general', prompt=query, queues=queues, to_yesno=to_yesno)
     else:
-        return forward(model_name='gpt3_qa', prompt=[query, context], queues=queues)
+        return forward(model_name='gpt3_qa', prompt=[query, context], queues=queues, to_yesno=to_yesno)
 
 
 def process_guesses(prompt, guess1=None, guess2=None, queues=None):
