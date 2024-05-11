@@ -307,7 +307,6 @@ class VideoSegment:
         >>>                 else:
         >>>                     role_info[person_id] = [person_action]
         """
-        return ImagePatch(self.trimmed_video[index])
 
     def frame_from_index(self, index) -> ImagePatch:
         """Returns the frame at position 'index', as an ImagePatch object.

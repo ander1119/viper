@@ -1,0 +1,40 @@
+dataset:
+  data_path: /project/mira/dataset/MovieNet
+  anno_path: ../tropes/trope_bc_with_definition_subset_5_plot_20_trope.json
+  dataset_name: TiMoSBC
+  version: multiplechoice
+  fps: 10
+  max_num_frames: 120
+  split: val
+  batch_size: 8
+  max_samples: 50
+  start_sample: 50
+
+codex:
+  api_prompt: ./prompts/benchmarks/timos/api_with_faceid.prompt
+  function_signature_prompt: ./prompts/benchmarks/timos/function_signature.prompt
+  function_format_prompt: ./prompts/benchmarks/timos/function_format.prompt
+  example_prompt: [
+    # ./prompts/benchmarks/timos/subtitles_codegen_example_1.prompt,
+    # ./prompts/benchmarks/timos/subtitles_codegen_example_2.prompt,
+    ./prompts/benchmarks/timos/human_codegen_example_1.prompt,
+    ./prompts/benchmarks/timos/human_codegen_example_2.prompt,
+    # ./prompts/benchmarks/timos/subtitles_codegen_example_3.prompt,
+    ./prompts/benchmarks/timos/subtitles_codegen_example_4.prompt,
+    ./prompts/benchmarks/timos/subtitles_codegen_example_5.prompt,
+    ./prompts/benchmarks/timos/subtitles_codegen_example_6.prompt,
+  ]
+  prototype_prompt: ./prompts/benchmarks/timos/prototype.prompt
+  reflection_example_prompt: [
+   ./prompts/benchmarks/timos/reflection_example_2.prompt,
+  ]
+
+select_answer_prompt: ./prompts/gpt3/timos_bc_question_reason.txt
+fixed_code_file: ./prompts/fixed_code/blip2_video.prompt
+
+results_dir: ./results/timos_bc/
+
+gpt3:
+  model: gpt-3.5-turbo-0125
+
+vqa_model: gemini
