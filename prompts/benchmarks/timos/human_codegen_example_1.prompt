@@ -21,7 +21,7 @@ Correct example:
         # Create a info dictionary, which would later pass to select_answer api
         info = {}
         for i, frame in enumerate(video_segment.frame_iterator()):
-            # understaning current frame with context information
+            # understanding current frame with context information
             caption_query = "What is happening in the scene? please answer with at least 10 words"
             context_str = ""
             if len(context_queue) > 0:
@@ -29,7 +29,7 @@ Correct example:
                 caption_query = context_str + caption_query
             caption = frame.simple_query(caption_query)
             # check if there is any potential attack event
-            has_attack_event = frame.llm_query(f"Is there any potential attack event in description '{caption}')
+            has_attack_event = frame.llm_query(f"Is there any potential attack event in description '{caption}'?", to_yesno=True)
             if 'yes' in has_attack_event.lower():
                 # query the event in detail
                 attack_event_query = context_str + "What attack event is in the scene and what action and emotion does attacker and victim have, please answer with at least 40 words"     
