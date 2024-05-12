@@ -83,12 +83,12 @@ class TiMoSBCDataset(Dataset):
             ranges.append((interv, intervals[idx + 1]))
         # frame_idxs = np.linspace(0, vlen, num_frames, endpoint=False).astype(np.int64)
         frame_idxs = [(x[0] + x[1]) // 2 for x in ranges]
-        if len(frame_idxs) < n_frms:
-            rest = [frame_idxs[-1] for i in range(n_frms - len(frame_idxs))]
+        if len(frame_idxs) < num_frames:
+            rest = [frame_idxs[-1] for i in range(num_frames - len(frame_idxs))]
             frame_idxs = frame_idxs + rest 
 
         if hard_attn_idx is not None:
-            frame_idxs = frame_idxs[hard_attn_idx]
+            frame_idxs = [frame_idxs[idx] for idx in hard_attn_idx]
 
         video = video_reader.get_batch(frame_idxs).byte() # (num_frames, H, W, C)
         video = video.permute(0, 3, 1, 2) # (num_frames, C, H, W)
@@ -99,7 +99,7 @@ class TiMoSBCDataset(Dataset):
 
         sample_id = str(cur_sample['qid'])
         question = str(cur_sample['question'])
-        hard_attn_idx = cur_sample['hard_attn_idx']
+        hard_attn_idx = cur_sample.get('hard_attn_idx', None)
         if self.tokenize:
             question = self.tokenize(question)
 
