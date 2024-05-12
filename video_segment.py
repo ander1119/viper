@@ -8,6 +8,9 @@ from vision_models import DeepFaceModel
 from image_patch import ImagePatch
 from vision_processes import forward
 
+import os
+from utils import show_single_image
+
 class VideoSegment:
     """A Python class containing a set of frames represented as ImagePatch objects, as well as relevant information.
     Attributes
@@ -105,15 +108,15 @@ class VideoSegment:
     def face_identify(self, image: ImagePatch) -> str:
         """Identifies the person in the given image and returns their name."""
         # return self.forward('deepface', image, self.role_face_db)
-        # idx = 0
-        # while os.path.exists(f'./tmp2/{idx}.jpg'):
-        #     idx += 1
-        # show_single_image(image.cropped_image, save_path=f'./tmp2/{idx}.jpg')
-        # for pid, faces in self.role_face_db.items():
-        #     for i, face in enumerate(faces):
-        #         img_path = f'./tmp/{pid}/{i}.jpg'
-        #         if not os.path.exists(img_path):
-        #             show_single_image(face.cropped_image, save_path=img_path)
+        idx = 0
+        while os.path.exists(f'./tmp2/{idx}.jpg'):
+            idx += 1
+        show_single_image(image.cropped_image, save_path=f'./tmp2/{idx}.jpg')
+        for pid, faces in self.role_face_db.items():
+            for i, face in enumerate(faces):
+                img_path = f'./tmp/{pid}/{i}.jpg'
+                if not os.path.exists(img_path):
+                    show_single_image(face.cropped_image, save_path=img_path)
         # state_role_face_db = {
         #     pid: len(faces) for pid, faces in self.role_face_db.items()
         # }
