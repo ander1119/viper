@@ -1055,7 +1055,7 @@ class CodexModel(BaseModel):
             {self.api_spec}
             The function parameter and return value should follow the signature below:
             {self.function_signature}
-            Here's some correct and incorrect (with reason) function examples for you to refer:
+            Here's some function examples to refer:
             {self.examples}
             Please follow the format to return the function. 
             {self.function_format}

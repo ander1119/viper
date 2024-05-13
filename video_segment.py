@@ -70,7 +70,6 @@ class VideoSegment:
             raise Exception("VideoSegment has duration=0")
         
         self.role_face_db = {}
-
         self.deepface_model = DeepFaceModel()
 
         assert video.shape[0] == len(annotation)
@@ -111,17 +110,17 @@ class VideoSegment:
         return VideoSegment(self.trimmed_video, start, end, self.start, queues=self.queues)
 
     def face_identify(self, image: ImagePatch) -> str:
-        """Identifies the person in the given image and returns their name."""
+        """Identifies the person in the given image and return an unique identifier."""
         # return self.forward('deepface', image, self.role_face_db)
-        idx = 0
-        while os.path.exists(f'./tmp2/{idx}.jpg'):
-            idx += 1
-        show_single_image(image.cropped_image, save_path=f'./tmp2/{idx}.jpg')
-        for pid, faces in self.role_face_db.items():
-            for i, face in enumerate(faces):
-                img_path = f'./tmp/{pid}/{i}.jpg'
-                if not os.path.exists(img_path):
-                    show_single_image(face.cropped_image, save_path=img_path)
+        # idx = 0
+        # while os.path.exists(f'./tmp2/{idx}.jpg'):
+        #     idx += 1
+        # show_single_image(image.cropped_image, save_path=f'./tmp2/{idx}.jpg')
+        # for pid, faces in self.role_face_db.items():
+        #     for i, face in enumerate(faces):
+        #         img_path = f'./tmp/{pid}/{i}.jpg'
+        #         if not os.path.exists(img_path):
+        #             show_single_image(face.cropped_image, save_path=img_path)
         # state_role_face_db = {
         #     pid: len(faces) for pid, faces in self.role_face_db.items()
         # }
