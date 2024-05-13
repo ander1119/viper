@@ -19,10 +19,13 @@ class ImagePatch:
     best_text_match(option_list: List[str], prefix: str)->str
         Returns the string that best matches the image.
     simple_query(question: str=None, to_yesno: bool=False)->str
-        Returns the answer to a basic question asked about the image. If no question is provided, returns the answer. If to_yesno is set to True, the answer must contain 'yes' or 'no'
-        to "What is this?".
+        Returns the answer to a basic question asked about the image. If no question is provided, returns the answer to "What is this?".
+        If to_yesno is set to True, the answer must contain 'yes' or 'no'
     crop(left: int, lower: int, right: int, upper: int)->ImagePatch
         Returns a new ImagePatch object containing a crop of the image at the given coordinates.
+    llm_query(question: str, to_yesno: bool=False)->str
+        Returns the answer to a basic question which is unrelevant to the image. 
+        If to_yesno is set to True, the answer must contain 'yes' or 'no'
     """
 
     def __init__(self, image, left: int = None, lower: int = None, right: int = None, upper: int = None):
@@ -61,6 +64,7 @@ class ImagePatch:
         --------
         >>> subtiltles = '\n'.join(image_patch.get_subtitles())
         >>> caption = image_patch.simple_query(f"What's happening in the scene which has subtitles {subtiltles}?")
+        """
 
     def find(self, object_name: str) -> List[ImagePatch]:
         """Returns a list of ImagePatch objects matching object_name contained in the crop if any are found.
@@ -271,10 +275,13 @@ class VideoSegment:
 
     Methods
     -------
-    frame_iterator->Iterator[ImagePatch]
-    trim(start, end)->VideoSegment
+    face_identify(image: ImagePatch) -> str
+        Return an unique identifier according to person in image
+    select_answer(self, info: dict, question: str, options: List[str]) -> (str, str):
+        Return (answer, reason) for the question and options according to given information
+    trim(start, end) -> VideoSegment
         Returns a new VideoSegment containing a trimmed version of the original video at the [start, end] segment.
-    frame_iterator->Iterator[ImagePatch]
+    frame_iterator() -> Iterator[ImagePatch]
         Returns an iterator over the frames in the video segment.
     """
 
@@ -368,7 +375,8 @@ class VideoSegment:
 
         return VideoSegment(self.trimmed_video, start, end, self.start)
 
-    def select_answer(self, info: dict, question: str, options: List[str]) -> str:
+    def select_answer(self, info: dict, question: str, options: List[str]) -> (str, str):
+        """Return (answer, reason) for the question and options according to given information"""
         return select_answer(self.trimmed_video, info, question, options)
 
     def frame_iterator(self) -> Iterator[ImagePatch]:
@@ -384,3 +392,5 @@ class VideoSegment:
         >>>         if frame.exists("kid") and frame.exists("cat") and "yes" in frame.simple_query("Is the kid kissing the cat?", to_yesno=True):
         >>>             return frame
         """
+        for i in range(self.num_frames):
+            yield self.frame_from_index(i)

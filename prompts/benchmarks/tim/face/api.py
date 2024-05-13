@@ -19,10 +19,13 @@ class ImagePatch:
     best_text_match(option_list: List[str], prefix: str)->str
         Returns the string that best matches the image.
     simple_query(question: str=None, to_yesno: bool=False)->str
-        Returns the answer to a basic question asked about the image. If no question is provided, returns the answer. If to_yesno is set to True, the answer must contain 'yes' or 'no'
-        to "What is this?".
+        Returns the answer to a basic question asked about the image. If no question is provided, returns the answer to "What is this?".
+        If to_yesno is set to True, the answer must contain 'yes' or 'no'
     crop(left: int, lower: int, right: int, upper: int)->ImagePatch
         Returns a new ImagePatch object containing a crop of the image at the given coordinates.
+    llm_query(question: str, to_yesno: bool=False)->str
+        Returns the answer to a basic question which is unrelevant to the image. 
+        If to_yesno is set to True, the answer must contain 'yes' or 'no'
     """
 
     def __init__(self, image, left: int = None, lower: int = None, right: int = None, upper: int = None):
@@ -182,7 +185,7 @@ class ImagePatch:
         >>>             return foo
         """
         return self.left <= right and self.right >= left and self.lower <= upper and self.upper >= lower
-
+    
     def llm_query(self, question: str, to_yesno: bool=False)->str:
         '''Answers a text question using GPT-3. The input question is always a formatted string with a variable in it.
         
@@ -193,7 +196,6 @@ class ImagePatch:
         to_yesno : bool
             A boolean indicate whether answer must contain yes/no
         '''
-
 
 def best_image_match(list_patches: List[ImagePatch], content: List[str], return_index=False) -> Union[ImagePatch, int]:
     """Returns the patch most likely to contain the content.
@@ -264,10 +266,13 @@ class VideoSegment:
 
     Methods
     -------
-    frame_iterator->Iterator[ImagePatch]
-    trim(start, end)->VideoSegment
+    face_identify(image: ImagePatch) -> str
+        Return an unique identifier according to person in image
+    select_answer(self, info: dict, question: str, options: List[str]) -> (str, str):
+        Return (answer, reason) for the question and options according to given information
+    trim(start, end) -> VideoSegment
         Returns a new VideoSegment containing a trimmed version of the original video at the [start, end] segment.
-    frame_iterator->Iterator[ImagePatch]
+    frame_iterator() -> Iterator[ImagePatch]
         Returns an iterator over the frames in the video segment.
     """
 
@@ -300,6 +305,25 @@ class VideoSegment:
             self.end = end + parent_start
 
         self.num_frames = self.trimmed_video.shape[0]
+
+    def face_identify(self, image: ImagePatch) -> Union[str, None]:
+        """Returns unique identifier as string for the person in the image, return None if there's no person or the person is unidentifiable
+
+        Examples
+        -------
+        >>> def execute_command(video)->bool:
+        >>>     role_info = {}
+        >>>     video_segment = VideoSegment(video)
+        >>>     for i, frame in enumerate(video_segment.frame_iterator()):
+        >>>         for person in frame.find("person"):
+        >>>             person_id = video_segment.face_identify(person)    
+        >>>             if person_id is not None:
+        >>>                 person_action = person.simple_query("What's he/she doing?")
+        >>>                 if person_id in role_info:
+        >>>                     role_info[person_id].append(person_action)
+        >>>                 else:
+        >>>                     role_info[person_id] = [person_action]
+        """
 
     def frame_from_index(self, index) -> ImagePatch:
         """Returns the frame at position 'index', as an ImagePatch object.
@@ -342,7 +366,8 @@ class VideoSegment:
 
         return VideoSegment(self.trimmed_video, start, end, self.start)
 
-    def select_answer(self, info: dict, question: str, options: List[str]) -> str:
+    def select_answer(self, info: dict, question: str, options: List[str]) -> (str, str):
+        """Return (answer, reason) for the question and options according to given information"""
         return select_answer(self.trimmed_video, info, question, options)
 
     def frame_iterator(self) -> Iterator[ImagePatch]:

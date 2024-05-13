@@ -10,23 +10,21 @@ Correct Example:
         # 5. Answer Selection: Using the collected data, decide whether the "Asshole Victim" trope is present.
         video_segment = VideoSegment(video, annotation)
         # Initialize a dictionary to store information collected during analysis
-        info = {
-            "Character Analysis": [],
-            "Incident Analysis": [],
-            "Morality Check": []
-        }
+        info = {}
         for i, frame in enumerate(video_segment.frame_iterator()):
             # Assume function exists to identify characters and incidents
             if frame.exists("person"):
-                # Analyze the character's actions or traits
-                subtitles_info = "With subtitles '" + ' '.join(frame.get_subtitles()) + "'"
-                character_trait = frame.simple_query(subtitles_info + "What is the character doing? What are their traits?")
-                incident_description = frame.simple_query(subtitles_info + "Describe the incident happen in the image.")
-                morality_query = frame.simple_query(subtitles_info + "Does the character show negative moral traits?")
-                # Store the collected information
-                info[f"Character trait in {i}th frame"] = character_trait
+                incident_description = frame.simple_query("Describe the incident happened in the image.")
+                info[f"Character trait in {i}th frame"] = []
+                info[f"Morality check in {i}th frame"] = []
+                for person in frame.find("person"):
+                    # Analyze the character's actions or traits
+                    person_trait = person.simple_query("What is the person doing? What are his/her traits?")
+                    morality_query = frame.simple_query(subtitles_info + "Does the he/she show negative moral traits?", to_yesno=True)
+                    # Store the collected information
+                    info[f"Character trait in {i}th frame"].append(character_trait)
+                    info[f"Morality check in {i}th frame"].append(morality_query)
                 info[f"Incident description in {i}th frame"] = incident_description
-                info[f"Morality check in {i}th frame"] = morality_query
         # After collecting information, use it to determine the presence of the trope
         answer, reason = video_segment.select_answer(info, query, possible_answers)
         return answer, reason, info

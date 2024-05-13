@@ -24,9 +24,10 @@ class ImagePatch:
     crop(left: int, lower: int, right: int, upper: int)->ImagePatch
         Returns a new ImagePatch object containing a crop of the image at the given coordinates.
     llm_query(question: str, to_yesno: bool=False)->str
-        Returns the answer to a basic question which is unrelevant to the image. If to_yesno is set to True, the answer must contain 'yes' or 'no'
+        Returns the answer to a basic question which is unrelevant to the image. 
+        If to_yesno is set to True, the answer must contain 'yes' or 'no'
     """
-
+    
     def __init__(self, image, left: int = None, lower: int = None, right: int = None, upper: int = None):
         """Initializes an ImagePatch object by cropping the image at the given coordinates and stores the coordinates as
         attributes. If no coordinates are provided, the image is left unmodified, and the coordinates are set to the
@@ -57,6 +58,14 @@ class ImagePatch:
         self.horizontal_center = (self.left + self.right) / 2
         self.vertical_center = (self.lower + self.upper) / 2
 
+    def get_subtitles(self) -> List[str]:
+        """Return a list of str, which is subtitles that present in the current frame 
+        Examples
+        --------
+        >>> subtiltles = '\n'.join(image_patch.get_subtitles())
+        >>> caption = image_patch.simple_query(f"What's happening in the scene which has subtitles {subtiltles}?")
+        """
+        
     def find(self, object_name: str) -> List[ImagePatch]:
         """Returns a list of ImagePatch objects matching object_name contained in the crop if any are found.
         Otherwise, returns an empty list.
@@ -184,7 +193,7 @@ class ImagePatch:
         >>>             return foo
         """
         return self.left <= right and self.right >= left and self.lower <= upper and self.upper >= lower
-    
+
     def llm_query(self, question: str, to_yesno: bool=False)->str:
         '''Answers a text question using GPT-3. The input question is always a formatted string with a variable in it.
         
@@ -195,6 +204,7 @@ class ImagePatch:
         to_yesno : bool
             A boolean indicate whether answer must contain yes/no
         '''
+
 
 def best_image_match(list_patches: List[ImagePatch], content: List[str], return_index=False) -> Union[ImagePatch, int]:
     """Returns the patch most likely to contain the content.
@@ -265,13 +275,10 @@ class VideoSegment:
 
     Methods
     -------
-    face_identify(image: ImagePatch) -> str
-        Return an unique identifier according to person in image
-    select_answer(self, info: dict, question: str, options: List[str]) -> (str, str):
-        Return (answer, reason) for the question and options according to given information
-    trim(start, end) -> VideoSegment
+    frame_iterator->Iterator[ImagePatch]
+    trim(start, end)->VideoSegment
         Returns a new VideoSegment containing a trimmed version of the original video at the [start, end] segment.
-    frame_iterator() -> Iterator[ImagePatch]
+    frame_iterator->Iterator[ImagePatch]
         Returns an iterator over the frames in the video segment.
     """
 
@@ -365,8 +372,7 @@ class VideoSegment:
 
         return VideoSegment(self.trimmed_video, start, end, self.start)
 
-    def select_answer(self, info: dict, question: str, options: List[str]) -> (str, str):
-        """Return (answer, reason) for the question and options according to given information"""
+    def select_answer(self, info: dict, question: str, options: List[str]) -> str:
         return select_answer(self.trimmed_video, info, question, options)
 
     def frame_iterator(self) -> Iterator[ImagePatch]:
@@ -376,10 +382,9 @@ class VideoSegment:
         -------
         >>> # Return the frame when the kid kisses the cat
         >>> def execute_command(video):
-        >>>     video_segment = VideoSegment(video)
+        >>>     video_segment = VideoSegment(video, annotation)
         >>>     for i, frame in enumerate(video_segment.frame_iterator()):
-        >>>         if frame.exists("kid") and frame.exists("cat") and frame.simple_query("Is the kid kissing the cat?") == "yes":
+        >>>         subtiltles = frame.get_subtitles()
+        >>>         if frame.exists("kid") and frame.exists("cat") and "yes" in frame.simple_query("Is the kid kissing the cat?", to_yesno=True):
         >>>             return frame
         """
-        for i in range(self.num_frames):
-            yield self.frame_from_index(i)
