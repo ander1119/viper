@@ -37,7 +37,7 @@ def save_file(obj, filename):
             json.dump(obj, fp, indent=4)
 
 
-class TiMoSBCDataset(Dataset):
+class TiMDataset(Dataset):
     def __init__(self, split, data_path="", tokenize=None, max_samples=None, version='multiplechoice', fps=10,
                  max_num_frames=None, start_sample=0, **kwargs):
 
