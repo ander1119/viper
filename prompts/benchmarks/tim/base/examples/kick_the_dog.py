@@ -1,4 +1,4 @@
-def execute_command(video, annotation, possible_answers, query)->[str, dict]
+def execute_command(video, annotation, possible_answers, query)->[str, str, dict]
     # Trope: Kick the Dog
     # Definition: an act of cruelty by a character, typically towards a more vulnerable or defenseless entity, to establish the character's malevolence
     # Thought: we devide the trope detection into 4 steps

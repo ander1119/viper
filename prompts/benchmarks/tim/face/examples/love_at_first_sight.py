@@ -1,4 +1,4 @@
-def execute_command(video, annotation, possible_answers, query)->[str, dict]:
+def execute_command(video, annotation, possible_answers, query)->[str, str, dict]:
     # Trope: Love at First Sight
     # Definition: An instance where two characters meet for the first time and immediately fall in love, often leading to significant plot developments.
     # Thought: The trope detection involves three steps:

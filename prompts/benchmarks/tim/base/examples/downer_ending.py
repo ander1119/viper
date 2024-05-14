@@ -1,4 +1,4 @@
-def execute_command(video, annotation, possible_answers, query)->[str, dict]
+def execute_command(video, annotation, possible_answers, query)->[str, str, dict]
     # Trope: Downer Ending
     # Definition: an ending that is sad, tragic, or otherwise less positive than the audience might have expected, often leaving the protagonist or key characters in a worse state than they were at the beginning or facing significant loss
     # Thought: we devide the trope detection into 3 steps

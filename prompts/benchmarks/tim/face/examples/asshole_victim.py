@@ -1,4 +1,4 @@
-def execute_command(video, annotation, possible_answers, query) -> [str, dict]:
+def execute_command(video, annotation, possible_answers, query)->[str, str, dict]:
     # Trope: Asshole Victim
     # Definition: A narrative trope where the victim of a crime or misdeed is someone who had it coming because they were themselves morally dubious or outright villainous.
     # Thought Process:

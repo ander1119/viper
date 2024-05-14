@@ -1,4 +1,4 @@
-def execute_command(video, annotation, possible_answers, query)->[str, dict]:
+def execute_command(video, annotation, possible_answers, query)->[str, str, dict]:
     # Trope: Stealth Pun
     # Definition: A joke, typically a pun, is included by the writers but is not highlighted with a punchline or explicit statement. It's hidden within the setup of the joke, requiring the audience to notice and interpret it themselves.
     # Thought Process:
