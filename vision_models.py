@@ -8,6 +8,8 @@ import abc
 import uuid
 import backoff
 import contextlib
+import cv2
+import numpy as np
 import openai
 import os
 import re
@@ -25,8 +27,13 @@ from rich.console import Console
 from torch import hub
 from torch.nn import functional as F
 from torchvision import transforms
-from typing import List, Union
+from typing import List, Optional, Union
 from deepface import DeepFace
+
+from deepface.detectors.DetectorWrapper import build_model, rotate_facial_area
+from deepface.modules import detection, modeling, representation
+from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
+from deepface.models.FacialRecognition import FacialRecognition
 
 from configs import config
 from utils import HiddenPrints
@@ -894,7 +901,7 @@ class GPT3Model(BaseModel):
         else:
             response = [r["text"] for r in response['choices']]
         return response
-    
+
     def get_summarization(self, prompts) -> list[dict]:
         responses = []
         for prompt in prompts:
@@ -904,7 +911,7 @@ class GPT3Model(BaseModel):
                     "content": "You are Text Summarization GPT, With given text that contains information from frames in video, please make a summarization and remove redundant information. Return response with AT MOST 3000 token (about 750 character)."
                 },
                 {
-                    "role": "user", 
+                    "role": "user",
                     "content": prompt
                 }
             ]
@@ -1054,7 +1061,7 @@ class CodexModel(BaseModel):
         messages = []
         for prompt in extended_prompt:
             message = [{
-                "role": "system", 
+                "role": "system",
                 # "content":  "Answer should only include a function named execute_command, and the function should contains multiple line of comments for explaination in function body"
                 'content': "You are a professional programmer. You would be asked to follow the API specification and examples to complete the function."# Or analyze the code and request a new API to solve the problem."
             }]
@@ -1069,11 +1076,11 @@ class CodexModel(BaseModel):
             You MUST return the function ONLY and DO NOT return any unrelevant content.
             """
             message.append({
-                "role": "user", 
+                "role": "user",
                 "content": str(instruction + prompt)
             })
             messages.append(message)
-            
+
         return messages
 
     def forward(self, prompt, input_type='image', extra_context=None):
@@ -1126,7 +1133,7 @@ class CodexModel(BaseModel):
             print(e)
             response = self.forward_(messages)
         return response
-    
+
 class ReflectionModel(BaseModel):
     name = 'reflection'
     requires_gpu = False
@@ -1143,11 +1150,11 @@ class ReflectionModel(BaseModel):
         # messages = []
         # for code, original_message, outputs in zip(codes, original_messages, code_outputs):
         #     original_message.append({
-        #         "role": "assistant", 
+        #         "role": "assistant",
         #         "content": code
         #     })
         #     original_message.append({
-        #         "role": "user", 
+        #         "role": "user",
         #         "content": outputs
         #     })
 
@@ -1155,11 +1162,11 @@ class ReflectionModel(BaseModel):
 
         # return messages
         original_messages.append({
-            "role": "assistant", 
+            "role": "assistant",
             "content": codes
         })
         original_messages.append({
-            "role": "user", 
+            "role": "user",
             "content": reflection
         })
 
@@ -1175,7 +1182,7 @@ class ReflectionModel(BaseModel):
         #     \tinfo: {co['info']}\n
         #     \tcompilation_error: {co['compilation_error']}\n
         #     \truntime_error: {co['runtime_error']}\n
-        #     Please reflect on the result and provide feedback to the assistant. 
+        #     Please reflect on the result and provide feedback to the assistant.
         #     """ for co in code_outputs
         # ]
         # return outputs
@@ -1190,7 +1197,7 @@ class ReflectionModel(BaseModel):
 
         # instruction = """
         #     If you are allowed to request one new api to strengthen the function or even correct the answer, what kind of api would you like to request?
-        #     Please reflect on the code and result, analyze which instruction leads to the incorrect answer and request a new api to solve the problem. 
+        #     Please reflect on the code and result, analyze which instruction leads to the incorrect answer and request a new api to solve the problem.
         #     The revised function should comments that define the new api in detail and the reason why you need it.
         #     Here's some examples about analyzing specific function and their result, requesting api according to problems the function about to solve :\n
         # """
@@ -1208,7 +1215,7 @@ class ReflectionModel(BaseModel):
             \truntime_error: {code_outputs['runtime_error']}\n
             Revised function:\n
             """
-        
+
         return str(instruction + examples + target)
 
     def forward(self, codes, messages, code_outputs):
@@ -1252,7 +1259,7 @@ class ReflectionModel(BaseModel):
             print(e)
             response = self.forward_(messages)
         return response
-    
+
 
 
 class CodeLlama(CodexModel):
@@ -1402,7 +1409,7 @@ class BLIPModel(BaseModel):
         # https://huggingface.co/models?sort=downloads&search=Salesforce%2Fblip2-
         assert blip_v2_model_type in ['blip2-flan-t5-xxl', 'blip2-flan-t5-xl', 'blip2-opt-2.7b', 'blip2-opt-6.7b',
                                       'blip2-opt-2.7b-coco', 'blip2-flan-t5-xl-coco', 'blip2-opt-6.7b-coco']
-        
+
         # with warnings.catch_warnings(), HiddenPrints("BLIP"), torch.cuda.device(self.dev):
         with torch.cuda.device(self.dev):
             max_memory = {gpu_number: torch.cuda.mem_get_info(self.dev)[0]}
@@ -1466,6 +1473,7 @@ class BLIPModel(BaseModel):
         return generated_text
 
     def forward(self, image, question=None, task='caption'):
+        # start_time = time.time()
         if not self.to_batch:
             image, question, task = [image], [question], [task]
 
@@ -1490,7 +1498,9 @@ class BLIPModel(BaseModel):
 
         if not self.to_batch:
             response = response[0]
+        # print(f"BLIP time: {time.time() - start_time}")
         return response
+
 
 class DeepFaceModel(BaseModel):
     name = 'deepface'
@@ -1498,11 +1508,258 @@ class DeepFaceModel(BaseModel):
 
     def __init__(self, gpu_number=0):
         super().__init__(gpu_number=gpu_number)
+        face_detector: Detector = build_model('retinaface')
+
+    def _detect_faces(self, img, align=True, expand_percentage=0):
+        # find facial areas of given image
+        facial_areas = self.face_detector.detect_faces(img)
+
+        results = []
+        for facial_area in facial_areas:
+            x = facial_area.x
+            y = facial_area.y
+            w = facial_area.w
+            h = facial_area.h
+            left_eye = facial_area.left_eye
+            right_eye = facial_area.right_eye
+            confidence = facial_area.confidence
+
+            if expand_percentage > 0:
+                # Expand the facial region height and width by the provided percentage
+                # ensuring that the expanded region stays within img.shape limits
+                expanded_w = w + int(w * expand_percentage / 100)
+                expanded_h = h + int(h * expand_percentage / 100)
+
+                x = max(0, x - int((expanded_w - w) / 2))
+                y = max(0, y - int((expanded_h - h) / 2))
+                w = min(img.shape[1] - x, expanded_w)
+                h = min(img.shape[0] - y, expanded_h)
+
+            # extract detected face unaligned
+            detected_face = img[int(y) : int(y + h), int(x) : int(x + w)]
+
+            # align original image, then find projection of detected face area after alignment
+            if align is True:  # and left_eye is not None and right_eye is not None:
+                aligned_img, angle = detection.align_face(
+                    img=img, left_eye=left_eye, right_eye=right_eye
+                )
+                rotated_x1, rotated_y1, rotated_x2, rotated_y2 = rotate_facial_area(
+                    facial_area=(x, y, x + w, y + h), angle=angle, size=(img.shape[0], img.shape[1])
+                )
+                detected_face = aligned_img[
+                    int(rotated_y1) : int(rotated_y2), int(rotated_x1) : int(rotated_x2)
+                ]
+
+            result = DetectedFace(
+                img=detected_face,
+                facial_area=FacialAreaRegion(
+                    x=x, y=y, h=h, w=w, confidence=confidence, left_eye=left_eye, right_eye=right_eye
+                ),
+                confidence=confidence,
+            )
+            results.append(result)
+        return results
+
+    def extract_faces(
+        self, 
+        img, 
+        enforce_detection: bool = True,
+        align: bool = True,
+        expand_percentage: int = 0,
+        grayscale: bool = False
+    ):
+        resp_objs = []
+
+        base_region = FacialAreaRegion(x=0, y=0, w=img.shape[1], h=img.shape[0], confidence=0)
+
+        face_objs = self._detect_faces(
+            img=img,
+            align=align,
+            expand_percentage=expand_percentage,
+        )
+
+        # in case of no face found
+        if len(face_objs) == 0 and enforce_detection is True:
+            raise ValueError(
+                "Face could not be detected. Please confirm that the picture is a face photo "
+                "or consider to set enforce_detection param to False."
+            )
+
+        if len(face_objs) == 0 and enforce_detection is False:
+            face_objs = [DetectedFace(img=img, facial_area=base_region, confidence=0)]
+
+        for face_obj in face_objs:
+            current_img = face_obj.img
+            current_region = face_obj.facial_area
+
+            if current_img.shape[0] == 0 or current_img.shape[1] == 0:
+                continue
+
+            if grayscale is True:
+                current_img = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
+
+            current_img = current_img / 255  # normalize input in [0, 1]
+
+            resp_objs.append(
+                {
+                    "face": current_img[:, :, ::-1],
+                    "facial_area": {
+                        "x": int(current_region.x),
+                        "y": int(current_region.y),
+                        "w": int(current_region.w),
+                        "h": int(current_region.h),
+                        "left_eye": current_region.left_eye,
+                        "right_eye": current_region.right_eye,
+                    },
+                    "confidence": round(current_region.confidence, 2),
+                }
+            )
+
+        if len(resp_objs) == 0 and enforce_detection == True:
+            raise ValueError(
+                "Exception while extracting faces from img."
+                "Consider to set enforce_detection arg to False."
+            )
+
+        return resp_objs
+
+    def find_cosine_distance(self, source_representation: Union[np.ndarray, list], test_representation: Union[np.ndarray, list]):
+        """
+        Find cosine distance between two given vectors
+        Args:
+            source_representation (np.ndarray or list): 1st vector
+            test_representation (np.ndarray or list): 2nd vector
+        Returns
+            distance (np.float64): calculated cosine distance
+        """
+        if isinstance(source_representation, list):
+            source_representation = np.array(source_representation)
+
+        if isinstance(test_representation, list):
+            test_representation = np.array(test_representation)
+
+        a = np.matmul(np.transpose(source_representation), test_representation)
+        b = np.sum(np.multiply(source_representation, source_representation))
+        c = np.sum(np.multiply(test_representation, test_representation))
+        return 1 - (a / (np.sqrt(b) * np.sqrt(c)))
+
+    def __extract_faces_and_embeddings(
+        self,
+        img_path,
+        enforce_detection: bool = True,
+        align: bool = True,
+        expand_percentage: int = 0,
+        normalization: str = "base",
+    ):
+        """
+        Extract facial areas and find corresponding embeddings for given image
+        Returns:
+            embeddings (List[float])
+            facial areas (List[dict])
+        """
+        embeddings = []
+        facial_areas = []
+
+        img_objs = detection.extract_faces(
+            img_path=img_path,
+            detector_backend='retinaface',
+            grayscale=False,
+            enforce_detection=enforce_detection,
+            align=align,
+            expand_percentage=expand_percentage,
+        )
+
+        # find embeddings for each face
+        for img_obj in img_objs:
+            img_embedding_obj = representation.represent(
+                img_path=img_obj["face"],
+                model_name='ArcFace',
+                enforce_detection=enforce_detection,
+                detector_backend="skip",
+                align=align,
+                normalization=normalization,
+            )
+            # already extracted face given, safe to access its 1st item
+            img_embedding = img_embedding_obj[0]["embedding"]
+            embeddings.append(img_embedding)
+            facial_areas.append(img_obj["facial_area"])
+
+        return embeddings, facial_areas
+
+    def verify(
+        self, 
+        img1, 
+        img2,
+        enforce_detection: bool = True,
+        align: bool = True,
+        expand_percentage: int = 0,
+        normalization: str = "base",
+        silent: bool = False,
+        threshold: Optional[float] = None
+    ):
+        model: FacialRecognition = modeling.build_model('ArcFace')
+
+        try:
+            img1_embeddings, img1_facial_areas = self.__extract_faces_and_embeddings(
+                img_path=img1,
+                enforce_detection=enforce_detection,
+                align=align,
+                expand_percentage=expand_percentage,
+                normalization=normalization,
+            )
+        except ValueError as err:
+            raise ValueError("Exception while processing img1_path") from err
+
+        try:
+            img2_embeddings, img2_facial_areas = self.__extract_faces_and_embeddings(
+                img_path=img2,
+                enforce_detection=enforce_detection,
+                align=align,
+                expand_percentage=expand_percentage,
+                normalization=normalization,
+            )
+        except ValueError as err:
+            raise ValueError("Exception while processing img2_path") from err
+
+        no_facial_area = {
+            "x": None,
+            "y": None,
+            "w": None,
+            "h": None,
+            "left_eye": None,
+            "right_eye": None,
+        }
+
+        distances = []
+        facial_areas = []
+        for idx, img1_embedding in enumerate(img1_embeddings):
+            for idy, img2_embedding in enumerate(img2_embeddings):
+                distance = self.find_cosine_distance(img1_embedding, img2_embedding)
+                distances.append(distance)
+                facial_areas.append(
+                    (img1_facial_areas[idx] or no_facial_area, img2_facial_areas[idy] or no_facial_area)
+                )
+
+        # find the face pair with minimum distance
+        threshold = 0.68
+        distance = float(min(distances))  # best distance
+        facial_areas = facial_areas[np.argmin(distances)]
+
+        toc = time.time()
+
+        resp_obj = {
+            "verified": distance <= threshold,
+            "distance": distance,
+            "threshold": threshold,
+            "facial_areas": {"img1": facial_areas[0], "img2": facial_areas[1]},
+        }
+
+        return resp_obj
 
     def forward(self, image, role_face_db: dict):
         try:
             img1 = image.to_uint8_numpy()
-            founded_face = DeepFace.extract_faces(img1, detector_backend='retinaface')
+            founded_face = self.extract_faces(img1)
             # print(founded_face)
             if len(founded_face) > 1:
                 return None
@@ -1511,7 +1768,7 @@ class DeepFaceModel(BaseModel):
             for pid, face_db in role_face_db.items():
                 for face in face_db:
                     img2 = face.to_uint8_numpy()
-                    response = DeepFace.verify(img1_path=img1, img2_path=img2, detector_backend='retinaface', model_name='ArcFace')
+                    response = self.verify(img1, img2)
                     # print(response)
                     if response['verified'] and response['distance'] < min_dist:
                         min_pid = pid
@@ -1526,7 +1783,7 @@ class DeepFaceModel(BaseModel):
         except Exception as e:
             # print(e)
             return None
-            
+
 
 class SaliencyModel(BaseModel):
     name = 'saliency'

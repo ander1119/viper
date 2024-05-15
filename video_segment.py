@@ -4,7 +4,6 @@ import torch
 from typing import Union, Iterator
 
 from configs import config
-from vision_models import DeepFaceModel
 from image_patch import ImagePatch
 from vision_processes import forward
 
@@ -70,7 +69,6 @@ class VideoSegment:
             raise Exception("VideoSegment has duration=0")
         
         self.role_face_db = {}
-        self.deepface_model = DeepFaceModel()
 
         assert video.shape[0] == len(annotation)
         self.annotation = annotation
@@ -125,8 +123,7 @@ class VideoSegment:
         #     pid: len(faces) for pid, faces in self.role_face_db.items()
         # }
         # print(state_role_face_db)
-
-        return self.deepface_model.forward(image, self.role_face_db)
+        return self.forward('deepface', image, self.role_face_db)
 
     def select_answer(self, info: dict, question: str, options=None) -> str:
         
