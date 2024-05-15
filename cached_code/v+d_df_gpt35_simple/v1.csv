@@ -10,13 +10,13 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify characters and their actions
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
             if character_id is None:
                 continue
-            character_action = character.simsple_query(""What is the character doing?"")
+            character_action = character.simple_query(""What is the character doing?"")
             if character_id not in info:
                 info[character_id] = []
             info[character_id].append(character_action)
@@ -50,7 +50,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify characters in the frame
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
@@ -81,7 +81,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue for context
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         for character in frame.find(""person""):
@@ -118,7 +118,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify characters in the frame
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
@@ -153,7 +153,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify parental figures in the frame
         parental_figures = frame.find(""parent"")
         
@@ -184,7 +184,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Check for presence of children in the frame
         has_children = frame.exists(""child"")
         
@@ -219,7 +219,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify female characters in the frame
         female_characters = frame.find(""female character"")
         for character in female_characters:
@@ -252,7 +252,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.find() to identify the authority figure in the scene
         authority_figures = frame.find(""authority figure"")
         
@@ -286,7 +286,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify characters and their actions
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
@@ -325,7 +325,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use subtitles to get dialogue for context
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         for character in frame.find(""person""):
@@ -366,7 +366,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify characters in the frame
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
@@ -403,7 +403,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
     video_segment = VideoSegment(video, annotation)
     info = {}
     sane_man = None
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
             if character_id is None:
@@ -436,7 +436,7 @@ def execute_command(video, annotation, possible_answers, query):
     # 3. Trope Relevance: Determine if the protagonist aligns more with antihero qualities.
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
             if character_id is None:
@@ -466,7 +466,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
         ""captions"": {},
         ""character_behaviors"": {}
     }
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # use ImagePatch.get_subtitles() to get dialogue, latter use the dialogue with query as context information
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         # collect background story from caption of frame
@@ -501,7 +501,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use subtitles as context information
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         for character in frame.find(""person""):
@@ -535,7 +535,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.find() to identify villainous characters or antagonists
         villains = frame.find(""villain"")
         
@@ -569,7 +569,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     # Create an info dictionary to store character behaviors and interactions
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # use ImagePatch.get_subtitles() to get dialogue, later use the dialogue with query as context information
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         for character in frame.find(""person""):
@@ -600,7 +600,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue for context
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         for character in frame.find(""person""):
@@ -628,7 +628,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
             if character_id is None:
@@ -669,7 +669,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze each frame for characters exhibiting signs of psychological instability
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
@@ -700,7 +700,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch methods to analyze each frame for characters and their traits
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
@@ -733,7 +733,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to gather context from dialogue
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         for character in frame.find(""person""):
@@ -772,7 +772,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         for character in frame.find(""female""):
             character_id = video_segment.face_identify(character)
             if character_id is None:
@@ -804,7 +804,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue for context
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         
@@ -844,7 +844,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify characters in the frame
         characters = frame.find(""person"")
         
@@ -872,7 +872,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify male characters in the frame
         for male_character in frame.find(""male character""):
             # Check if the male character is engaging in violent actions towards female characters
@@ -906,7 +906,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Check for signs of impending danger or realization in the frame
         realization_query = frame.simple_query(""Is there a moment of realization or impending danger in this scene?"", to_yesno=True)
         
@@ -933,7 +933,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
     # 3. Answer Selection: Use the collected information to determine if the trope ""Driven to Suicide"" is relevant to the movie.
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Check for any character showing signs of distress or suicidal behavior
         suicidal_character = frame.find(""person"")
         for character in suicidal_character:
@@ -955,7 +955,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze each frame for elements that evoke adult fears
         fear_query = frame.simple_query(""Does this scene evoke feelings of unease or worry?"")
         if ""yes"" in fear_query.lower():
@@ -1001,7 +1001,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue, which can provide context for emotional impact analysis
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         # Analyze the frame for any shocking revelations or events
@@ -1027,7 +1027,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
     # 3. Answer Selection: Use select_answer API to determine if the ""Big 'NO!'"" trope is relevant based on the collected information.
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Check for dramatic reactions in the scene
         reaction_query = frame.simple_query(""Is there a dramatic reaction in this scene?"", to_yesno=True)
         if ""yes"" in reaction_query.lower():
@@ -1052,7 +1052,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze each frame for eye-related horror or trauma
         eye_horror_query = frame.simple_query(""Is there any eye-related horror or trauma in this scene?"", to_yesno=True)
         
@@ -1078,7 +1078,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Check for violent or gory scenes
         violence_query = frame.simple_query(""Is there any violent or gory content in this frame?"", to_yesno=True)
         if ""yes"" in violence_query.lower():
@@ -1101,7 +1101,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Check for extreme violence or stabbing in each frame
         violence_query = frame.simple_query(""Is there extreme violence in this scene?"", to_yesno=True)
         stabbing_query = frame.simple_query(""Is there any stabbing happening?"", to_yesno=True)
@@ -1130,7 +1130,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Check for any violent or threatening scenes
         violence_query = frame.simple_query(""Is there any violent or threatening scene?"", to_yesno=True)
         if ""yes"" in violence_query.lower():
@@ -1158,7 +1158,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify and track villains in the scene
         villains = frame.find(""villain"")
         for villain in villains:
@@ -1183,7 +1183,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify characters and their actions
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
@@ -1207,7 +1207,7 @@ def execute_command(video, annotation, possible_answers, query):
     info = {}
     
     # Iterate through each frame in the video segment
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use the frame to detect the presence of the trope
         # You can use the frame's content, subtitles, and character interactions to identify the trope
         
@@ -1249,7 +1249,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue, later use the dialogue with query as context information
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         
@@ -1277,7 +1277,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # use ImagePatch.get_subtitles() to get dialogue, later use the dialogue with query as context information
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         for character in frame.find(""person""):
@@ -1310,7 +1310,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue for context
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         # Check for boastful statements or actions in the frame
@@ -1336,7 +1336,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Check for any physical attacks to the groin area
         groin_attack_query = frame.simple_query(""Is there a groin attack in this frame?"", to_yesno=True)
         if ""yes"" in groin_attack_query.lower():
@@ -1361,7 +1361,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze each frame for intense and aggressive actions
         revengeful_actions = frame.simple_query(""Are there intense and aggressive actions in this frame?"", to_yesno=True)
         
@@ -1386,7 +1386,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify heroic acts or interventions in the frames
         heroic_act = frame.simple_query(""Is there a heroic act or moment in this frame?"", to_yesno=True)
         if ""yes"" in heroic_act.lower():
@@ -1411,7 +1411,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue for context
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         # Check for actions that suggest a sacrificial act
@@ -1441,7 +1441,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze each frame for signs of a character leaving abruptly
         departure_query = frame.simple_query(""Is there a character leaving abruptly?"", to_yesno=True)
         
@@ -1467,7 +1467,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     # Create a info dictionary, which would later pass to select_answer api
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # understanding current frame with context information
         caption_query = ""What is happening in the scene? please answer with at least 10 words""
         caption = frame.simple_query(caption_query)
@@ -1491,7 +1491,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
 
     # Iterate through each frame in the video segment to analyze the scenes
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Check if the frame contains the character performing a positive action
         if frame.exists(""nasty old crank"") and frame.exists(""dog""):
             # Get the specific action of the character towards the dog
@@ -1521,7 +1521,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # use ImagePatch.get_subtitles() to get dialogue, later use the dialogue with query as context information
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         for villain in frame.find(""villain""):
@@ -1553,7 +1553,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue, and use it to analyze language
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         # Analyze dialogue for strong language or swearing
@@ -1584,7 +1584,7 @@ def execute_command(video, annotation, possible_answers, query):
     info = {}
     swearing_count = 0
 
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue
         subtitles = frame.get_subtitles()
         swearing_in_frame = sum(1 for subtitle in subtitles if ""swear_word"" in subtitle.lower())
@@ -1612,7 +1612,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use frame analysis to identify characters and their behaviors
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
@@ -1645,7 +1645,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue for context
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         # Analyze character actions for signs of stupidity
@@ -1673,7 +1673,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze character behavior and actions
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
@@ -1711,7 +1711,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Check if there are any instances of reporting to the police
         police_report = frame.simple_query(""Is there a report to the police in this scene?"", to_yesno=True)
         if ""yes"" in police_report.lower():
@@ -1737,7 +1737,7 @@ def execute_command(video, annotation, possible_answers, query):
     info = {}
     dragon_present = False
 
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze each frame for the presence of a formidable opponent or obstacle
         for character in frame.find(""person""):
             # Check if the character can be considered as ""The Dragon""
@@ -1768,7 +1768,7 @@ def execute_command(video, annotation, possible_answers, query):
     info = {}
     cool_car_present = False
 
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Check if there is a cool car present in the frame
         if frame.exists(""cool car""):
             cool_car_present = True
@@ -1796,7 +1796,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze each frame for body horror elements
         body_horror_query = frame.simple_query(""Is there any body horror element in this frame?"", to_yesno=True)
         if ""yes"" in body_horror_query.lower():
@@ -1821,7 +1821,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue for context
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         
@@ -1850,7 +1850,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze the frame for signs of a one-sided battle
         battle_analysis = frame.simple_query(""Is there a one-sided battle happening?"", to_yesno=True)
         if ""yes"" in battle_analysis.lower():
@@ -1875,7 +1875,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # use ImagePatch.get_subtitles() to get dialogue, later use the dialogue with query as context information
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         
@@ -1904,7 +1904,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use subtitles as context information
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         # Check for instances of blatant lies in dialogue
@@ -1929,7 +1929,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze each frame for visual and narrative cues
         frame_description = frame.simple_query(""Describe the setting and tone of this frame."")
         info[f""Frame {i} Description""] = frame_description
@@ -1954,7 +1954,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, dict]:
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use subtitles and dialogue to identify instances of characters missing the point
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         missing_point_query = frame.simple_query(subtitles_info + ""Is there a character missing an obvious point?"", to_yesno=True)
@@ -1985,7 +1985,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze each frame for sexual content or situations
         sexual_content = frame.exists(""sexual content"")
         sexual_situation = frame.exists(""sexual situation"")
@@ -2014,7 +2014,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     # Create an info dictionary to hold detected elements that might contribute to Fan Disservice
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # use ImagePatch.get_subtitles() to get dialogue, later use the dialogue with query as context information
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         # use simple_query to analyze the scene
@@ -2039,7 +2039,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue, which can provide context for potential jokes
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         # Analyze dialogue for setup and payoff elements
@@ -2067,7 +2067,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze each frame for instances of hypocritical humor
         # You can use frame.find(), frame.simple_query(), or other methods to detect contradictions
         
@@ -2091,7 +2091,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze each frame for scenes resembling another situation
         scene_description = frame.simple_query(""What is happening in this scene?"")
         resemblance_query = frame.simple_query(f""Does this scene remind you of anything? If yes, describe the resemblance."")
@@ -2118,7 +2118,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze each frame for elements of Black Comedy
         satire_query = frame.simple_query(""Is there a satirical treatment of serious topics in this scene?"", to_yesno=True)
         if ""yes"" in satire_query.lower():
@@ -2144,7 +2144,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue, which can provide context for detecting irony
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         
@@ -2177,7 +2177,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze each frame for instances of exact wording being crucial
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         exact_words_query = frame.simple_query(subtitles_info + ""Are there instances of exact words being crucial in this scene?"", to_yesno=True)
@@ -2207,7 +2207,7 @@ def execute_command(video, annotation, possible_answers, query):
     # Create an info dictionary to hold detected elements that might contribute to a Stealth Pun
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # use ImagePatch.get_subtitles() to get dialogue, later use the dialogue with query as context information
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         
@@ -2278,7 +2278,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify the character's actions and their impact on others
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
@@ -2344,7 +2344,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify mistreatment events
         mistreatment_query = frame.simple_query(""Is there mistreatment happening in this scene?"", to_yesno=True)
         if ""yes"" in mistreatment_query.lower():
@@ -2372,7 +2372,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze character interactions, conflicts, and resolutions
         character_actions = frame.simple_query(""What are the characters doing?"")
         character_emotions = frame.simple_query(""What are the characters feeling?"")
@@ -2398,7 +2398,7 @@ def execute_command(video, annotation, possible_answers, query):
     villain_found = False
     hero_found = False
 
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify characters in the frame
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
@@ -2443,7 +2443,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue for context
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         
@@ -2470,7 +2470,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue, later use the dialogue with the query as context information
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         for hero in frame.find(""hero""):
@@ -2499,7 +2499,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Check for the presence of a hopeful moment
         has_hope = frame.simple_query(""Is there a moment of hope in this frame?"", to_yesno=True)
         if ""yes"" in has_hope.lower():
@@ -2523,7 +2523,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify characters in the frame
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
@@ -2562,7 +2562,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # use ImagePatch.get_subtitles() to get dialogue, later use the dialogue with query as context information
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         for character in frame.find(""person""):
@@ -2609,7 +2609,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, dict]:
     info = {}
     potential_guns = set()
 
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         for object in frame.find(""object""):
             object_id = object.simple_query(""What is this object?"")
             if object_id not in potential_guns:
@@ -2642,7 +2642,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze each frame for potential foreshadowing elements
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         foreshadowing_query = frame.simple_query(subtitles_info + ""Is there any foreshadowing element in this scene?"", to_yesno=True)
@@ -2671,7 +2671,7 @@ def execute_command(video, annotation, possible_answers, query):
     info = {}
     
     # Iterate through the frames to identify instances of skill acquisition or training
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch methods to analyze the frames for skill-related content
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         # Identify any skill training or acquisition in the frame
@@ -2701,7 +2701,7 @@ def execute_command(video, annotation, possible_answers, query):
     info = {}
     relevant_characters = []
 
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         for character in frame.find(""person""):
             character_id = video_segment.face_identify(character)
             if character_id is None:
@@ -2742,7 +2742,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Analyze each frame for potential red herrings
         potential_red_herring = frame.simple_query(""Is there any misleading clue or information in this frame?"", to_yesno=True)
         
@@ -2767,7 +2767,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue, then use the dialogue with the query as context information
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         # Analyze dialogue for instances of repeated comments
@@ -2798,7 +2798,7 @@ def execute_command(video, annotation, possible_answers, query):
     villain_actions = []
     villain_demise = None
 
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Identify the villain in the frame
         villains = frame.find(""villain"")
         for villain in villains:
@@ -2834,7 +2834,7 @@ def execute_command(video, annotation, possible_answers, query):
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.get_subtitles() to get dialogue, and analyze for repeated phrases
         subtitles_info = ""With subtitles '"" + "" "".join(frame.get_subtitles()) + ""'""
         repeated_dialogue = frame.llm_query(subtitles_info + ""Are there any repeated dialogues or phrases?"", to_yesno=True)
@@ -2857,7 +2857,7 @@ def execute_command(video, annotation, possible_answers, query):
     video_segment = VideoSegment(video, annotation)
     info = {}
     
-    for i, frame in enumerate(video_segment.frame_iterator()):
+    for i, frame in tqdm(enumerate(video_segment.frame_iterator())):
         # Use ImagePatch.find() to identify the villainous character
         villain_patches = frame.find(""villain"")
         
