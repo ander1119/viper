@@ -4,7 +4,7 @@ execute_code: True                                   # Execute the code after ge
 
 results_dir: ./results/v_120_blip2_df_gpt4_simple_mainset   # Directory to save the results
 use_cached_codex: True                               # Use previously-computed Codex results
-cached_codex_path: './results/cached_code/v_df_gpt4_simple/val/v1.csv' # Path to the csv results file from which to load Codex results
+cached_codex_path: ./cached_code/v_df_gpt4_simple/v1.csv' # Path to the csv results file from which to load Codex results
 
 vqa_model: blip                                       # should be one of the following: gemini, blip
 face_model: deepface                                  # should be one of the following: deepface, label
