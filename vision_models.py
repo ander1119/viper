@@ -1021,7 +1021,14 @@ def codex_helper(messages):
     resp = [r['choices'][0]['message']['content'].replace("execute_command(image)",
                                                             "execute_command(image, my_fig, time_wait_between_lines, syntax)")
             for r in responses]
-    return resp
+
+    filtered_resp = []
+    for r in resp:
+        if "```" in r:
+            r = "```" + r.split("```")[1] + "```"
+        filtered_resp.append(r)
+    # resp = ["```" + r.split("```")[1] + "```" for r in resp if "```" in r else r]
+    return filtered_resp
 
 
 class CodexModel(BaseModel):
