@@ -2,9 +2,9 @@ multiprocessing: False                                 # Run the models and samp
 path_pretrained_models: './pretrained_models'         # Path to the pretrained models
 execute_code: True                                   # Execute the code after generating it. Only applies to main_batch
 
-results_dir: ./results/v_120_blip2_df_gpt4_simple_mainset   # Directory to save the results
+results_dir: ./results/v+d_120_blip2_df_gpt35_simple_mainset   # Directory to save the results
 use_cached_codex: True                               # Use previously-computed Codex results
-cached_codex_path: './results/cached_code/v_df_gpt4_simple/val/v1.csv' # Path to the csv results file from which to load Codex results
+cached_codex_path: './results/cached_code/v+d_df_gpt35_simple/val/v1.csv' # Path to the csv results file from which to load Codex results
 
 vqa_model: blip                                       # should be one of the following: gemini, blip
 face_model: deepface                                  # should be one of the following: deepface, label
@@ -22,22 +22,22 @@ dataset:
     start_sample: 0
 
 codex:
-    api_prompt: ./prompts/benchmarks/tim/face/api.py
+    api_prompt: ./prompts/benchmarks/tim/face_dialogue/api.py
     function_signature_prompt: ./prompts/benchmarks/tim/function_signature.prompt
     function_format_prompt: ./prompts/benchmarks/tim/function_format.prompt
     example_prompt: [
-        ./prompts/benchmarks/tim/face/examples/asshole_victim.py,
-        ./prompts/benchmarks/tim/face/examples/downer_ending.py,
-        ./prompts/benchmarks/tim/face/examples/kick_the_dog.py,
-        ./prompts/benchmarks/tim/face/examples/love_at_first_sight.py,
-        ./prompts/benchmarks/tim/face/examples/stealth_pun.py
+        ./prompts/benchmarks/tim/face_dialogue/examples/asshole_victim.py,
+        ./prompts/benchmarks/tim/face_dialogue/examples/downer_ending.py,
+        ./prompts/benchmarks/tim/face_dialogue/examples/kick_the_dog.py,
+        ./prompts/benchmarks/tim/face_dialogue/examples/love_at_first_sight.py,
+        ./prompts/benchmarks/tim/face_dialogue/examples/stealth_pun.py
     ]
     prototype_prompt: ./prompts/benchmarks/tim/prototype.prompt
     temperature: 0.                                   # Temperature for Codex. (Almost) deterministic if 0
     best_of: 1                                        # Number of tries to choose from. Use when temperature > 0
     max_tokens: 4096                                  # Maximum number of tokens to generate for Codex
     prompt: ./prompts/chatapi.prompt                  # Codex prompt file, which defines the API. (doesn't support video for now due to token limits)
-    model: gpt-4-turbo                                # Codex model to use. [gpt-4-turbo, gpt-3.5-turbo]. See openai.Model.list() for available models
+    model: gpt-3.5-turbo-0125                               # Codex model to use. [gpt-4-turbo, gpt-3.5-turbo]. See openai.Model.list() for available models
 
 load_models:                                          # Which pretrained models to load
     maskrcnn: True
