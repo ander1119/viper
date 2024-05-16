@@ -360,7 +360,7 @@ class ImagePatch:
         return self.left <= right and self.right >= left and self.lower <= upper and self.upper >= lower
 
     def llm_query(self, question: str, long_answer: bool = True, to_yesno: bool = False) -> str:
-        return llm_query(question, None, long_answer=long_answer, to_yesno=to_yesno)
+        return llm_query(question, None, long_answer=long_answer, queues=self.queues, to_yesno=to_yesno)
 
     def print_image(self, size: tuple[int, int] = None):
         show_single_image(self.cropped_image, size)
