@@ -2,7 +2,7 @@ multiprocessing: True                                 # Run the models and sampl
 path_pretrained_models: './pretrained_models'         # Path to the pretrained models
 execute_code: False                                   # Execute the code after generating it. Only applies to main_batch
 
-results_dir: ./results/cached_code/v+d_df_gpt4_complex # Directory to save the results
+results_dir: ./cached_code/v+d_df_gpt4_complex # Directory to save the results
 
 dataset:
     data_path: /project/mira/dataset/MovieNet
@@ -11,7 +11,7 @@ dataset:
     version: multiplechoice
     fps: 10
     max_num_frames: 120
-    split: val
+    split: .
     batch_size: 8
     # max_samples: 1
     start_sample: 0
