@@ -2694,7 +2694,7 @@ def execute_command(video, annotation, possible_answers, query):
             if punchline_index > setup_index:  # Ensure punchline comes after the setup
                 # Check if the setup and punchline are related humorously
                 relation_query = f""Does the punchline '{punchline_desc}' humorously relate to the setup '{setup_desc}'?""
-                is_related = video_segment.llm_query(relation_query, to_yesno=True)
+                is_related = llm_query(relation_query, to_yesno=True)
                 if ""yes"" in is_related.lower():
                     info[f""Setup at frame {setup_index}""] = setup_desc
                     info[f""Punchline at frame {punchline_index}""] = punchline_desc
@@ -3419,7 +3419,7 @@ def execute_command(video, annotation, possible_answers, query):
         final_appearance = developments[-1][""appearance""]
         # Check for a significant transformation in appearance or abilities
         transformation_query = f""Has the character transformed from '{initial_appearance}' to '{final_appearance}' significantly enough to be considered 'taking a level in badass'?""
-        transformation_response = video_segment.llm_query(transformation_query, to_yesno=True)
+        transformation_response = llm_query(transformation_query, to_yesno=True)
         if ""yes"" in transformation_response.lower():
             answer = ""yes""
             reason = f""Character {character_id} has significantly transformed, meeting the trope criteria.""
@@ -3641,7 +3641,7 @@ def execute_command(video, annotation, possible_answers, query):
     if misleading_clues:
         # Assume a function that evaluates the relevance of clues to the plot
         relevance_query = ""Do these clues lead to a resolution of the plot?""
-        clues_relevance = video_segment.llm_query(relevance_query, to_yesno=True)
+        clues_relevance = llm_query(relevance_query, to_yesno=True)
         if ""no"" in clues_relevance.lower():
             answer = ""yes""
             reason = ""There are misleading clues that do not contribute to the plot resolution.""

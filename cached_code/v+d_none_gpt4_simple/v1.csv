@@ -2408,7 +2408,7 @@ def execute_command(video, annotation, possible_answers, query):
             if punchline_index > setup_index:  # Ensure the punchline comes after the setup
                 # Analyze if the punchline relates to the setup
                 relation_query = f""Does the punchline '{punchline_desc}' relate to the setup '{setup_desc}'?""
-                is_related = video_segment.llm_query(relation_query, to_yesno=True)
+                is_related = llm_query(relation_query, to_yesno=True)
                 if ""yes"" in is_related.lower():
                     info[f""Related setup at frame {setup_index} and punchline at frame {punchline_index}""] = f""Setup: {setup_desc}, Punchline: {punchline_desc}""
 
@@ -3307,7 +3307,7 @@ def execute_command(video, annotation, possible_answers, query):
     if misleading_elements:
         context = "" "".join(misleading_elements)
         final_query = f""Considering these elements: {context}, did they lead to a wrong direction in the plot?""
-        final_answer = video_segment.llm_query(final_query, to_yesno=True)
+        final_answer = llm_query(final_query, to_yesno=True)
         info[""Final analysis""] = final_answer
     else:
         final_answer = ""no""
