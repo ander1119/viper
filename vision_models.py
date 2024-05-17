@@ -1022,7 +1022,7 @@ def codex_helper(messages):
             #                 best_of=config.codex.best_of,
             stop=["\n\n\n"],
         )
-        print(response)
+        # print(response)
         responses.append(response)
 
     resp = [r['choices'][0]['message']['content'].replace("execute_command(image)",

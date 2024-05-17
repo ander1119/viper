@@ -39,8 +39,8 @@ class VideoSegment:
         -------
         video : torch.Tensor
             A tensor of the original video.
-        annotation : dict
-            An dict with length equal to video.shape[0]. Each entry is a dict with the following keys: "bboxes" and "subtitles"
+        annotation : list of dict
+            An list with length equal to video.shape[0]. Each entry is a dict with the following keys: "bboxes" and "subtitles"
         start : int
             An int describing the starting frame in this video segment with respect to the original video.
         end : int
@@ -49,10 +49,12 @@ class VideoSegment:
 
         if start is None and end is None:
             self.trimmed_video = video
+            self.annotation = annotation
             self.start = 0
             self.end = video.shape[0]  # duration
         else:
             self.trimmed_video = video[start:end]
+            self.annotation = annotation[start:end]
             if start is None:
                 start = 0
             if end is None:
@@ -71,7 +73,6 @@ class VideoSegment:
         self.role_face_db = {}
 
         assert video.shape[0] == len(annotation)
-        self.annotation = annotation
 
     def forward(self, model_name, *args, **kwargs):
         return forward(model_name, *args, queues=self.queues, **kwargs)
@@ -105,7 +106,7 @@ class VideoSegment:
         if end is not None:
             end = min(end, self.num_frames)
 
-        return VideoSegment(self.trimmed_video, start, end, self.start, queues=self.queues)
+        return VideoSegment(self.trimmed_video, self.annotation, start, end, self.start, queues=self.queues)
 
     def face_identify(self, image: ImagePatch) -> str:
         """Identifies the person in the given image and return an unique identifier."""
@@ -204,8 +205,7 @@ class VideoSegment:
     def frame_iterator(self) -> Iterator[ImagePatch]:
         """Returns an iterator over the frames in the video segment."""
         for i in range(self.num_frames):
-            annotation = self.annotation[i]
-            yield ImagePatch(self.trimmed_video[i], annotation, queues=self.queues)
+            yield ImagePatch(self.trimmed_video[i], self.annotation[i], queues=self.queues)
 
     def __repr__(self):
         return "VideoSegment({}, {})".format(self.start, self.end)
