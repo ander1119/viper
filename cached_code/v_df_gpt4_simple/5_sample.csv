@@ -1,0 +1,217 @@
+answer|groundtruth|id|trope|query|img_path|possible_answers|code|info|reason|compilation_error|runtime_error
+NO EXECUTION|yes|tt0120586_0|Big Bad|"Is the trope ""Big Bad"", which means ""The character who is the direct cause of all of the bad happenings in a story."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0120586.mp4|['yes', 'no']|"```python
+def execute_command(video, annotation, possible_answers, query):
+    # Trope: Big Bad
+    # Definition: The character who is the direct cause of all of the bad happenings in a story.
+    # Thought Process:
+    # 1. Frame Selection: Analyze each frame to identify the main antagonist and their actions.
+    # 2. Character Analysis: Identify actions and decisions of the character that lead to negative outcomes in the story.
+    # 3. Answer Selection: Use the collected information to determine if the character fits the ""Big Bad"" trope.
+
+    video_segment = VideoSegment(video, annotation)
+    info = {
+        ""character_actions"": {}
+    }
+
+    for i, frame in enumerate(video_segment.frame_iterator()):
+        # Identify characters in the frame
+        for character in frame.find(""person""):
+            character_id = video_segment.face_identify(character)
+            if character_id is None:
+                continue
+            # Query the character's actions and their impact
+            character_action = frame.simple_query(""What is the character doing?"")
+            character_impact = frame.simple_query(""What is the impact of this action?"")
+            if character_id not in info[""character_actions""]:
+                info[""character_actions""][character_id] = []
+            info[""character_actions""][character_id].append({
+                ""action"": character_action,
+                ""impact"": character_impact,
+                ""frame"": i
+            })
+
+    # After collecting information, use it to determine if there is a ""Big Bad"" character
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
+    return answer, reason, info
+```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
+NO EXECUTION|yes|tt0120586_1|Jerkass|"Is the trope ""Jerkass"", which means ""A character who is so completely obnoxious that it is unbelievable anyone would willingly interact with them."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0120586.mp4|['yes', 'no']|"```python
+def execute_command(video, annotation, possible_answers, query):
+    # Trope: Jerkass
+    # Definition: A character who is so completely obnoxious that it is unbelievable anyone would willingly interact with them.
+    # Thought Process:
+    # 1. Frame Selection: Analyze each frame to identify characters and their interactions.
+    # 2. Character Analysis: Identify obnoxious behavior and reactions from other characters.
+    # 3. Answer Selection: Determine if any character fits the ""Jerkass"" trope based on their behavior and others' reactions.
+
+    video_segment = VideoSegment(video, annotation)
+    info = {
+        ""character_interactions"": {},
+        ""obnoxious_behaviors"": {}
+    }
+
+    for i, frame in enumerate(video_segment.frame_iterator()):
+        # Identify all characters in the frame
+        characters = frame.find(""person"")
+        for character in characters:
+            character_id = video_segment.face_identify(character)
+            if character_id is None:
+                continue
+            # Query about the character's behavior and others' reactions
+            behavior_query = ""What is this character doing?""
+            behavior = character.simple_query(behavior_query)
+            reaction_query = ""How are others reacting to this character?""
+            reactions = character.simple_query(reaction_query)
+
+            # Store character behavior and reactions
+            if character_id not in info[""character_interactions""]:
+                info[""character_interactions""][character_id] = []
+            info[""character_interactions""][character_id].append({
+                ""behavior"": behavior,
+                ""reactions"": reactions
+            })
+
+            # Check if behavior is obnoxious
+            if ""annoy"" in behavior.lower() or ""disrupt"" in behavior.lower():
+                if character_id not in info[""obnoxious_behaviors""]:
+                    info[""obnoxious_behaviors""][character_id] = []
+                info[""obnoxious_behaviors""][character_id].append(behavior)
+
+    # After collecting information, use it to determine if the ""Jerkass"" trope is present
+    answer, reason = video_segment.select_answer(info, query, possible_answers)
+    return answer, reason, info
+```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
+NO EXECUTION|yes|tt0120586_2|Faux Affably Evil|"Is the trope ""Faux Affably Evil"", which means ""A villain whose politeness is an act that only serves to enhance their evil."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0120586.mp4|['yes', 'no']|"```python
+def execute_command(video, annotation, possible_answers, query):
+    # Trope: Faux Affably Evil
+    # Definition: A villain whose politeness is an act that only serves to enhance their evil.
+    # Thought Process:
+    # 1. Frame Selection: Analyze each frame to identify the main characters and their interactions.
+    # 2. Character Analysis: Identify the villain and analyze their behavior and dialogue for signs of faux affability.
+    # 3. Answer Selection: Use the collected information to determine if the trope is present.
+
+    video_segment = VideoSegment(video, annotation)
+    info = {}
+
+    for i, frame in enumerate(video_segment.frame_iterator()):
+        # Identify characters in the frame
+        for character in frame.find(""person""):
+            character_id = video_segment.face_identify(character)
+            if character_id is None:
+                continue
+            # Query character's behavior and dialogue
+            character_behavior = frame.simple_query(""What's he/she doing?"")
+            character_dialogue = frame.simple_query(""What's he/she saying?"")
+            # Store character information
+            if character_id not in info:
+                info[character_id] = {
+                    ""behaviors"": [],
+                    ""dialogues"": []
+                }
+            info[character_id][""behaviors""].append(character_behavior)
+            info[character_id][""dialogues""].append(character_dialogue)
+
+    # Analyze the collected information to determine the presence of the trope
+    for character_id, details in info.items():
+        polite_actions = any(""polite"" in action for action in details[""behaviors""])
+        evil_actions = any(""evil"" in action for action in details[""behaviors""])
+        polite_dialogues = any(""thank you"" in dialogue or ""please"" in dialogue for dialogue in details[""dialogues""])
+        if polite_actions and evil_actions and polite_dialogues:
+            answer = ""yes""
+            reason = f""Character {character_id} exhibits both polite and evil actions and uses polite dialogue, fitting the 'Faux Affably Evil' trope.""
+            return answer, reason, info
+
+    answer = ""no""
+    reason = ""No character fitting the 'Faux Affably Evil' trope was identified.""
+    return answer, reason, info
+```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
+NO EXECUTION|yes|tt0120586_3|Smug Snake|"Is the trope ""Smug Snake"", which means ""A type of character (usually a villain) who tends to treat friends and enemies alike with equal disdain."", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0120586.mp4|['yes', 'no']|"```python
+def execute_command(video, annotation, possible_answers, query):
+    # Trope: Smug Snake
+    # Definition: A type of character (usually a villain) who tends to treat friends and enemies alike with equal disdain.
+    # Thought Process:
+    # 1. Frame Selection: Analyze each frame to identify characters and their interactions with others.
+    # 2. Character Analysis: Identify the character's attitude and interactions towards others, both friends and enemies.
+    # 3. Answer Selection: Use the collected information to determine if any character fits the ""Smug Snake"" trope.
+
+    video_segment = VideoSegment(video, annotation)
+    info = {}
+
+    for i, frame in enumerate(video_segment.frame_iterator()):
+        for person in frame.find(""person""):
+            person_id = video_segment.face_identify(person)
+            if person_id is None:
+                continue
+            # Query the character's interaction and attitude
+            interaction_query = ""How does this person interact with others in the scene?""
+            attitude_query = ""What is the attitude of this person towards others?""
+            interaction = frame.simple_query(interaction_query)
+            attitude = frame.simple_query(attitude_query)
+
+            if person_id not in info:
+                info[person_id] = {
+                    ""interactions"": [],
+                    ""attitudes"": []
+                }
+            info[person_id][""interactions""].append(interaction)
+            info[person_id][""attitudes""].append(attitude)
+
+    # Analyze the collected information to determine if any character fits the ""Smug Snake"" trope
+    for person_id, details in info.items():
+        disdainful_interactions = [interaction for interaction in details[""interactions""] if ""disdain"" in interaction.lower()]
+        disdainful_attitudes = [attitude for attitude in details[""attitudes""] if ""disdain"" in attitude.lower()]
+        if disdainful_interactions and disdainful_attitudes:
+            answer = ""yes""
+            reason = f""Character {person_id} shows consistent disdain in interactions and attitudes.""
+            return answer, reason, info
+
+    answer = ""no""
+    reason = ""No character fits the 'Smug Snake' trope based on the analyzed interactions and attitudes.""
+    return answer, reason, info
+```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
+NO EXECUTION|yes|tt0120586_4|Abusive Parents|"Is the trope ""Abusive Parents"", which means ""This includes parents who are emotionally, verbally, physically, or mentally abusive, or who neglectfully allow their children to be abused 
+by others if they don't abuse the child themselves"", relevant to the movie?"|/project/mira/dataset/MovieNet/videos/tt0120586.mp4|['yes', 'no']|"```python
+def execute_command(video, annotation, possible_answers, query):
+    # Trope: Abusive Parents
+    # Definition: This includes parents who are emotionally, verbally, physically, or mentally abusive, or who neglectfully allow their children to be abused by others if they don't abuse the child themselves.
+    # Thought Process:
+    # 1. Frame Selection: Analyze each frame to identify interactions between parent and child characters.
+    # 2. Behavior Analysis: Look for visual or dialog cues that indicate any form of abuse or neglect.
+    # 3. Answer Selection: Use the collected information to determine if the ""Abusive Parents"" trope is applicable.
+
+    video_segment = VideoSegment(video, annotation)
+    info = {}
+    abusive_behavior_detected = False
+
+    for i, frame in enumerate(video_segment.frame_iterator()):
+        # Identify all characters labeled as 'parent' and 'child'
+        parents = frame.find(""parent"")
+        children = frame.find(""child"")
+
+        for parent in parents:
+            parent_id = video_segment.face_identify(parent)
+            for child in children:
+                child_id = video_segment.face_identify(child)
+                # Query interactions and emotional states
+                interaction_query = f""What is the interaction between person {parent_id} and person {child_id}?""
+                interaction_description = frame.simple_query(interaction_query)
+                emotional_state_query = f""How does person {child_id} appear emotionally during interaction with person {parent_id}?""
+                emotional_state = frame.simple_query(emotional_state_query)
+
+                # Collect information
+                info[f""Interaction between {parent_id} and {child_id} in frame {i}""] = interaction_description
+                info[f""Emotional state of {child_id} in frame {i}""] = emotional_state
+
+                # Check for indicators of abuse
+                if ""abuse"" in interaction_description.lower() or ""neglect"" in interaction_description.lower() or ""hurt"" in emotional_state.lower():
+                    abusive_behavior_detected = True
+
+    # Determine if the trope is applicable based on collected information
+    if abusive_behavior_detected:
+        answer = ""yes""
+        reason = ""Evidence of abusive or neglectful behavior was detected in interactions between parents and children.""
+    else:
+        answer = ""no""
+        reason = ""No clear evidence of abusive or neglectful behavior was found in the interactions analyzed.""
+
+    return answer, reason, info
+```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
