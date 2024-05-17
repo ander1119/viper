@@ -17,15 +17,15 @@ dataset:
     start_sample: 0
 
 codex:
-    api_prompt: ./prompts/benchmarks/tim/base/api.py
+    api_prompt: ./prompts/benchmarks/tim/dialogue/api.py
     function_signature_prompt: ./prompts/benchmarks/tim/function_signature.prompt
     function_format_prompt: ./prompts/benchmarks/tim/function_format.prompt
     example_prompt: [
-        ./prompts/benchmarks/tim/base/examples/asshole_victim.py,
-        ./prompts/benchmarks/tim/base/examples/downer_ending.py,
-        ./prompts/benchmarks/tim/base/examples/kick_the_dog.py,
-        ./prompts/benchmarks/tim/base/examples/love_at_first_sight.py,
-        ./prompts/benchmarks/tim/base/examples/stealth_pun.py
+        ./prompts/benchmarks/tim/dialogue/examples/asshole_victim.py,
+        ./prompts/benchmarks/tim/dialogue/examples/downer_ending.py,
+        ./prompts/benchmarks/tim/dialogue/examples/kick_the_dog.py,
+        ./prompts/benchmarks/tim/dialogue/examples/love_at_first_sight.py,
+        ./prompts/benchmarks/tim/dialogue/examples/stealth_pun.py
     ]
     prototype_prompt: ./prompts/benchmarks/tim/prototype.prompt
     # reflection_example_prompt: [
