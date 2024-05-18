@@ -30,11 +30,6 @@ from torchvision import transforms
 from typing import List, Optional, Union
 from deepface import DeepFace
 
-from deepface.detectors.DetectorWrapper import build_model, rotate_facial_area
-from deepface.modules import detection, modeling, representation, preprocessing
-from deepface.models.Detector import Detector, DetectedFace, FacialAreaRegion
-from deepface.models.FacialRecognition import FacialRecognition
-
 from configs import config
 from utils import HiddenPrints
 
