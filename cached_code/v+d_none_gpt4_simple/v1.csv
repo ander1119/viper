@@ -3238,43 +3238,41 @@ def execute_command(video, annotation, possible_answers, query):
     # Trope: Chekhov's Gunman
     # Definition: Any character who is innocuously and unimportantly introduced to the viewer, but who later proves to be important by the end of the episode.
     # Thought Process:
-    # 1. Frame Selection: Analyze each frame to identify all characters introduced.
-    # 2. Character Tracking: Track these characters throughout the video to see if they gain importance.
-    # 3. Importance Evaluation: Determine if any initially unimportant character becomes significant to the plot by the end.
-    # 4. Answer Selection: Decide if the trope ""Chekhov's Gunman"" is applicable based on the collected data.
+    # 1. Frame Selection: Analyze each frame to identify all characters and track their importance throughout the video.
+    # 2. Character Tracking: Track the development and importance of each character from their introduction to the conclusion of the video.
+    # 3. Importance Evaluation: Evaluate if any character that seemed unimportant at first becomes significant by the end.
+    # 4. Answer Selection: Use the collected information to determine if the trope ""Chekhov's Gunman"" is applicable.
 
     video_segment = VideoSegment(video, annotation)
     info = {}
-    characters = {}
-    important_characters = set()
+    character_importance = {}
 
-    # Iterate through each frame to identify and track characters
     for i, frame in enumerate(video_segment.frame_iterator()):
-        for person in frame.find(""person""):
-            person_id = video_segment.face_identify(person)
-            if person_id:
-                action = person.simple_query(""What is the person doing?"")
-                # Initially collect all characters and their actions
-                if person_id not in characters:
-                    characters[person_id] = []
-                characters[person_id].append(action)
-                # Determine if the action is significant to the plot
-                if ""important"" in action:
-                    important_characters.add(person_id)
+        characters = frame.find(""character"")
+        for character in characters:
+            character_name = character.simple_query(""Who is this?"")
+            if character_name not in character_importance:
+                character_importance[character_name] = {'first_seen': i, 'importance': 'low', 'last_seen': i}
+            # Update the last seen frame index
+            character_importance[character_name]['last_seen'] = i
+            # Check if the character does something important in this frame
+            action_description = character.simple_query(""What is the character doing?"")
+            if ""saves"" in action_description or ""solves"" in action_description or ""reveals"" in action_description:
+                character_importance[character_name]['importance'] = 'high'
 
-    # Evaluate the importance of each character
-    for person_id, actions in characters.items():
-        if person_id in important_characters:
-            # If character becomes important, note the frame and action
-            info[person_id] = f""Character becomes important with actions: {actions}""
-        else:
-            info[person_id] = f""Character actions: {actions}""
-
-    # Determine if there is any character who fits the trope
-    chekhovs_gunman_present = any(person_id in important_characters for person_id in characters if len(characters[person_id]) > 1)
-
-    answer = ""yes"" if chekhovs_gunman_present else ""no""
-    reason = ""There is a character who was initially unimportant but became significant, fitting the 'Chekhov's Gunman' trope."" if chekhovs_gunman_present else ""No character fits the 'Chekhov's Gunman' trope.""
+    # Evaluate the collected information to determine the presence of the trope
+    for character, details in character_importance.items():
+        if details['importance'] == 'low' and details['last_seen'] - details['first_seen'] > video_segment.num_frames * 0.5:
+            # If the character becomes important later in the video
+            info[character] = f""Introduced as unimportant but later shown as important from frame {details['first_seen']} to {details['last_seen']}""
+    
+    # Determine if the trope is applicable
+    if any(details['importance'] == 'high' for details in character_importance.values()):
+        answer = 'yes'
+        reason = ""There are characters who were initially introduced as unimportant but later proved to be important.""
+    else:
+        answer = 'no'
+        reason = ""No character fits the trope of being introduced as unimportant and later becoming important.""
 
     return answer, reason, info
 ```"|{}|NO EXECUTION|NO EXECUTION|NO EXECUTION
