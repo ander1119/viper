@@ -312,25 +312,6 @@ class VideoSegment:
 
         self.num_frames = self.trimmed_video.shape[0]
 
-    def face_identify(self, image: ImagePatch) -> Union[str, None]:
-        """Returns unique identifier as string for the person in the image, return None if there's no person or the person is unidentifiable
-
-        Examples
-        -------
-        >>> def execute_command(video)->bool:
-        >>>     role_info = {}
-        >>>     video_segment = VideoSegment(video)
-        >>>     for i, frame in enumerate(video_segment.frame_iterator()):
-        >>>         for person in frame.find("person"):
-        >>>             person_id = video_segment.face_identify(person)    
-        >>>             if person_id is not None:
-        >>>                 person_action = person.simple_query("What's he/she doing?")
-        >>>                 if person_id in role_info:
-        >>>                     role_info[person_id].append(person_action)
-        >>>                 else:
-        >>>                     role_info[person_id] = [person_action]
-        """
-
     def frame_from_index(self, index) -> ImagePatch:
         """Returns the frame at position 'index', as an ImagePatch object.
 
