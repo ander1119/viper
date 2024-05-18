@@ -30,7 +30,7 @@ class VideoSegment:
         Returns a new VideoSegment containing a trimmed version of the original video at the [start, end] segment.
     """
 
-    def __init__(self, video: torch.Tensor, annotation: dict, start: int = None, end: int = None, parent_start=0, queues=None):
+    def __init__(self, video: torch.Tensor, annotation: list, start: int = None, end: int = None, parent_start=0, queues=None):
         """Initializes a VideoSegment object by trimming the video at the given [start, end] times and stores the
         start and end times as attributes. If no times are provided, the video is left unmodified, and the times are
         set to the beginning and end of the video.
@@ -81,9 +81,11 @@ class VideoSegment:
         """Returns the frame at position 'index', as an ImagePatch object."""
         if index < self.num_frames:
             image = self.trimmed_video[index]
+            annotation = self.annotation[index]
         else:
             image = self.trimmed_video[-1]
-        return ImagePatch(image, queues=self.queues)
+            annotation = self.annotation[-1]
+        return ImagePatch(image, annotation, queues=self.queues)
 
     def trim(self, start: Union[int, None] = None, end: Union[int, None] = None) -> VideoSegment:
         """Returns a new VideoSegment containing a trimmed version of the original video at the [start, end]
@@ -124,7 +126,8 @@ class VideoSegment:
         #     pid: len(faces) for pid, faces in self.role_face_db.items()
         # }
         # print(state_role_face_db)
-        return self.forward('deepface', image, self.role_face_db)
+        role_id, self.role_face_db = self.forward('deepface', image, self.role_face_db)
+        return role_id
 
     def select_answer(self, info: dict, question: str, options=None) -> str:
         
