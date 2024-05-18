@@ -168,13 +168,12 @@ class TiMDataset(Dataset):
         """
         from sklearn.metrics import precision_recall_fscore_support
         assert len(prediction) == len(ground_truth)
-        score = 0
 
         binary_prediction = []
         binary_ground_truth = []
         for p, g in zip(prediction, ground_truth):
             if p not in ['yes', 'no']:
-                print(p)
+                print(f'unexpected prediction: {p}')
                 continue
             binary_prediction.append(1 if p == 'yes' else 0)
             binary_ground_truth.append(1 if g == 'yes' else 0)    
@@ -182,9 +181,9 @@ class TiMDataset(Dataset):
         # prediction = [1 if p == 'yes' else 0 for p in prediction]
         # ground_truth = [1 if g == 'yes' else 0 for g in ground_truth]
 
-        accuracy = sum(1 for p, t in zip(prediction, ground_truth) if p == t) / len(ground_truth)
+        accuracy = sum(1 for p, t in zip(binary_prediction, binary_ground_truth) if p == t) / len(ground_truth)
 
-        f1 = precision_recall_fscore_support(ground_truth, prediction, average='binary')
+        f1 = precision_recall_fscore_support(binary_ground_truth, binary_prediction, average='binary')
         score = {
             'precision': f1[0],
             'recall': f1[1],
