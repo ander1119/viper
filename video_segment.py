@@ -212,3 +212,6 @@ class VideoSegment:
 
     def __repr__(self):
         return "VideoSegment({}, {})".format(self.start, self.end)
+    
+    def __len__(self):
+        return self.num_frames
