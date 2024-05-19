@@ -39,7 +39,7 @@ def save_file(obj, filename):
 
 class TiMDataset(Dataset):
     def __init__(self, split, data_path="", tokenize=None, max_samples=None, version='multiplechoice', fps=10,
-                 max_num_frames=None, start_sample=0, **kwargs):
+                 max_num_frames=None, start_sample=0, hard_attn_file_path=None, **kwargs):
 
         assert version in ['multiplechoice']
         
@@ -65,33 +65,18 @@ class TiMDataset(Dataset):
         video_path = os.path.join(self.data_path, 'videos', video_name + '.mp4')
         return video_path
 
-    def get_video(self, video_path):
-        # If fixed width and height are required, VideoReader takes width and height as arguments.
-        video_reader = decord.VideoReader(video_path, num_threads=1, ctx=cpu(0))
-        decord.bridge.set_bridge('torch')
-        vlen = len(video_reader)
-        original_fps = video_reader.get_avg_fps()
-        num_frames = int(vlen * self.fps / original_fps)
-        if self.max_num_frames is not None:
-            num_frames = min(self.max_num_frames, num_frames)
-        else:
-            num_frames = num_frames // 3
-        frame_idxs = np.linspace(0, vlen, num_frames, endpoint=False).astype(np.int64)
-        video = video_reader.get_batch(frame_idxs).byte() # (num_frames, H, W, C)
-        video = video.permute(0, 3, 1, 2) # (num_frames, C, H, W)
-        return video, frame_idxs
-
     def load_annotation(self, video_name):
         annotation_path = os.path.join(self.data_path, 'subtitles', video_name + '.json')
         annotation = json.load(open(annotation_path, 'r'))
         return annotation
 
-    def get_video_and_annotation(self, video_name):
+    def get_video_and_annotation(self, video_name, hard_attn_idx=None):
         annotation = self.load_annotation(video_name)
         video_path = os.path.join(self.data_path, 'videos', video_name + '.mp4')
         # If fixed width and height are required, VideoReader takes width and height as arguments.
         video_reader = decord.VideoReader(video_path, num_threads=1, ctx=cpu(0))
         decord.bridge.set_bridge('torch')
+
         vlen = len(video_reader)
         original_fps = video_reader.get_avg_fps()
         num_frames = int(vlen * self.fps / original_fps)
@@ -102,7 +87,20 @@ class TiMDataset(Dataset):
             num_frames = min(self.max_num_frames, num_frames)
         else:
             num_frames = num_frames // 3
-        frame_idxs = np.linspace(0, vlen, num_frames, endpoint=False).astype(np.int64)
+        
+        intervals = np.linspace(0, vlen, num=num_frames+1).astype(np.int64)
+        ranges = []
+        for idx, interv in enumerate(intervals[:-1]):
+            ranges.append((interv, intervals[idx + 1]))
+        # frame_idxs = np.linspace(0, vlen, num_frames, endpoint=False).astype(np.int64)
+        frame_idxs = [(x[0] + x[1]) // 2 for x in ranges]
+        if len(frame_idxs) < num_frames:
+            rest = [frame_idxs[-1] for i in range(num_frames - len(frame_idxs))]
+            frame_idxs = frame_idxs + rest 
+
+        if hard_attn_idx is not None:
+            frame_idxs = [frame_idxs[idx] for idx in hard_attn_idx]
+
         video = video_reader.get_batch(frame_idxs).byte() # (num_frames, H, W, C)
         video = video.permute(0, 3, 1, 2) # (num_frames, C, H, W)
 
@@ -113,23 +111,23 @@ class TiMDataset(Dataset):
     def __getitem__(self, idx):
         cur_sample = self.sample_list[idx]
 
+        sample_id = str(cur_sample['qid'])
         question = str(cur_sample['question'])
+        hard_attn_idx = cur_sample.get('hard_attn_idx', None)
         if self.tokenize:
             question = self.tokenize(question)
 
         video_name = str(cur_sample['video'])
-        # video_path = os.path.join(self.data_path, 'videos', video_name + '.mp4')
-        # video = self.get_video(video_path)
-        video, annotation = self.get_video_and_annotation(video_name)
+        video, annotation = self.get_video_and_annotation(video_name, hard_attn_idx)
 
         answer_idx = int(cur_sample['answer'])
         possible_answers = [str(cur_sample[f'a{i}']) for i in range(2)]
         answer = possible_answers[answer_idx]
 
-        query_type = str(cur_sample['qid']).split('_')[0]
+        query_type = sample_id.split('_')[0]
         trope = str(cur_sample['trope'])
         out_dict = {
-            "sample_id": str(cur_sample['qid']), 
+            "sample_id": sample_id, 
             "answer": answer, 
             "image": video, 
             "query": question, 
