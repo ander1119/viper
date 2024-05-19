@@ -4,9 +4,11 @@ import torch
 from typing import Union, Iterator
 
 from configs import config
-from vision_models import DeepFaceModel
 from image_patch import ImagePatch
 from vision_processes import forward
+
+import os
+from utils import show_single_image
 
 class VideoSegment:
     """A Python class containing a set of frames represented as ImagePatch objects, as well as relevant information.
@@ -28,7 +30,7 @@ class VideoSegment:
         Returns a new VideoSegment containing a trimmed version of the original video at the [start, end] segment.
     """
 
-    def __init__(self, video: torch.Tensor, start: int = None, end: int = None, parent_start=0, queues=None):
+    def __init__(self, video: torch.Tensor, annotation: list, start: int = None, end: int = None, parent_start=0, queues=None):
         """Initializes a VideoSegment object by trimming the video at the given [start, end] times and stores the
         start and end times as attributes. If no times are provided, the video is left unmodified, and the times are
         set to the beginning and end of the video.
@@ -37,6 +39,8 @@ class VideoSegment:
         -------
         video : torch.Tensor
             A tensor of the original video.
+        annotation : list of dict
+            An list with length equal to video.shape[0]. Each entry is a dict with the following keys: "bboxes" and "subtitles"
         start : int
             An int describing the starting frame in this video segment with respect to the original video.
         end : int
@@ -45,10 +49,12 @@ class VideoSegment:
 
         if start is None and end is None:
             self.trimmed_video = video
+            self.annotation = annotation
             self.start = 0
             self.end = video.shape[0]  # duration
         else:
             self.trimmed_video = video[start:end]
+            self.annotation = annotation[start:end]
             if start is None:
                 start = 0
             if end is None:
@@ -66,7 +72,7 @@ class VideoSegment:
         
         self.role_face_db = {}
 
-        self.deepface_model = DeepFaceModel()
+        assert video.shape[0] == len(annotation)
 
     def forward(self, model_name, *args, **kwargs):
         return forward(model_name, *args, queues=self.queues, **kwargs)
@@ -75,9 +81,11 @@ class VideoSegment:
         """Returns the frame at position 'index', as an ImagePatch object."""
         if index < self.num_frames:
             image = self.trimmed_video[index]
+            annotation = self.annotation[index]
         else:
             image = self.trimmed_video[-1]
-        return ImagePatch(image, queues=self.queues)
+            annotation = self.annotation[-1]
+        return ImagePatch(image, annotation, queues=self.queues)
 
     def trim(self, start: Union[int, None] = None, end: Union[int, None] = None) -> VideoSegment:
         """Returns a new VideoSegment containing a trimmed version of the original video at the [start, end]
@@ -100,10 +108,10 @@ class VideoSegment:
         if end is not None:
             end = min(end, self.num_frames)
 
-        return VideoSegment(self.trimmed_video, start, end, self.start, queues=self.queues)
+        return VideoSegment(self.trimmed_video, self.annotation, start, end, self.start, queues=self.queues)
 
     def face_identify(self, image: ImagePatch) -> str:
-        """Identifies the person in the given image and returns their name."""
+        """Identifies the person in the given image and return an unique identifier."""
         # return self.forward('deepface', image, self.role_face_db)
         # idx = 0
         # while os.path.exists(f'./tmp2/{idx}.jpg'):
@@ -118,8 +126,8 @@ class VideoSegment:
         #     pid: len(faces) for pid, faces in self.role_face_db.items()
         # }
         # print(state_role_face_db)
-
-        return self.deepface_model.forward(image, self.role_face_db)
+        role_id, self.role_face_db = self.forward('deepface', image, self.role_face_db)
+        return role_id
 
     def select_answer(self, info: dict, question: str, options=None) -> str:
         
@@ -200,7 +208,10 @@ class VideoSegment:
     def frame_iterator(self) -> Iterator[ImagePatch]:
         """Returns an iterator over the frames in the video segment."""
         for i in range(self.num_frames):
-            yield ImagePatch(self.trimmed_video[i], queues=self.queues)
+            yield ImagePatch(self.trimmed_video[i], self.annotation[i], queues=self.queues)
 
     def __repr__(self):
         return "VideoSegment({}, {})".format(self.start, self.end)
+    
+    def __len__(self):
+        return self.num_frames

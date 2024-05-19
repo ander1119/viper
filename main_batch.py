@@ -40,10 +40,10 @@ def run_program(parameters, queues_in_, input_type_, retrying=True):
 
     global queue_results
 
-    code, sample_id, image, possible_answers, query = parameters
+    code, sample_id, image, annotation, possible_answers, query = parameters
 
     code_header = f'def execute_command_{sample_id}(' \
-                  f'{input_type_}, possible_answers, query, ' \
+                  f'{input_type_}, annotation, possible_answers, query, ' \
                   f'ImagePatch, VideoSegment, ' \
                   'llm_query, bool_to_yesno, distance, best_image_match):\n' \
                   f'    # Answer is:'
@@ -82,7 +82,7 @@ def run_program(parameters, queues_in_, input_type_, retrying=True):
     try:
         answer, reason, info = globals()[f'execute_command_{sample_id}'](
             # Inputs to the function
-            image, possible_answers, query,
+            image, annotation, possible_answers, query,
             # Classes to be used
             image_patch_partial, video_segment_partial,
             # Functions to be used
@@ -198,9 +198,9 @@ def main():
                     if not config.multiprocessing:
                         # Otherwise, we would create a new model for every process
                         results = []
-                        for c, sample_id, img, possible_answers, query, gt in \
-                                zip(codes, batch['sample_id'], batch['image'], batch['possible_answers'], batch['query'], batch['answer']):
-                            result = run_program([c, sample_id, img, possible_answers, query], queues_in, input_type)
+                        for c, sample_id, img, anno, possible_answers, query, gt in \
+                                zip(codes, batch['sample_id'], batch['image'], batch['annotation'], batch['possible_answers'], batch['query'], batch['answer']):
+                            result = run_program([c, sample_id, img, anno, possible_answers, query], queues_in, input_type)
                             result['groundtruth'] = gt
                             # reflection_result = reflection(c, msg, result)
                             # reflection_result = forward('reflection', c, msg, result)
@@ -209,7 +209,7 @@ def main():
                     else:
                         results = list(pool.imap(partial(
                             run_program, queues_in_=queues_in, input_type_=input_type),
-                            zip(codes, batch['sample_id'], batch['image'], batch['possible_answers'], batch['query'])))
+                            zip(codes, batch['sample_id'], batch['image'], batch['annotation'], batch['possible_answers'], batch['query'])))
                 else:
                     results = [{'code': c} for c in codes]
                     warnings.warn("Not executing code! This is only generating the code. We set the flag "

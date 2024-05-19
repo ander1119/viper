@@ -8,6 +8,8 @@ import abc
 import uuid
 import backoff
 import contextlib
+import cv2
+import numpy as np
 import openai
 import os
 import re
@@ -25,7 +27,7 @@ from rich.console import Console
 from torch import hub
 from torch.nn import functional as F
 from torchvision import transforms
-from typing import List, Union
+from typing import List, Optional, Union
 from deepface import DeepFace
 
 from configs import config
@@ -894,7 +896,7 @@ class GPT3Model(BaseModel):
         else:
             response = [r["text"] for r in response['choices']]
         return response
-    
+
     def get_summarization(self, prompts) -> list[dict]:
         responses = []
         for prompt in prompts:
@@ -904,17 +906,21 @@ class GPT3Model(BaseModel):
                     "content": "You are Text Summarization GPT, With given text that contains information from frames in video, please make a summarization and remove redundant information. Return response with AT MOST 3000 token (about 750 character)."
                 },
                 {
-                    "role": "user", 
+                    "role": "user",
                     "content": prompt
                 }
             ]
-            response = openai.ChatCompletion.create(
-                model=self.model,
-                messages=message,
-                # response_format={"type": "json_object"},
-                temperature=self.temperature,
-            )
-            responses.append(response.choices[0].message.content)
+            try:
+                response = openai.ChatCompletion.create(
+                    model=self.model,
+                    messages=message,
+                    # response_format={"type": "json_object"},
+                    temperature=self.temperature,
+                )
+                responses.append(response.choices[0].message.content)
+            except:
+                responses.append("")
+            
         return responses
 
     def query_gpt3(self, prompt, model="text-davinci-003", max_tokens=16, logprobs=None, stream=False,
@@ -1015,12 +1021,20 @@ def codex_helper(messages):
             #                 best_of=config.codex.best_of,
             stop=["\n\n\n"],
         )
+        # print(response)
         responses.append(response)
 
     resp = [r['choices'][0]['message']['content'].replace("execute_command(image)",
                                                             "execute_command(image, my_fig, time_wait_between_lines, syntax)")
             for r in responses]
-    return resp
+
+    filtered_resp = []
+    for r in resp:
+        if "```" in r:
+            r = "```" + r.split("```")[1] + "```"
+        filtered_resp.append(r)
+    # resp = ["```" + r.split("```")[1] + "```" for r in resp if "```" in r else r]
+    return filtered_resp
 
 
 class CodexModel(BaseModel):
@@ -1046,7 +1060,7 @@ class CodexModel(BaseModel):
         messages = []
         for prompt in extended_prompt:
             message = [{
-                "role": "system", 
+                "role": "system",
                 # "content":  "Answer should only include a function named execute_command, and the function should contains multiple line of comments for explaination in function body"
                 'content': "You are a professional programmer. You would be asked to follow the API specification and examples to complete the function."# Or analyze the code and request a new API to solve the problem."
             }]
@@ -1054,18 +1068,18 @@ class CodexModel(BaseModel):
             {self.api_spec}
             The function parameter and return value should follow the signature below:
             {self.function_signature}
-            Here's some correct and incorrect (with reason) function examples for you to refer:
+            Here's some function examples to refer:
             {self.examples}
             Please follow the format to return the function. 
             {self.function_format}
             You MUST return the function ONLY and DO NOT return any unrelevant content.
             """
             message.append({
-                "role": "user", 
+                "role": "user",
                 "content": str(instruction + prompt)
             })
             messages.append(message)
-            
+
         return messages
 
     def forward(self, prompt, input_type='image', extra_context=None):
@@ -1118,7 +1132,7 @@ class CodexModel(BaseModel):
             print(e)
             response = self.forward_(messages)
         return response
-    
+
 class ReflectionModel(BaseModel):
     name = 'reflection'
     requires_gpu = False
@@ -1135,11 +1149,11 @@ class ReflectionModel(BaseModel):
         # messages = []
         # for code, original_message, outputs in zip(codes, original_messages, code_outputs):
         #     original_message.append({
-        #         "role": "assistant", 
+        #         "role": "assistant",
         #         "content": code
         #     })
         #     original_message.append({
-        #         "role": "user", 
+        #         "role": "user",
         #         "content": outputs
         #     })
 
@@ -1147,11 +1161,11 @@ class ReflectionModel(BaseModel):
 
         # return messages
         original_messages.append({
-            "role": "assistant", 
+            "role": "assistant",
             "content": codes
         })
         original_messages.append({
-            "role": "user", 
+            "role": "user",
             "content": reflection
         })
 
@@ -1167,7 +1181,7 @@ class ReflectionModel(BaseModel):
         #     \tinfo: {co['info']}\n
         #     \tcompilation_error: {co['compilation_error']}\n
         #     \truntime_error: {co['runtime_error']}\n
-        #     Please reflect on the result and provide feedback to the assistant. 
+        #     Please reflect on the result and provide feedback to the assistant.
         #     """ for co in code_outputs
         # ]
         # return outputs
@@ -1182,7 +1196,7 @@ class ReflectionModel(BaseModel):
 
         # instruction = """
         #     If you are allowed to request one new api to strengthen the function or even correct the answer, what kind of api would you like to request?
-        #     Please reflect on the code and result, analyze which instruction leads to the incorrect answer and request a new api to solve the problem. 
+        #     Please reflect on the code and result, analyze which instruction leads to the incorrect answer and request a new api to solve the problem.
         #     The revised function should comments that define the new api in detail and the reason why you need it.
         #     Here's some examples about analyzing specific function and their result, requesting api according to problems the function about to solve :\n
         # """
@@ -1200,7 +1214,7 @@ class ReflectionModel(BaseModel):
             \truntime_error: {code_outputs['runtime_error']}\n
             Revised function:\n
             """
-        
+
         return str(instruction + examples + target)
 
     def forward(self, codes, messages, code_outputs):
@@ -1244,7 +1258,7 @@ class ReflectionModel(BaseModel):
             print(e)
             response = self.forward_(messages)
         return response
-    
+
 
 
 class CodeLlama(CodexModel):
@@ -1394,7 +1408,7 @@ class BLIPModel(BaseModel):
         # https://huggingface.co/models?sort=downloads&search=Salesforce%2Fblip2-
         assert blip_v2_model_type in ['blip2-flan-t5-xxl', 'blip2-flan-t5-xl', 'blip2-opt-2.7b', 'blip2-opt-6.7b',
                                       'blip2-opt-2.7b-coco', 'blip2-flan-t5-xl-coco', 'blip2-opt-6.7b-coco']
-        
+
         # with warnings.catch_warnings(), HiddenPrints("BLIP"), torch.cuda.device(self.dev):
         with torch.cuda.device(self.dev):
             max_memory = {gpu_number: torch.cuda.mem_get_info(self.dev)[0]}
@@ -1458,6 +1472,7 @@ class BLIPModel(BaseModel):
         return generated_text
 
     def forward(self, image, question=None, task='caption'):
+        # start_time = time.time()
         if not self.to_batch:
             image, question, task = [image], [question], [task]
 
@@ -1482,11 +1497,12 @@ class BLIPModel(BaseModel):
 
         if not self.to_batch:
             response = response[0]
+        # print(f"BLIP time: {time.time() - start_time}")
         return response
 
 class DeepFaceModel(BaseModel):
     name = 'deepface'
-    requires_gpu = False
+    # requires_gpu = False
 
     def __init__(self, gpu_number=0):
         super().__init__(gpu_number=gpu_number)
@@ -1497,28 +1513,28 @@ class DeepFaceModel(BaseModel):
             founded_face = DeepFace.extract_faces(img1, detector_backend='retinaface')
             # print(founded_face)
             if len(founded_face) > 1:
-                return None
+                return None, role_face_db
             min_pid = None
             min_dist = 1
+            embedding1 = DeepFace.represent(img1, model_name='ArcFace', detector_backend='retinaface')
             for pid, face_db in role_face_db.items():
-                for face in face_db:
-                    img2 = face.to_uint8_numpy()
-                    response = DeepFace.verify(img1_path=img1, img2_path=img2, detector_backend='retinaface', model_name='ArcFace')
+                for embedding2 in face_db:
+                    response = DeepFace.verify(img1_path=embedding1, img2_path=embedding2, detector_backend='retinaface', model_name='ArcFace')
                     # print(response)
                     if response['verified'] and response['distance'] < min_dist:
                         min_pid = pid
                         min_dist = response['distance']
             if min_pid is not None:
-                role_face_db[min_pid].append(image)
-                return min_pid
+                role_face_db[min_pid].append(embedding1)
+                return min_pid, role_face_db
             else:
                 new_pid = str(uuid.uuid4())
-                role_face_db[new_pid] = [image]
-                return new_pid
+                role_face_db[new_pid] = [embedding1]
+                return new_pid, role_face_db
         except Exception as e:
             # print(e)
-            return None
-            
+            return None, role_face_db
+
 
 class SaliencyModel(BaseModel):
     name = 'saliency'

@@ -54,9 +54,9 @@ def show_batch_from_dl(dl):
 
 
 def show_single_image(image, denormalize_stats=None, bgr_image=False, save_path=None, size='small', bbox_info=None):
-    if not is_interactive():
-        import matplotlib
-        matplotlib.use("module://imgcat")
+    # if not is_interactive():
+    #     import matplotlib
+    #     matplotlib.use("module://imgcat")
     if size == 'size_img':
         figsize = (image.shape[2] / 100, image.shape[1] / 100)  # The default dpi of plt.savefig is 100
     elif size == 'small':

@@ -53,7 +53,7 @@ class ImagePatch:
         Returns a new ImagePatch object containing a crop of the image at the given coordinates.
     """
 
-    def __init__(self, image: Union[Image.Image, torch.Tensor, np.ndarray], left: int = None, lower: int = None,
+    def __init__(self, image: Union[Image.Image, torch.Tensor, np.ndarray], annotation: dict, left: int = None, lower: int = None,
                  right: int = None, upper: int = None, parent_left=0, parent_lower=0, queues=None,
                  parent_img_patch=None):
         """Initializes an ImagePatch object by cropping the image at the given coordinates and stores the coordinates as
@@ -64,6 +64,8 @@ class ImagePatch:
         -------
         image : array_like
             An array-like of the original image.
+        annotation : dict
+            An annotation dictionary containing information about the image. The keys of the dictionary should be "bboxes" and "subtitiles".
         left : int
             An int describing the position of the left border of the crop's bounding box in the original image.
         lower : int
@@ -110,6 +112,13 @@ class ImagePatch:
             raise Exception("ImagePatch has no area")
 
         self.possible_options = load_json('./useful_lists/possible_options.json')
+
+        self.annotation = annotation
+
+    def get_subtitles(self) -> List[str]:
+        subtitles = self.annotation['subtitles']
+        subtitles = [] if subtitles is None else subtitles
+        return subtitles
 
     def to_uint8_numpy(self):
         return (self.cropped_image.permute(1, 2, 0).numpy() * 255).astype(np.uint8)
@@ -281,7 +290,6 @@ class ImagePatch:
 
         return answer
 
-
     def compute_depth(self):
         """Returns the median depth of the image crop
         Parameters
@@ -327,7 +335,7 @@ class ImagePatch:
             right = min(self.width, right + 10)
             upper = min(self.height, upper + 10)
 
-        return ImagePatch(self.cropped_image, left, lower, right, upper, self.left, self.lower, queues=self.queues,
+        return ImagePatch(self.cropped_image, self.annotation, left, lower, right, upper, self.left, self.lower, queues=self.queues,
                           parent_img_patch=self)
 
     def overlaps_with(self, left, lower, right, upper):
@@ -352,7 +360,7 @@ class ImagePatch:
         return self.left <= right and self.right >= left and self.lower <= upper and self.upper >= lower
 
     def llm_query(self, question: str, long_answer: bool = True, to_yesno: bool = False) -> str:
-        return llm_query(question, None, long_answer=long_answer, to_yesno=to_yesno)
+        return llm_query(question, None, long_answer=long_answer, queues=self.queues, to_yesno=to_yesno)
 
     def print_image(self, size: tuple[int, int] = None):
         show_single_image(self.cropped_image, size)
