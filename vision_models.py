@@ -1516,20 +1516,20 @@ class DeepFaceModel(BaseModel):
                 return None, role_face_db
             min_pid = None
             min_dist = 1
+            embedding1 = DeepFace.represent(img1, model_name='ArcFace', detector_backend='retinaface')
             for pid, face_db in role_face_db.items():
-                for face in face_db:
-                    img2 = face.to_uint8_numpy()
-                    response = DeepFace.verify(img1_path=img1, img2_path=img2, detector_backend='retinaface', model_name='ArcFace')
+                for embedding2 in face_db:
+                    response = DeepFace.verify(img1_path=embedding1, img2_path=embedding2, detector_backend='retinaface', model_name='ArcFace')
                     # print(response)
                     if response['verified'] and response['distance'] < min_dist:
                         min_pid = pid
                         min_dist = response['distance']
             if min_pid is not None:
-                role_face_db[min_pid].append(image)
+                role_face_db[min_pid].append(embedding1)
                 return min_pid, role_face_db
             else:
                 new_pid = str(uuid.uuid4())
-                role_face_db[new_pid] = [image]
+                role_face_db[new_pid] = [embedding1]
                 return new_pid, role_face_db
         except Exception as e:
             # print(e)
