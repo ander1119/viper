@@ -45,7 +45,7 @@ def execute_command(video, annotation, possible_answers, query):
             big_bad_candidate = character_id
 
     # If a candidate is found and their negative impacts are significant, answer 'yes'
-    if big_bad_candidate and max_negative_impacts > len(video_segment.frame_iterator()) * 0.5:  # Arbitrary threshold: more than 50% of frames
+    if big_bad_candidate and max_negative_impacts > len(video_segment) * 0.5:  # Arbitrary threshold: more than 50% of frames
         answer = ""yes""
         reason = f""The character {big_bad_candidate} caused negative impacts in more than 50% of the frames.""
     else:

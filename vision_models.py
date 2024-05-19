@@ -332,7 +332,7 @@ class CLIPModel(BaseModel):
 class MaskRCNNModel(BaseModel):
     name = 'maskrcnn'
 
-    def __init__(self, gpu_number=1, threshold=config.detect_thresholds.maskrcnn):
+    def __init__(self, gpu_number=0, threshold=config.detect_thresholds.maskrcnn):
         super().__init__(gpu_number)
         # with HiddenPrints('MaskRCNN'):
         obj_detect = torchvision.models.detection.maskrcnn_resnet50_fpn_v2(weights='COCO_V1').to(self.dev)
@@ -429,7 +429,7 @@ class OwlViTModel(BaseModel):
 class GLIPModel(BaseModel):
     name = 'glip'
 
-    def __init__(self, model_size='large', gpu_number=1, *args):
+    def __init__(self, model_size='large', gpu_number=0, *args):
         BaseModel.__init__(self, gpu_number)
 
         with contextlib.redirect_stderr(open(os.devnull, "w")):  # Do not print nltk_data messages when importing
@@ -910,13 +910,17 @@ class GPT3Model(BaseModel):
                     "content": prompt
                 }
             ]
-            response = openai.ChatCompletion.create(
-                model=self.model,
-                messages=message,
-                # response_format={"type": "json_object"},
-                temperature=self.temperature,
-            )
-            responses.append(response.choices[0].message.content)
+            try:
+                response = openai.ChatCompletion.create(
+                    model=self.model,
+                    messages=message,
+                    # response_format={"type": "json_object"},
+                    temperature=self.temperature,
+                )
+                responses.append(response.choices[0].message.content)
+            except:
+                responses.append("")
+            
         return responses
 
     def query_gpt3(self, prompt, model="text-davinci-003", max_tokens=16, logprobs=None, stream=False,
@@ -1394,7 +1398,7 @@ class BLIPModel(BaseModel):
     max_batch_size = 32
     seconds_collect_data = 0.2  # The queue has additionally the time it is executing the previous forward pass
 
-    def __init__(self, gpu_number=1, half_precision=config.blip_half_precision,
+    def __init__(self, gpu_number=0, half_precision=config.blip_half_precision,
                  blip_v2_model_type=config.blip_v2_model_type):
         super().__init__(gpu_number)
 
