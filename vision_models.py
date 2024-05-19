@@ -332,7 +332,7 @@ class CLIPModel(BaseModel):
 class MaskRCNNModel(BaseModel):
     name = 'maskrcnn'
 
-    def __init__(self, gpu_number=0, threshold=config.detect_thresholds.maskrcnn):
+    def __init__(self, gpu_number=1, threshold=config.detect_thresholds.maskrcnn):
         super().__init__(gpu_number)
         # with HiddenPrints('MaskRCNN'):
         obj_detect = torchvision.models.detection.maskrcnn_resnet50_fpn_v2(weights='COCO_V1').to(self.dev)
@@ -429,7 +429,7 @@ class OwlViTModel(BaseModel):
 class GLIPModel(BaseModel):
     name = 'glip'
 
-    def __init__(self, model_size='large', gpu_number=0, *args):
+    def __init__(self, model_size='large', gpu_number=1, *args):
         BaseModel.__init__(self, gpu_number)
 
         with contextlib.redirect_stderr(open(os.devnull, "w")):  # Do not print nltk_data messages when importing
@@ -1398,7 +1398,7 @@ class BLIPModel(BaseModel):
     max_batch_size = 32
     seconds_collect_data = 0.2  # The queue has additionally the time it is executing the previous forward pass
 
-    def __init__(self, gpu_number=0, half_precision=config.blip_half_precision,
+    def __init__(self, gpu_number=1, half_precision=config.blip_half_precision,
                  blip_v2_model_type=config.blip_v2_model_type):
         super().__init__(gpu_number)
 
@@ -1510,16 +1510,16 @@ class DeepFaceModel(BaseModel):
     def forward(self, image, role_face_db: dict):
         try:
             img1 = image.to_uint8_numpy()
-            founded_face = DeepFace.extract_faces(img1, detector_backend='retinaface')
+            founded_face = DeepFace.represent(img1, model_name='ArcFace', detector_backend='retinaface')
             # print(founded_face)
-            if len(founded_face) > 1:
+            if len(founded_face) != 1:
                 return None, role_face_db
             min_pid = None
             min_dist = 1
-            embedding1 = DeepFace.represent(img1, model_name='ArcFace', detector_backend='retinaface')
+            embedding1 = founded_face[0]['embedding']
             for pid, face_db in role_face_db.items():
                 for embedding2 in face_db:
-                    response = DeepFace.verify(img1_path=embedding1, img2_path=embedding2, detector_backend='retinaface', model_name='ArcFace')
+                    response = DeepFace.verify(img1_path=embedding1, img2_path=embedding2, detector_backend='retinaface', model_name='ArcFace', silent=True)
                     # print(response)
                     if response['verified'] and response['distance'] < min_dist:
                         min_pid = pid
@@ -1532,7 +1532,8 @@ class DeepFaceModel(BaseModel):
                 role_face_db[new_pid] = [embedding1]
                 return new_pid, role_face_db
         except Exception as e:
-            # print(e)
+            if 'Face could not be detected' not in str(e):
+                print(e)
             return None, role_face_db
 
 
