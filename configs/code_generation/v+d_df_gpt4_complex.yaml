@@ -21,11 +21,11 @@ codex:
     function_signature_prompt: ./prompts/benchmarks/tim/function_signature.prompt
     function_format_prompt: ./prompts/benchmarks/tim/function_format.prompt
     example_prompt: [
-        ./prompts/benchmarks/tim/face_dialogue/complex_examples/asshole_victim.py,
-        ./prompts/benchmarks/tim/face_dialogue/complex_examples/downer_ending.py,
+        # ./prompts/benchmarks/tim/face_dialogue/complex_examples/asshole_victim.py,
+        # ./prompts/benchmarks/tim/face_dialogue/complex_examples/downer_ending.py,
         ./prompts/benchmarks/tim/face_dialogue/complex_examples/kick_the_dog.py,
         ./prompts/benchmarks/tim/face_dialogue/complex_examples/love_at_first_sight.py,
-        ./prompts/benchmarks/tim/face_dialogue/complex_examples/stealth_pun.py
+        # ./prompts/benchmarks/tim/face_dialogue/complex_examples/stealth_pun.py
     ]
     prototype_prompt: ./prompts/benchmarks/tim/prototype.prompt
     # reflection_example_prompt: [
