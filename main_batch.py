@@ -177,6 +177,21 @@ def main():
     all_possible_answers = []
     all_query_types = []
 
+    if config.save:
+        results_dir = pathlib.Path(config['results_dir'])
+        results_dir = results_dir / config.dataset.split
+        results_dir.mkdir(parents=True, exist_ok=True)
+        if not config.save_new_results:
+            filename = 'results.csv'
+        else:
+            existing_files = list(results_dir.glob('results_*.csv'))
+            if len(existing_files) == 0:
+                filename = 'results_0.csv'
+            else:
+                filename = 'results_' + str(max([int(ef.stem.split('_')[-1]) for ef in existing_files if
+                                                 str.isnumeric(ef.stem.split('_')[-1])]) + 1) + '.csv'
+        print('Saving results to', filename)
+
     with mp.Pool(processes=num_processes, initializer=worker_init, initargs=(queues_results,)) \
             if config.multiprocessing else open(os.devnull, "w") as pool:
         try:
@@ -238,6 +253,39 @@ def main():
                     except Exception as e:
                         console.print(f'Error computing accuracy: {e}')
 
+                if i % config.log_every == 0 and config.save:
+                    print('Saving results to', filename)
+                    df = pd.DataFrame([all_answers, 
+                                    all_groundtruths, 
+                                    all_ids, 
+                                    all_tropes, 
+                                    all_queries, 
+                                    all_img_paths,
+                                    all_possible_answers,
+                                    all_codes,
+                                    all_infos,
+                                    all_reasons,
+                                    #    all_reflection,
+                                    all_compilation_errors,
+                                    all_runtime_errors]).T
+                    df.columns = [
+                        'answer', 
+                        'groundtruth', 
+                        'id', 
+                        'trope',
+                        'query', 
+                        'img_path', 
+                        'possible_answers', 
+                        'code', 
+                        'info', 
+                        'reason', 
+                        # 'reflection',
+                        'compilation_error', 
+                        'runtime_error'
+                        ]
+                    # make the result column a string
+                    df.to_csv(results_dir / filename, header=True, index=False, encoding='utf-8', sep='|')
+
         except Exception as e:
             # print full stack trace
             traceback.print_exc()
@@ -251,18 +299,18 @@ def main():
         print(f'Error computing accuracy: {e}')
 
     if config.save:
-        results_dir = pathlib.Path(config['results_dir'])
-        results_dir = results_dir / config.dataset.split
-        results_dir.mkdir(parents=True, exist_ok=True)
-        if not config.save_new_results:
-            filename = 'results.csv'
-        else:
-            existing_files = list(results_dir.glob('results_*.csv'))
-            if len(existing_files) == 0:
-                filename = 'results_0.csv'
-            else:
-                filename = 'results_' + str(max([int(ef.stem.split('_')[-1]) for ef in existing_files if
-                                                 str.isnumeric(ef.stem.split('_')[-1])]) + 1) + '.csv'
+        # results_dir = pathlib.Path(config['results_dir'])
+        # results_dir = results_dir / config.dataset.split
+        # results_dir.mkdir(parents=True, exist_ok=True)
+        # if not config.save_new_results:
+        #     filename = 'results.csv'
+        # else:
+        #     existing_files = list(results_dir.glob('results_*.csv'))
+        #     if len(existing_files) == 0:
+        #         filename = 'results_0.csv'
+        #     else:
+        #         filename = 'results_' + str(max([int(ef.stem.split('_')[-1]) for ef in existing_files if
+        #                                          str.isnumeric(ef.stem.split('_')[-1])]) + 1) + '.csv'
         print('Saving results to', filename)
         df = pd.DataFrame([all_answers, 
                            all_groundtruths, 
