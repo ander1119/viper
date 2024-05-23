@@ -177,20 +177,7 @@ def main():
     all_possible_answers = []
     all_query_types = []
 
-    if config.save:
-        results_dir = pathlib.Path(config['results_dir'])
-        results_dir = results_dir / config.dataset.split
-        results_dir.mkdir(parents=True, exist_ok=True)
-        if not config.save_new_results:
-            filename = 'results.csv'
-        else:
-            existing_files = list(results_dir.glob('results_*.csv'))
-            if len(existing_files) == 0:
-                filename = 'results_0.csv'
-            else:
-                filename = 'results_' + str(max([int(ef.stem.split('_')[-1]) for ef in existing_files if
-                                                 str.isnumeric(ef.stem.split('_')[-1])]) + 1) + '.csv'
-        print('Saving results to', filename)
+    filename = None
 
     with mp.Pool(processes=num_processes, initializer=worker_init, initargs=(queues_results,)) \
             if config.multiprocessing else open(os.devnull, "w") as pool:
@@ -254,6 +241,19 @@ def main():
                         console.print(f'Error computing accuracy: {e}')
 
                 if i % config.log_every == 0 and config.save:
+                    if filename is None:
+                        results_dir = pathlib.Path(config['results_dir'])
+                        results_dir = results_dir / config.dataset.split
+                        results_dir.mkdir(parents=True, exist_ok=True)
+                        if not config.save_new_results:
+                            filename = 'results.csv'
+                        else:
+                            existing_files = list(results_dir.glob('results_*.csv'))
+                            if len(existing_files) == 0:
+                                filename = 'results_0.csv'
+                            else:
+                                filename = 'results_' + str(max([int(ef.stem.split('_')[-1]) for ef in existing_files if
+                                                 str.isnumeric(ef.stem.split('_')[-1])]) + 1) + '.csv'
                     print('Saving results to', filename)
                     df = pd.DataFrame([all_answers, 
                                     all_groundtruths, 
