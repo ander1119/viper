@@ -1516,7 +1516,6 @@ def execute_command(video, annotation, possible_answers, query):
         dragon_candidates = frame.find(""dragon"")
         if dragon_candidates:
             dragon_character = best_image_match(dragon_candidates, [""person"", ""monster""])
-            info[f""Dragon character in frame {i}""] = dragon_character
 
     if dragon_character:
         # Analyze the role and characteristics of the dragon character
