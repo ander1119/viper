@@ -182,10 +182,14 @@ class TiMDataset(Dataset):
         accuracy = sum(1 for p, t in zip(binary_prediction, binary_ground_truth) if p == t) / len(ground_truth)
 
         f1 = precision_recall_fscore_support(binary_ground_truth, binary_prediction, average='binary')
+        weighted_f1 = precision_recall_fscore_support(binary_ground_truth, binary_prediction, average='weighted')
         score = {
             'precision': f1[0],
             'recall': f1[1],
             'f1': f1[2],
+            'weighted_precision': weighted_f1[0],
+            'weighted_recall': weighted_f1[1],
+            'weighted_f1': weighted_f1[2],
             'accuracy': accuracy
         }
 

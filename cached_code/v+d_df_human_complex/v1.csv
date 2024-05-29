@@ -37,9 +37,9 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
             action = person.simple_query(""Please describe his/her action in the scene"")
             info[""character infos""][person_id][""actions""][f""{i} frame""] = action
         # query the negative events happening in the scene
-        event = frame.simple_query(""What's happening in the scene"")
         any_negative_event = frame.simple_query(""Is there any negative event happening in the scene?"", to_yesno=True)
         if ""yes"" in any_negative_event.lower():
+            event = frame.simple_query(""What's negative event is happening in the scene"")
             info[""happened bad events""][f""{i} frame""] = {
                 ""event"": event,
                 ""potential cause"": []
@@ -96,7 +96,7 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
                 }
             description = info[""character infos""][person_id][""description""]
             has_distainful_behavior = frame.simple_query(f""Does person in description '{description}' behave distainful or smug to others"", to_yesno=True)
-            distainful_behavior = frame.simple_query(f""Why does person in description '{description}' behave distainful or smug to others"", to_yesno=True)
+            distainful_behavior = frame.simple_query(f""Why does person in description '{description}' behave distainful or smug to others"")
             if ""yes"" in has_distainful_behavior.lower():
                 info[""character infos""][person_id][""distainful actions""].append(distainful_behavior)
             else:
