@@ -1,4 +1,4 @@
-Identify the presence or absense of a specific trope in a movie. Informations about the movie is provided. Return the option (yes/no) that is most likely to the trope presense and provide the reasons in json format. Note that key string and value string should use double quote. Futhermore within value string it's forbidden to use double quote, you should use ` or ' instead
+Identify the presence or absense of a specific trope in a movie. Informations about the movie is provided. Return the option (yes/no) that is most likely to the trope presense and provide the reasons in json format. Note that key string and value string should use double quote. Futhermore within value string it's forbidden to use double quote, you should use ` or ' instead. The response should be limited to 256 tokens
 
 Example:
 - Question: is trope "Screw This, I'm Outta Here!" present in the video segment
