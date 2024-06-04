@@ -75,7 +75,6 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
     for i, frame in enumerate(video_segment.frame_iterator()):
         dialogue = "","".join(frame.get_subtitles())
         has_disdainful_talk = frame.llm_query(f""Does the dialogue '{dialogue}' suggest the character in frame being disdainful or smug to others?"", to_yesno=True)
-        distain_talk = frame.llm_query(f""Why the dialogue '{dialogue}' suggest the character in frame being disdainful or smug to others?"", to_yesno=True)
         for person in frame.find(""person""):
             person_id = video_segment.face_identify(person)
             if person_id is None:
@@ -96,12 +95,13 @@ def execute_command(video, annotation, possible_answers, query)->[str, str, dict
                 }
             description = info[""character infos""][person_id][""description""]
             has_distainful_behavior = frame.simple_query(f""Does person in description '{description}' behave distainful or smug to others"", to_yesno=True)
-            distainful_behavior = frame.simple_query(f""Why does person in description '{description}' behave distainful or smug to others"")
             if ""yes"" in has_distainful_behavior.lower():
+                distainful_behavior = frame.simple_query(f""Why does person in description '{description}' behave distainful or smug to others"")
                 info[""character infos""][person_id][""distainful actions""].append(distainful_behavior)
             else:
                 info[""character infos""][person_id][""no distain action count""] += 1
             if ""yes"" in has_disdainful_talk.lower():
+                distain_talk = frame.llm_query(f""Why the dialogue '{dialogue}' suggest the character in frame being disdainful or smug to others?"")
                 info[""character infos""][person_id][""distainful actions""].append(distain_talk)
             else:
                 info[""character infos""][person_id][""no distain action count""] += 1

@@ -703,7 +703,7 @@ def execute_command(video, annotation, possible_answers, query):
                 info[f""Demeaning situation in frame {i}""] = interaction_description
 
     # Determine if the trope is applicable based on the frequency of demeaning situations
-    if demeaning_count > len(video_segment.frame_iterator()) * 0.2:  # Arbitrary threshold: 20% of frames
+    if demeaning_count > len(video_segment) * 0.2:  # Arbitrary threshold: 20% of frames
         answer = ""yes""
         reason = f""The character is frequently subjected to demeaning situations, appearing in {demeaning_count} frames.""
     else:
@@ -2711,7 +2711,7 @@ def execute_command(video, annotation, possible_answers, query):
     # 2. Emotional and Contextual Analysis: Look for visual and narrative cues indicating sadness, tragedy, or loss.
     # 3. Answer Selection: Use the collected information to determine if the ending fits the trope of a ""Downer Ending"".
 
-    video_segment = VideoSegment(video)
+    video_segment = VideoSegment(video, annotation)
     # Assuming the last 10% of the video is a reasonable segment to analyze for the ending
     ending_segment_start = int(video_segment.num_frames * 0.9)
     ending_segment = video_segment.trim(start=ending_segment_start)
