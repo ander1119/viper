@@ -19,7 +19,6 @@ import torchvision
 import warnings
 from PIL import Image
 from collections import Counter
-from contextlib import redirect_stdout
 from functools import partial
 from itertools import chain
 from joblib import Memory
@@ -38,13 +37,17 @@ with open('api.key') as f:
 
 import time
 import copy
-import google.generativeai as genai
+# import google.generativeai as genai
 
-if os.environ.get('GEMINI_API_KEY') is None:
-    with open('gemini_api.key') as f:
-        genai.configure(api_key=f.read().strip())
-else:
-    genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
+# if os.environ.get('GEMINI_API_KEY') is None:
+#     with open('gemini_api.key') as f:
+#         genai.configure(api_key=f.read().strip())
+# else:
+#     genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
+
+import vertexai
+from vertexai.generative_models import SafetySetting, HarmBlockThreshold, HarmCategory, GenerativeModel, GenerationConfig
+vertexai.init(project="gemini-viper", location="us-central1")
 
 cache = Memory('cache/' if config.use_cache else None, verbose=0)
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -332,7 +335,7 @@ class CLIPModel(BaseModel):
 class MaskRCNNModel(BaseModel):
     name = 'maskrcnn'
 
-    def __init__(self, gpu_number=1, threshold=config.detect_thresholds.maskrcnn):
+    def __init__(self, gpu_number=0, threshold=config.detect_thresholds.maskrcnn):
         super().__init__(gpu_number)
         # with HiddenPrints('MaskRCNN'):
         obj_detect = torchvision.models.detection.maskrcnn_resnet50_fpn_v2(weights='COCO_V1').to(self.dev)
@@ -429,7 +432,7 @@ class OwlViTModel(BaseModel):
 class GLIPModel(BaseModel):
     name = 'glip'
 
-    def __init__(self, model_size='large', gpu_number=1, *args):
+    def __init__(self, model_size='large', gpu_number=0, *args):
         BaseModel.__init__(self, gpu_number)
 
         with contextlib.redirect_stderr(open(os.devnull, "w")):  # Do not print nltk_data messages when importing
@@ -1337,24 +1340,28 @@ class GeminiModel(BaseModel):
 
     def __init__(self, gpu_number=0):
         super().__init__(gpu_number=gpu_number)
-        self.model = genai.GenerativeModel('gemini-pro-vision')
+        self.model = GenerativeModel('gemini-pro-vision')
         self.safety_setting = [
-            {
-                "category": "HARM_CATEGORY_HARASSMENT",
-                "threshold": "BLOCK_NONE",
-            },
-            {
-                "category": "HARM_CATEGORY_HATE_SPEECH",
-                "threshold": "BLOCK_NONE",
-            },
-            {
-                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                "threshold": "BLOCK_NONE",
-            },
-            {
-                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-                "threshold": "BLOCK_NONE",
-            },
+            SafetySetting(
+                category=HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                threshold=HarmBlockThreshold.BLOCK_NONE,
+            ),
+            SafetySetting(
+                category=HarmCategory.HARM_CATEGORY_HARASSMENT,
+                threshold=HarmBlockThreshold.BLOCK_NONE,
+            ),
+            SafetySetting(
+                category=HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                threshold=HarmBlockThreshold.BLOCK_NONE,
+            ),
+            SafetySetting(
+                category=HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+                threshold=HarmBlockThreshold.BLOCK_NONE,
+            ),
+            SafetySetting(
+                category=HarmCategory.HARM_CATEGORY_UNSPECIFIED,
+                threshold=HarmBlockThreshold.BLOCK_NONE,
+            )
         ]
 
     def forward(self, image, question=None, task=None):
@@ -1367,7 +1374,7 @@ class GeminiModel(BaseModel):
         if question is None:
             question = 'Describe the image in detail'
 
-        config = genai.GenerationConfig(
+        config = GenerationConfig(
             candidate_count=1, top_p=0.9, temperature=1, max_output_tokens=250
         )
         retry_count = 3
@@ -1398,7 +1405,7 @@ class BLIPModel(BaseModel):
     max_batch_size = 32
     seconds_collect_data = 0.2  # The queue has additionally the time it is executing the previous forward pass
 
-    def __init__(self, gpu_number=1, half_precision=config.blip_half_precision,
+    def __init__(self, gpu_number=0, half_precision=config.blip_half_precision,
                  blip_v2_model_type=config.blip_v2_model_type):
         super().__init__(gpu_number)
 
