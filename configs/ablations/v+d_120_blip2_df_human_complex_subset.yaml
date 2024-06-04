@@ -11,7 +11,7 @@ vqa_model: blip                                       # should be one of the fol
 face_model: deepface                                  # should be one of the following: deepface, label
 
 dataset:
-    data_path: /project/mira/dataset/MovieNet
+    data_path: /work/adnchao1/MovieNet
     anno_path: ../tropes/tim_subset_2_trope_50_movie.json
     dataset_name: TiM
     version: multiplechoice
