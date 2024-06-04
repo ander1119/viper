@@ -5,6 +5,7 @@ process(name, *args, **kwargs), where *args and **kwargs are the arguments of th
 """
 
 import abc
+import io
 import uuid
 import backoff
 import contextlib
@@ -46,7 +47,8 @@ import copy
 #     genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
 
 import vertexai
-from vertexai.generative_models import SafetySetting, HarmBlockThreshold, HarmCategory, GenerativeModel, GenerationConfig
+from vertexai.generative_models import SafetySetting, HarmBlockThreshold, HarmCategory, GenerativeModel, GenerationConfig, Part
+from vertexai.generative_models import Image as VertexImage
 vertexai.init(project="gemini-viper", location="us-central1")
 
 cache = Memory('cache/' if config.use_cache else None, verbose=0)
@@ -1367,9 +1369,21 @@ class GeminiModel(BaseModel):
     def forward(self, image, question=None, task=None):
         image = copy.deepcopy(image)
         if isinstance(image, torch.Tensor):
-            image = torchvision.transforms.ToPILImage()(image)
+            tensor = image.permute(1, 2, 0) * 255.0
+            tensor = tensor.to(torch.uint8)
 
-        assert isinstance(image, Image.Image)
+            # Convert to PIL Image
+            image = Image.fromarray(tensor.numpy())
+
+            # Convert to bytes
+            img_byte_arr = io.BytesIO()
+            image.save(img_byte_arr, format='PNG')
+            img_bytes = img_byte_arr.getvalue()
+            image = Part.from_image(VertexImage.from_bytes(img_bytes))
+            # image = torchvision.transforms.ToPILImage()(image)
+
+        # assert isinstance(image, Image.Image)
+        assert isinstance(image, Part)
 
         if question is None:
             question = 'Describe the image in detail'
@@ -1378,9 +1392,11 @@ class GeminiModel(BaseModel):
             candidate_count=1, top_p=0.9, temperature=1, max_output_tokens=250
         )
         retry_count = 3
+        answer = ""
         while retry_count > 0:
             try:
                 response = self.model.generate_content([question, image], generation_config=config, safety_settings=self.safety_setting)
+                answer = response.text
                 break
             except Exception as e:
                 print(f'Error: {e}')
@@ -1388,14 +1404,14 @@ class GeminiModel(BaseModel):
                 retry_count -= 1
 
         # if block reason = 2 -> skip
-        if response.prompt_feedback.block_reason == response.prompt_feedback.BlockReason.OTHER:
-            answer = 'No Result'
-        elif response.candidates[0].finish_reason != response.candidates[0].FinishReason.STOP:
-            if response.candidates[0].finish_reason == response.candidates[0].FinishReason.MAX_TOKENS:
-                time.sleep(60)
-            answer = self.forward(image, question=question)
-        else:
-            answer = response.text
+        # if response.prompt_feedback.block_reason == response.prompt_feedback.BlockReason.OTHER:
+        #     answer = 'No Result'
+        # elif response.candidates[0].finish_reason != response.candidates[0].FinishReason.STOP:
+        #     if response.candidates[0].finish_reason == response.candidates[0].FinishReason.MAX_TOKENS:
+        #         time.sleep(60)
+        #     answer = self.forward(image, question=question)
+        # else:
+        #     answer = response.text
 
         return answer
 
