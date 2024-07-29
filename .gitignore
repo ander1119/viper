@@ -220,3 +220,4 @@ pretrained_models/
 test_code/
 
 test_*
+eval_*
